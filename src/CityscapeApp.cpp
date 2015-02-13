@@ -20,9 +20,9 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-
 class CityscapeApp : public AppNative {
   public:
+    void prepareSettings( Settings *settings );
 	void setup();
 	void mouseDown( MouseEvent event );
 	void mouseDrag( MouseEvent event );
@@ -45,6 +45,11 @@ class CityscapeApp : public AppNative {
 
 	params::InterfaceGlRef  mParams;
 };
+
+void CityscapeApp::prepareSettings( Settings *settings )
+{
+    settings->enableHighDensityDisplay();
+}
 
 void CityscapeApp::setup()
 {
@@ -100,7 +105,7 @@ void CityscapeApp::update()
 	//  mDivider.push_back(mPoints[3]);
 
 	// Only works on closed shapes.
-	mArea = area(mConvexHull);
+    mArea = mConvexHull.area();
 
 	//  mLongestSide
 }
@@ -128,13 +133,16 @@ void CityscapeApp::layout()
 
 	mBlocks.clear();
 	vector<PolyLine2f> pieces = PolyLine2f::calcDifference({ mConvexHull }, allRoads);
+    
 	for( auto it = pieces.begin(); it != pieces.end(); ++it ) {
-		Block b(*it);
-		b.subdivide();
-		for (auto lotIt = b.lots.begin(); lotIt != b.lots.end(); ++lotIt) {
-			lotIt->place(Building());
-		}
-		mBlocks.push_back(b);
+        if (it->size()) {
+            Block b(*it);
+            b.subdivide();
+            for (auto lotIt = b.lots.begin(); lotIt != b.lots.end(); ++lotIt) {
+                lotIt->place(Building());
+            }
+            mBlocks.push_back(b);
+        }
 	}
 }
 
@@ -183,18 +191,21 @@ void CityscapeApp::draw()
 		gl::drawSolid( it->outline );
 	}
 
+    gl::lineWidth(4);
 	for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
 		gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
 		gl::drawSolid( it->outline );
 
-		gl::color( ColorA( 0.8f, 0.8f, 0.8f, 0.8f ) );
 		for( auto itL = it->lots.begin(); itL != it->lots.end(); ++itL ) {
-			//      gl::draw( itL->outline );
-
-			gl::draw( itL->building.outline );
+            gl::color( ColorA( 0.8f, 0.8f, 0.8f, 0.8f ) );
+            gl::draw( itL->outline );
+            
+            gl::color( ColorA( 0.8f, 0.8f, 0.8f, 0.8f ) );
+			gl::drawSolid( itL->building.outline );
 		}
 	}
 
+/*
 	// draw convex hull points
 	gl::color( Color( 0.0f, 0, 1.0f ) );
 	for( auto it = mConvexHull.begin(); it != mConvexHull.end(); ++it ) {
@@ -205,7 +216,8 @@ void CityscapeApp::draw()
 	for( auto it = mPoints.begin(); it != mPoints.end(); ++it ) {
 		gl::drawSolidCircle( *it, 3 );
 	}
-
+*/
+    
 	mParams->draw();
 }
 
