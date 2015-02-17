@@ -10,73 +10,15 @@
 #include "cinder/gl/gl.h"
 #include "cinder/params/Params.h"
 
+//#include "StraightSkeleton.h"
+#include "Road.h"
+#include "Building.h"
+#include "Lot.h"
+#include "Block.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-class Road {
-  public:
-	Road( const Vec2f a, const Vec2f b, uint width = 10 )
-	: pointA(a), pointB(b), width(width)
-	{
-		Vec2f normal = Vec2f(b.y - a.y, -(b.x - a.x)).normalized();
-		Vec2f offset = normal * width / 2;
-		outline.push_back(a + offset);
-		outline.push_back(a - offset);
-		outline.push_back(b - offset);
-		outline.push_back(b + offset);
-		outline.setClosed();
-	};
-	const Vec2f pointA, pointB;
-	PolyLine2f outline;
-	const unsigned int width;
-};
-
-class Building {
-  public:
-	// Default to a 10x10 square
-	Building() {
-		Building( PolyLine2f( { Vec2f(-5, -5), Vec2f(5, -5), Vec2f(5, 5), Vec2f(5, 5) } ) );
-	};
-	Building( const PolyLine2f outline ) : outline(outline) { };
-	Building( const Building &src ) : outline(src.outline) { };
-	PolyLine2f outline;
-};
-
-class Lot {
-  public:
-	Lot( const Lot &src ) : outline(src.outline), building(src.building) { };
-	Lot( const PolyLine2f outline ) : outline(outline) { };
-
-	void place( const Building b ) {
-		building = b;
-	}
-
-	PolyLine2f buildingPos() {
-		return outline.c
-	}
-
-	PolyLine2f outline;
-	Building building;
-};
-
-class Block {
-  public:
-	// Outline's coords should be centered around the origin so we can transform
-	// it to fit on the lot.
-	Block( const PolyLine2f outline ) : outline(outline) { };
-
-	void subdivide()
-	{
-		lots.clear();
-		Lot l = Lot(outline);
-		lots.push_back(l);
-	}
-
-	PolyLine2f outline;
-	vector<Lot> lots;
-};
-
 
 
 class CityscapeApp : public AppNative {
@@ -96,6 +38,9 @@ class CityscapeApp : public AppNative {
 	vector<Road>    mRoads;
 	vector<Block>   mBlocks;
 
+//	PolyLine2f		mContour;
+//	vector<PolyLine2f>	mSkeleton;
+
 	float mArea, mLongestSide;
 
 	params::InterfaceGlRef  mParams;
@@ -103,6 +48,18 @@ class CityscapeApp : public AppNative {
 
 void CityscapeApp::setup()
 {
+//	mContour.push_back( Vec2f( -1, -1 ) );
+//	mContour.push_back( Vec2f( 0, -12 ) );
+//	mContour.push_back( Vec2f( 1, -1 ) );
+//	mContour.push_back( Vec2f( 12, 0 ) );
+//	mContour.push_back( Vec2f( 1, 1 ) );
+//	mContour.push_back( Vec2f( 0, 12 ) );
+//	mContour.push_back( Vec2f( -1, 1 ) );
+//	mContour.push_back( Vec2f( -12, 0 ) );
+//	mContour.setClosed();
+//
+//	mSkeleton = skeleton(mContour);
+
 	mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 100 ) );
 	mParams->addParam( "Area", &mArea );
 	mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); } );
@@ -196,6 +153,22 @@ void CityscapeApp::draw()
 	gl::clear( Color( 0.8, 0.8, 0.8 ) );
 	gl::enableAlphaBlending();
 
+//	gl::pushMatrices();
+//
+//	gl::scale(8.0, 8.0);
+//	gl::translate(Vec2f(20,20));
+//
+//	gl::color(1,1,0);
+//	for( auto it = mSkeleton.begin(); it != mSkeleton.end(); ++it ) {
+//		gl::draw(*it);
+//	}
+//	gl::color(1,0,0);
+//	gl::draw(mContour);
+//	gl::popMatrices();
+//	return;
+
+
+	
 	// draw solid convex hull
 	//  gl::color( ColorA( 0.8f, 0, 1.0f, 0.1f ) );
 	//  gl::drawSolid( mConvexHull );
