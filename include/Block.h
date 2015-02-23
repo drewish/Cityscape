@@ -18,7 +18,8 @@ public:
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.
     Block( const PolyLine2f outline ) : outline(outline) { };
-    
+
+    void draw();
     void subdivide();
     
     PolyLine2f outline;

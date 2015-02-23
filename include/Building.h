@@ -17,6 +17,9 @@ class Building {
     Building() : outline(PolyLine2f( { Vec2f(-5, -5), Vec2f(-5, 5), Vec2f(5, 5), Vec2f(5, -5) } )) {};
     Building( const PolyLine2f outline ) : outline(outline) { };
     Building( const Building &src ) : outline(src.outline) { };
+
+    void draw();
+    
     PolyLine2f outline;
 };
 

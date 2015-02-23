@@ -24,6 +24,9 @@ class Road {
         outline.push_back(b + offset);
         outline.setClosed();
     };
+
+    void draw();
+
     const Vec2f pointA, pointB;
     PolyLine2f outline;
     const unsigned int width;

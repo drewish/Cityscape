@@ -20,9 +20,12 @@ class Lot {
     
     void place( const Building b ) {
         building = b;
-        // TODO: just placing it in the center for now. would be good to take the street into consideration.
+        // TODO: just placing it in the center for now. would be good to take
+        // the street into consideration.
         building.outline.offset(outline.centroid());
     }
+
+    void draw();
     
     PolyLine2f outline;
     Building building;

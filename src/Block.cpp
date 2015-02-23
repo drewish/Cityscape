@@ -9,11 +9,14 @@
 #include "Block.h"
 #include "Lot.h"
 
+#include "cinder/app/AppNative.h"
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Polygon_2.h>
 #include <CGAL/Polygon_with_holes_2.h>
 #include <CGAL/create_straight_skeleton_2.h>
+#include <CGAL/exceptions.h>
+
 
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K ;
@@ -32,17 +35,77 @@ K::Point_2 pointFrom(ci::Vec2f p)
 	return K::Point_2(p.x, p.y);
 }
 
+void Block::draw()
+{
+    gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
+    gl::draw( outline );
+
+    for( auto itL = lots.begin(); itL != lots.end(); ++itL ) {
+        itL->draw();
+    }
+}
 
 void Block::subdivide()
 {
-	Polygon_2 poly;
-	for ( auto i = outline.begin(); i != outline.end(); ++i ) {
+    Polygon_2 poly;
+
+    // Assume the outline is closed and first == last.
+    // Don't want to bother with less than a triangle.
+    if (outline.size() < 4) return;
+
+    // start at +1 to avoid overlapping last point
+	for ( auto i = --outline.end(); i != outline.begin(); --i ) {
 		poly.push_back(pointFrom(*i));
 	}
 
-	// You can pass the polygon via an iterator pair
-	SsPtr iss = CGAL::create_interior_straight_skeleton_2(poly);
+//    ci::app::console() << outline << std::endl;
+//    ci::app::console() << poly << "\t" << poly.orientation() << std::endl;
 
+    try {
+        SsPtr iss = CGAL::create_interior_straight_skeleton_2(poly);
+
+        lots.clear();
+        std::cout << "Faces:" << iss->size_of_faces() << std::endl;
+
+/*
+        Ss::Halfedge_handle start, edge;
+        edge = start = iss->
+        do {
+            std::cout << edge->vertex()->point() << std::endl;
+            lotOutline.push_back(vecFrom(edge->vertex()->point()));
+            edge = edge->prev();
+        } while (edge != start);
+*/
+
+        for( auto face = iss->faces_begin(); face != iss->faces_end(); ++face ) {
+            std::cout << "----" << std::endl;
+
+            PolyLine2f lotOutline;
+            Ss::Halfedge_handle edge, start;
+
+//            edge = start = face->halfedge()->opposite();
+//            do {
+//                std::cout << edge->vertex()->point() << "\t" << edge->is_border() << "\t" << edge->is_bisector() << std::endl;
+//                lotOutline.push_back(vecFrom(edge->vertex()->point()));
+//                edge = edge->prev();
+//            } while (edge != start);
+
+            //
+            start = face->halfedge();
+            edge = start;
+            do {
+                std::cout << edge->vertex()->point() << "\t" << edge->is_border() << "\t" << edge->is_bisector() << std::endl;
+                lotOutline.push_back(vecFrom(edge->vertex()->point()));
+                edge = edge->next();
+            } while (edge != start);
+
+            Lot l = Lot(lotOutline);
+            lots.push_back(l);
+        }
+    }
+    catch (CGAL::Precondition_exception e) {
+        return; // TODO
+    }
 
 	std::vector<ci::PolyLine2f > ret;
 
@@ -69,11 +132,4 @@ void Block::subdivide()
 //	}
 
 
-	lots.clear();
-	for( auto it = iss->faces_begin(); it != iss->faces_end(); ++it ) {
-		// TODO: each face should become a lot
-//		it->
-		Lot l = Lot(outline);
-		lots.push_back(l);
-	}
 }

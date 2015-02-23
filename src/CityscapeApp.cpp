@@ -53,18 +53,6 @@ void CityscapeApp::prepareSettings( Settings *settings )
 
 void CityscapeApp::setup()
 {
-//	mContour.push_back( Vec2f( -1, -1 ) );
-//	mContour.push_back( Vec2f( 0, -12 ) );
-//	mContour.push_back( Vec2f( 1, -1 ) );
-//	mContour.push_back( Vec2f( 12, 0 ) );
-//	mContour.push_back( Vec2f( 1, 1 ) );
-//	mContour.push_back( Vec2f( 0, 12 ) );
-//	mContour.push_back( Vec2f( -1, 1 ) );
-//	mContour.push_back( Vec2f( -12, 0 ) );
-//	mContour.setClosed();
-//
-//	mSkeleton = skeleton(mContour);
-
 	mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 100 ) );
 	mParams->addParam( "Area", &mArea );
 	mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); } );
@@ -113,12 +101,14 @@ void CityscapeApp::update()
 void CityscapeApp::addPoint(Vec2f pos)
 {
 	mPoints.push_back( pos );
-	//  console() << pos << endl;
+    console() << pos << endl;
 	layout();
 }
 
 void CityscapeApp::layout()
 {
+    console() << "\n\nLayout\n";
+
 	float width = 20.0;
 	vector<PolyLine2f> allRoads;
 
@@ -158,7 +148,7 @@ void CityscapeApp::mouseDrag( MouseEvent event )
 
 void CityscapeApp::draw()
 {
-	gl::clear( Color( 0.8, 0.8, 0.8 ) );
+	gl::clear( Color( 0.9, 0.9, 0.9 ) );
 	gl::enableAlphaBlending();
 
 //	gl::pushMatrices();
@@ -180,30 +170,20 @@ void CityscapeApp::draw()
 	// draw solid convex hull
 	//  gl::color( ColorA( 0.8f, 0, 1.0f, 0.1f ) );
 	//  gl::drawSolid( mConvexHull );
-	gl::color( ColorA( 0.8f, 0, 1.0f, 0.8f ) );
-	gl::draw( mConvexHull );
+//	gl::color( ColorA( 0.8f, 0, 1.0f, 0.8f ) );
+//	gl::draw( mConvexHull );
 
-	gl::color( ColorA( 1.0f, 0, 0.8f, 0.8f ) );
-	gl::draw( mDivider );
+//	gl::color( ColorA( 1.0f, 0, 0.8f, 0.8f ) );
+//	gl::draw( mDivider );
 
-	gl::color( ColorA( 0.3f, 0.3f, 0.3f, 0.4f ) );
 	for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
-		gl::drawSolid( it->outline );
+        it->draw();
 	}
 
     gl::lineWidth(4);
 	for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
-		gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
-		gl::drawSolid( it->outline );
-
-		for( auto itL = it->lots.begin(); itL != it->lots.end(); ++itL ) {
-            gl::color( ColorA( 0.8f, 0.8f, 0.8f, 0.8f ) );
-            gl::draw( itL->outline );
-            
-            gl::color( ColorA( 0.8f, 0.8f, 0.8f, 0.8f ) );
-			gl::drawSolid( itL->building.outline );
-		}
-	}
+        it->draw();
+    }
 
 /*
 	// draw convex hull points
