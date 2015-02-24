@@ -19,10 +19,7 @@
 
 
 
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K ;
-typedef CGAL::Polygon_2<K>           Polygon_2 ;
-typedef CGAL::Straight_skeleton_2<K> Ss ;
-typedef boost::shared_ptr<Ss> SsPtr ;
+typedef CGAL::Polygon_2<K>           Polygon_2;
 
 
 ci::Vec2f vecFrom(K::Point_2 p)
@@ -38,11 +35,55 @@ K::Point_2 pointFrom(ci::Vec2f p)
 void Block::draw()
 {
     gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
-    gl::draw( outline );
+//    gl::draw( outline );
+//
+//    for( auto itL = lots.begin(); itL != lots.end(); ++itL ) {
+//        itL->draw();
+//    }
 
-    for( auto itL = lots.begin(); itL != lots.end(); ++itL ) {
-        itL->draw();
+    drawSkeleton(mSkel);
+
+}
+
+void Block::drawSkeleton(const SsPtr &ss)
+{
+    if (!ss) return;
+
+    float col = 0;
+
+    gl::lineWidth(2);
+    // Draw the faces
+    for( auto face = ss->faces_begin(); face != ss->faces_end(); ++face ) {
+        PolyLine2f line;
+
+        Ss::Halfedge_const_handle begin = face->halfedge();
+        Ss::Halfedge_const_handle edge = begin;
+        do {
+            line.push_back(vecFrom(edge->vertex()->point()));
+            edge = edge->next();
+        } while (edge != begin);
+        gl::color( Color( 1.0-col,0,col ) );
+        col += 0.1;
+        gl::drawSolid( line );
+        gl::color( Color( 1,0,0 ) );
+        gl::draw( line );
+        gl::drawSolidCircle(vecFrom(begin->vertex()->point()), 5);
     }
+
+    // Then the outline
+    PolyLine2f outline;
+    Ss::Halfedge_const_handle begin = ss->faces_begin()->halfedge()->opposite();
+    Ss::Halfedge_const_handle edge = begin;
+    do {
+        outline.push_back(vecFrom(edge->vertex()->point()));
+        edge = edge->prev();
+    } while (edge != begin);
+
+    gl::lineWidth(1);
+    gl::color( Color( 0,1,0 ) );
+    gl::draw( outline );
+    gl::drawSolidCircle(vecFrom(begin->vertex()->point()), 2);
+
 }
 
 void Block::subdivide()
@@ -58,43 +99,20 @@ void Block::subdivide()
 		poly.push_back(pointFrom(*i));
 	}
 
-//    ci::app::console() << outline << std::endl;
-//    ci::app::console() << poly << "\t" << poly.orientation() << std::endl;
 
     try {
-        SsPtr iss = CGAL::create_interior_straight_skeleton_2(poly);
+        mSkel = CGAL::create_interior_straight_skeleton_2(poly);
 
         lots.clear();
-        std::cout << "Faces:" << iss->size_of_faces() << std::endl;
 
-/*
-        Ss::Halfedge_handle start, edge;
-        edge = start = iss->
-        do {
-            std::cout << edge->vertex()->point() << std::endl;
-            lotOutline.push_back(vecFrom(edge->vertex()->point()));
-            edge = edge->prev();
-        } while (edge != start);
-*/
-
-        for( auto face = iss->faces_begin(); face != iss->faces_end(); ++face ) {
-            std::cout << "----" << std::endl;
+        for( auto face = mSkel->faces_begin(); face != mSkel->faces_end(); ++face ) {
 
             PolyLine2f lotOutline;
             Ss::Halfedge_handle edge, start;
 
-//            edge = start = face->halfedge()->opposite();
-//            do {
-//                std::cout << edge->vertex()->point() << "\t" << edge->is_border() << "\t" << edge->is_bisector() << std::endl;
-//                lotOutline.push_back(vecFrom(edge->vertex()->point()));
-//                edge = edge->prev();
-//            } while (edge != start);
-
-            //
             start = face->halfedge();
             edge = start;
             do {
-                std::cout << edge->vertex()->point() << "\t" << edge->is_border() << "\t" << edge->is_bisector() << std::endl;
                 lotOutline.push_back(vecFrom(edge->vertex()->point()));
                 edge = edge->next();
             } while (edge != start);
@@ -108,28 +126,4 @@ void Block::subdivide()
     }
 
 	std::vector<ci::PolyLine2f > ret;
-
-	typedef CGAL::Straight_skeleton_2<K> Ss ;
-
-	//	typedef typename Ss::Vertex_const_handle     Vertex_const_handle ;
-	//	typedef typename Ss::Halfedge_const_handle   Halfedge_const_handle ;
-	//	typedef typename Ss::Halfedge_const_iterator Halfedge_const_iterator ;
-
-	//	Halfedge_const_handle null_halfedge ;
-	//	Vertex_const_handle   null_vertex ;
-
-	//	std::cout << "Straight skeleton with " << iss.size_of_vertices()
-	//	<< " vertices, " << iss.size_of_halfedges()
-	//	<< " halfedges and " << iss.size_of_faces()
-	//	<< " faces" << std::endl ;
-
-//	for ( auto i = iss->halfedges_begin(); i != iss->halfedges_end(); ++i )
-//	{
-//		ci::PolyLine2f poly;
-//		poly.push_back(vecFrom(i->opposite()->vertex()->point()));
-//		poly.push_back(vecFrom(i->vertex()->point()));
-//		ret.push_back(poly);
-//	}
-
-
 }
