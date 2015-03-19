@@ -15,19 +15,14 @@ using namespace ci;
 
 class Lot {
   public:
-    Lot( const Lot &src ) : outline(src.outline), building(src.building) { };
+    Lot( const Lot &src ) : outline(src.outline), mColor(src.mColor), building(src.building) { };
     Lot( const PolyLine2f outline ) : outline(outline) { };
     
-    void place( const Building b ) {
-        building = b;
-        // TODO: just placing it in the center for now. would be good to take
-        // the street into consideration.
-        building.outline.offset(outline.centroid());
-    }
-
+    void place( const Building b );
     void draw();
     
     PolyLine2f outline;
+    Color mColor;
     Building building;
 };
 

@@ -11,6 +11,6 @@
 
 void Building::draw()
 {
-    gl::color( ColorA( 1.0f, 0.0f, 0.0f, 0.8f ) );
+    gl::color( ColorA( 0.0f, 0.0f, 0.0f, 0.8f ) );
     gl::drawSolid( outline );
 }

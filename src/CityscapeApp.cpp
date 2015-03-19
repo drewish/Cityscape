@@ -57,14 +57,17 @@ void CityscapeApp::setup()
 	mParams->addParam( "Area", &mArea );
 	mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); } );
 
-	mPoints.push_back(Vec2f(151,172));
-	mPoints.push_back(Vec2f(450,108));
-	mPoints.push_back(Vec2f(425,82));
-	mPoints.push_back(Vec2f(530,398));
-	mPoints.push_back(Vec2f(544,380));
-	mPoints.push_back(Vec2f(183,433));
-	mPoints.push_back(Vec2f(191,450));
-	mPoints.push_back(Vec2f(154,156));
+    mPoints.push_back(Vec2f(133,41));
+    mPoints.push_back(Vec2f(143,451));
+    mPoints.push_back(Vec2f(143,451));
+    mPoints.push_back(Vec2f(495,424));
+    mPoints.push_back(Vec2f(491,421));
+    mPoints.push_back(Vec2f(370,254));
+    mPoints.push_back(Vec2f(377,262));
+    mPoints.push_back(Vec2f(529,131));
+    mPoints.push_back(Vec2f(523,132));
+    mPoints.push_back(Vec2f(131,47));
+
 	layout();
 }
 
@@ -107,8 +110,6 @@ void CityscapeApp::addPoint(Vec2f pos)
 
 void CityscapeApp::layout()
 {
-    console() << "\n\nLayout\n";
-
 	float width = 20.0;
 	vector<PolyLine2f> allRoads;
 
