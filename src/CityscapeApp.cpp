@@ -41,7 +41,7 @@ class CityscapeApp : public AppNative {
 	vector<Road>    mRoads;
 	vector<Block>   mBlocks;
 
-	float mArea;
+    ci::gl::VboMesh mMesh;
 
 	params::InterfaceGlRef  mParams;
 };
@@ -74,13 +74,29 @@ void CityscapeApp::setup()
     Vec2i center = getWindowCenter();
     mCamera.lookAt( Vec3f( center.x, center.y - 600, 400.0f ), Vec3f(center,0.0), Vec3f::yAxis() );
 
-    
-    for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
-        it->setup();
+
+    // For some fucking reason i have to build and render a mesh in this class
+    // to be able to have the buildings render without dying....
+    gl::VboMesh::Layout layout;
+    layout.setStaticIndices();
+    layout.setStaticPositions();
+
+    int quadCount = 1;
+    int vertCount = quadCount * 4;
+    mMesh = gl::VboMesh(vertCount, quadCount * 4, layout, GL_QUADS);
+
+    vector<uint32_t> indices;
+    for (int i=0; i < vertCount; i++) {
+        indices.push_back(i);
     }
-    for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
-        it->setup();
-    }
+    mMesh.bufferIndices(indices);
+
+    vector<Vec3f> positions;
+    positions.push_back( Vec3f( -0.5,  0.5, -0.5 ) );
+    positions.push_back( Vec3f(  0.5,  0.5, -0.5 ) );
+    positions.push_back( Vec3f(  0.5, -0.5, -0.5 ) );
+    positions.push_back( Vec3f( -0.5, -0.5, -0.5 ) );
+    mMesh.bufferPositions(positions);
 }
 
 // Assumes line does not self intersecting
@@ -102,15 +118,6 @@ float area( PolyLine2f line ) {
 
 void CityscapeApp::update()
 {
-	//  mPolyResults = mConvexHull;
-
-	//  mDivider.push_back(mPoints[1]);
-	//  mDivider.push_back(mPoints[3]);
-
-	// Only works on closed shapes.
-//    mArea = mConvexHull.area();
-
-	//  mLongestSide
 }
 
 void CityscapeApp::addPoint(Vec2f pos)
@@ -147,6 +154,13 @@ void CityscapeApp::layout()
             mBlocks.push_back(b);
         }
 	}
+
+    for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
+        it->setup();
+    }
+    for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
+        it->setup();
+    }
 }
 
 void CityscapeApp::mouseDown( MouseEvent event )
@@ -172,20 +186,9 @@ void CityscapeApp::draw()
 	gl::clear( Color( 0.9, 0.9, 0.9 ) );
 	gl::enableAlphaBlending();
 
-//	gl::pushMatrices();
     gl::setMatrices( mCamera );
 
-//	gl::popMatrices();
-
-
-	// draw solid convex hull
-	//  gl::color( ColorA( 0.8f, 0, 1.0f, 0.1f ) );
-	//  gl::drawSolid( mConvexHull );
-//	gl::color( ColorA( 0.8f, 0, 1.0f, 0.8f ) );
-//	gl::draw( mConvexHull );
-
-//	gl::color( ColorA( 1.0f, 0, 0.8f, 0.8f ) );
-//	gl::draw( mDivider );
+    gl::draw(mMesh);
 
 	for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
         it->draw();
@@ -208,7 +211,7 @@ void CityscapeApp::draw()
 		gl::drawSolidCircle( *it, 3 );
 	}
 */
-    
+
 	mParams->draw();
 }
 
