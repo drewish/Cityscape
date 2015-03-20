@@ -25,6 +25,7 @@ class Road {
         outline.setClosed();
     };
 
+    void setup();
     void draw();
 
     const Vec2f pointA, pointB;

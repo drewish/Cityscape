@@ -15,15 +15,17 @@ using namespace ci;
 
 class Lot {
   public:
-    Lot( const Lot &src ) : outline(src.outline), mColor(src.mColor), building(src.building) { };
+    Lot( const Lot &src ) : outline(src.outline), mColor(src.mColor), building(src.building), buildingPosition(src.buildingPosition) { };
     Lot( const PolyLine2f outline ) : outline(outline) { };
     
     void place( const Building b );
+    void setup();
     void draw();
     
     PolyLine2f outline;
     Color mColor;
     Building building;
+    Vec2f buildingPosition;
 };
 
 #endif /* defined(__Cityscape__Lot__) */

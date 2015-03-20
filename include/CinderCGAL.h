@@ -32,6 +32,8 @@ Polygon_2 polyFrom(ci::PolyLine2f p);
 
 void drawSkeleton(const SsPtr &ss);
 
+K::Point_2 getCentroid( Polygon_2 p );
+
 
 
 

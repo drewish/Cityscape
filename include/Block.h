@@ -17,6 +17,7 @@ class Block {
 public:
     Block( const ci::PolyLine2f outline ) : outline(outline) { };
 
+    void setup();
     void draw();
     void subdivide();
     

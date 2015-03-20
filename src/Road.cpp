@@ -8,6 +8,10 @@
 
 #include "Road.h"
 
+void Road::setup()
+{
+}
+
 void Road::draw()
 {
     gl::color( ColorA( 0.3f, 0.3f, 0.3f, 0.4f ) );

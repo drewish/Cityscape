@@ -5,6 +5,7 @@
  */
 
 #include "cinder/app/AppNative.h"
+#include "cinder/Camera.h"
 #include "cinder/ConvexHull.h"
 #include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
@@ -32,16 +33,15 @@ class CityscapeApp : public AppNative {
 	void addPoint(Vec2f);
 	void layout();
 
+    CameraPersp     mCamera;
+
 	vector<Vec2f>   mPoints;
 	PolyLine2f      mConvexHull;
 	PolyLine2f      mDivider;
 	vector<Road>    mRoads;
 	vector<Block>   mBlocks;
 
-//	PolyLine2f		mContour;
-//	vector<PolyLine2f>	mSkeleton;
-
-	float mArea, mLongestSide;
+	float mArea;
 
 	params::InterfaceGlRef  mParams;
 };
@@ -54,7 +54,7 @@ void CityscapeApp::prepareSettings( Settings *settings )
 void CityscapeApp::setup()
 {
 	mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 100 ) );
-	mParams->addParam( "Area", &mArea );
+//	mParams->addParam( "Area", &mArea );
 	mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); } );
 
     mPoints.push_back(Vec2f(133,41));
@@ -69,6 +69,18 @@ void CityscapeApp::setup()
     mPoints.push_back(Vec2f(131,47));
 
 	layout();
+
+    mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
+    Vec2i center = getWindowCenter();
+    mCamera.lookAt( Vec3f( center.x, center.y - 600, 400.0f ), Vec3f(center,0.0), Vec3f::yAxis() );
+
+    
+    for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
+        it->setup();
+    }
+    for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
+        it->setup();
+    }
 }
 
 // Assumes line does not self intersecting
@@ -96,7 +108,7 @@ void CityscapeApp::update()
 	//  mDivider.push_back(mPoints[3]);
 
 	// Only works on closed shapes.
-    mArea = mConvexHull.area();
+//    mArea = mConvexHull.area();
 
 	//  mLongestSide
 }
@@ -139,12 +151,20 @@ void CityscapeApp::layout()
 
 void CityscapeApp::mouseDown( MouseEvent event )
 {
-	addPoint( event.getPos() );
+    float u = ((float) event.getX()) / getWindowWidth();
+    float v = ((float) (getWindowHeight() - event.getY())) / getWindowHeight();
+    Ray r = mCamera.generateRay(u, v, mCamera.getAspectRatio());
+    float result = 0.0f;
+    Vec3f point;
+    if (r.calcPlaneIntersection(Vec3f::zero(), Vec3f::zAxis(), &result)) {
+        point = r.calcPosition(result);
+        addPoint( point.xy() );
+    }
 }
 
 void CityscapeApp::mouseDrag( MouseEvent event )
 {
-	addPoint( event.getPos() );
+//	addPoint( event.getPos() );
 }
 
 void CityscapeApp::draw()
@@ -153,21 +173,11 @@ void CityscapeApp::draw()
 	gl::enableAlphaBlending();
 
 //	gl::pushMatrices();
-//
-//	gl::scale(8.0, 8.0);
-//	gl::translate(Vec2f(20,20));
-//
-//	gl::color(1,1,0);
-//	for( auto it = mSkeleton.begin(); it != mSkeleton.end(); ++it ) {
-//		gl::draw(*it);
-//	}
-//	gl::color(1,0,0);
-//	gl::draw(mContour);
+    gl::setMatrices( mCamera );
+
 //	gl::popMatrices();
-//	return;
 
 
-	
 	// draw solid convex hull
 	//  gl::color( ColorA( 0.8f, 0, 1.0f, 0.1f ) );
 	//  gl::drawSolid( mConvexHull );

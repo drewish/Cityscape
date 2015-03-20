@@ -13,16 +13,22 @@
 
 #include <CGAL/exceptions.h>
 
+void Block::setup()
+{
+    for( auto it = lots.begin(); it != lots.end(); ++it ) {
+        it->setup();
+    }
+}
 
 void Block::draw()
 {
-    drawSkeleton(mSkel);
+//    drawSkeleton(mSkel);
 
-//    gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
-//    gl::draw( outline );
+    gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
+    gl::draw( outline );
 
-    for( auto itL = lots.begin(); itL != lots.end(); ++itL ) {
-        itL->draw();
+    for( auto it = lots.begin(); it != lots.end(); ++it ) {
+        it->draw();
     }
 }
 

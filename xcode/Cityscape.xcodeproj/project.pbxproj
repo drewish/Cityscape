@@ -14,6 +14,7 @@
 		00B784B60FF439BC000DE1D7 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B20FF439BC000DE1D7 /* CoreAudio.framework */; };
 		35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */; };
 		493D46E01A9D734600618E33 /* CinderCGAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493D46DE1A9D734600618E33 /* CinderCGAL.cpp */; };
+		49A6B2E01ABBFD3E000EA750 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.txt */; };
 		49C7ED431A93B8D6004FBA53 /* libCGAL_Core.10.0.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 49C7ED411A93B8D6004FBA53 /* libCGAL_Core.10.0.4.dylib */; };
 		49C7ED441A93B8D6004FBA53 /* libCGAL.10.0.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 49C7ED421A93B8D6004FBA53 /* libCGAL.10.0.4.dylib */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
@@ -43,6 +44,7 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		493D46DE1A9D734600618E33 /* CinderCGAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CinderCGAL.cpp; path = ../src/CinderCGAL.cpp; sourceTree = "<group>"; };
 		493D46DF1A9D734600618E33 /* CinderCGAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CinderCGAL.h; path = ../include/CinderCGAL.h; sourceTree = "<group>"; };
+		49A6B2DF1ABBFD3E000EA750 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = ../TODO.txt; sourceTree = "<group>"; };
 		49C7ED411A93B8D6004FBA53 /* libCGAL_Core.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.10.0.4.dylib; path = ../../../../../usr/local/Cellar/cgal/4.5.1/lib/libCGAL_Core.10.0.4.dylib; sourceTree = "<group>"; };
 		49C7ED421A93B8D6004FBA53 /* libCGAL.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.10.0.4.dylib; path = ../../../../../usr/local/Cellar/cgal/4.5.1/lib/libCGAL.10.0.4.dylib; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
@@ -146,6 +148,7 @@
 		29B97314FDCFA39411CA2CEA /* Cityscape */ = {
 			isa = PBXGroup;
 			children = (
+				49A6B2DF1ABBFD3E000EA750 /* TODO.txt */,
 				01B97315FEAEA392516A2CEA /* Blocks */,
 				29B97315FDCFA39411CA2CEA /* Headers */,
 				080E96DDFE201D6D7F000001 /* Source */,
@@ -251,6 +254,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49A6B2E01ABBFD3E000EA750 /* TODO.txt in Resources */,
 				A27A70ECAE7549F98B411A74 /* CinderApp.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -298,7 +302,7 @@
 					/usr/local/Cellar/gmp/6.0.0a/lib,
 					"/usr/local/Cellar/mpfr/3.1.2-p10/lib",
 					/usr/local/Cellar/boost/1.57.0/lib,
-					/usr/local/Cellar/cgal/4.5.1/lib,
+					/usr/local/Cellar/cgal/4.5.2/lib,
 				);
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder_d.a\"";
 				PRODUCT_NAME = Cityscape;
@@ -332,7 +336,7 @@
 					/usr/local/Cellar/gmp/6.0.0a/lib,
 					"/usr/local/Cellar/mpfr/3.1.2-p10/lib",
 					/usr/local/Cellar/boost/1.57.0/lib,
-					/usr/local/Cellar/cgal/4.5.1/lib,
+					/usr/local/Cellar/cgal/4.5.2/lib,
 				);
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder.a\"";
 				PRODUCT_NAME = Cityscape;

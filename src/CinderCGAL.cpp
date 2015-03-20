@@ -9,7 +9,7 @@
 #include "CinderCGAL.h"
 
 #include <CGAL/exceptions.h>
-
+#include <CGAL/linear_least_squares_fitting_2.h>
 
 using namespace ci;
 
@@ -20,6 +20,8 @@ Polygon_2 polyFrom(ci::PolyLine2f p)
         last = --p.end(),
         i = begin;
     Polygon_2 poly;
+
+    if (p.size() < 3) return poly;
 
     // if this is closed (first == last) we can skip the last one
     if (*begin == *last) {
@@ -74,5 +76,14 @@ void drawSkeleton(const SsPtr &ss)
     gl::color( ColorA( 0,1,0,0.5 ) );
     gl::draw( outline );
     gl::drawSolidCircle(vecFrom(begin->vertex()->point()), 2);
-    
+}
+
+K::Point_2 getCentroid( Polygon_2 p )
+{
+    K::Point_2 centroid = K::Point_2(0, 0);
+    K::Line_2 line;
+    CGAL::Dimension_tag<0> dt;
+    CGAL::linear_least_squares_fitting_2( p.vertices_begin(), p.vertices_end(), line, centroid, dt);
+
+    return centroid;
 }
