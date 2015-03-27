@@ -32,5 +32,5 @@ void Lot::place( const Building b ) {
     building = b;
     // TODO: just placing it in the center for now. would be good to take
     // the street into consideration.
-    buildingPosition = vecFrom(getCentroid(polyFrom(outline)));
+    buildingPosition = vecFrom( getCentroid( polygonFrom( outline ) ) );
 }

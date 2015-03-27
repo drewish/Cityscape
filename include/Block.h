@@ -20,6 +20,7 @@ public:
     void setup();
     void draw();
     void subdivide();
+    void placeBuildings();
     
     ci::PolyLine2f outline;
     std::vector<Lot> lots;

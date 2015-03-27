@@ -13,7 +13,7 @@
 
 using namespace ci;
 
-Polygon_2 polyFrom(ci::PolyLine2f p)
+Polygon_2 polygonFrom(const ci::PolyLine2f &p)
 {
     auto begin = p.begin(),
         end = p.end(),
@@ -37,6 +37,22 @@ Polygon_2 polyFrom(ci::PolyLine2f p)
     }
     return poly;
 }
+
+ci::PolyLine2f polyLineFrom(const Polygon_2 &p)
+{
+    ci::PolyLine2f poly;
+    for ( auto it = p.vertices_begin(); it != p.vertices_end(); ++it) {
+        poly.push_back( vecFrom( *it ) );
+    }
+    // Close it... I'm not sure I love doing this...
+    if (poly.size() > 2) {
+        poly.push_back( *poly.begin() );
+        poly.setClosed();
+    }
+
+    return poly;
+}
+
 
 void drawSkeleton(const SsPtr &ss)
 {

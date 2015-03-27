@@ -32,20 +32,18 @@ void Block::draw()
     }
 }
 
-
-
 void Block::subdivide()
 {
     // Assume the outline is closed and first == last.
     // Don't want to bother with less than a triangle.
     if (outline.size() < 4) return;
 
-    Polygon_2 poly = polyFrom(outline);
+    Polygon_2 poly = polygonFrom( outline );
 
     float steps = 0.0;
 
     try {
-        mSkel = CGAL::create_interior_straight_skeleton_2(poly);
+        mSkel = CGAL::create_interior_straight_skeleton_2(poly, K());
 
         lots.clear();
         lots.reserve(mSkel->size_of_faces());
@@ -67,11 +65,20 @@ void Block::subdivide()
             l.mColor = Color( 1.0-steps,0,steps );
             steps += 0.1;
 
-            l.place(Building());
             lots.push_back(l);
         }
     }
     catch (CGAL::Precondition_exception e) {
         return; // TODO
+    }
+	catch (...) {
+		return;
+	}
+}
+
+void Block::placeBuildings()
+{
+    for (auto lotIt = lots.begin(); lotIt != lots.end(); ++lotIt) {
+        lotIt->place(Building());
     }
 }

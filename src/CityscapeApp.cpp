@@ -11,7 +11,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/params/Params.h"
 
-//#include "StraightSkeleton.h"
+#include "CinderCGAL.h"
 #include "Road.h"
 #include "Building.h"
 #include "Lot.h"
@@ -65,8 +65,8 @@ void CityscapeApp::setup()
     mPoints.push_back(Vec2f(370,254));
     mPoints.push_back(Vec2f(377,262));
     mPoints.push_back(Vec2f(529,131));
-    mPoints.push_back(Vec2f(523,132));
-    mPoints.push_back(Vec2f(131,47));
+//    mPoints.push_back(Vec2f(131,47));
+//    mPoints.push_back(Vec2f(523,132));
 
 	layout();
 
@@ -123,22 +123,79 @@ void CityscapeApp::update()
 void CityscapeApp::addPoint(Vec2f pos)
 {
 	mPoints.push_back( pos );
-    console() << pos << endl;
+    console() << "clicked: "<< pos << endl;
 	layout();
 }
+
+
+
 
 void CityscapeApp::layout()
 {
 	float width = 20.0;
-	vector<PolyLine2f> allRoads;
+//	vector<PolyLine2f> allRoads;
 
 	mRoads.clear();
+    mBlocks.clear();
+
 	for ( uint i = 1, size = mPoints.size(); i < size; i += 2 ) {
 		Road road(mPoints[i-1], mPoints[i], width);
 		mRoads.push_back(road);
-		allRoads = PolyLine2f::calcUnion({ road.outline }, allRoads);
+//		allRoads = PolyLine2f::calcUnion({ road.outline }, allRoads);
 	}
 
+
+    Vec2i windowSize = getWindowSize();
+    Polygon_2 window;
+    window.push_back( K::Point_2( 0, 0 ) );
+    window.push_back( K::Point_2( windowSize.x, 0 ) );
+    window.push_back( K::Point_2( windowSize.x, windowSize.y ) );
+    window.push_back( K::Point_2( 0, windowSize.y ) );
+
+    Polygon_set_2 unPaved;
+    for ( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
+        console() << "road: " << it->pointA << "\t-> " << it->pointB << endl;
+        unPaved.join( polygonFrom( it->outline ) );
+    }
+    unPaved.complement();
+    unPaved.intersection(window); // Intersect with the clipping rectangle.
+
+
+
+    std::list<Polygon_with_holes_2> res;
+    unPaved.polygons_with_holes (std::back_inserter (res));
+    for (auto it = res.begin(); it != res.end(); ++it) {
+        unsigned int k = 1;
+        Polygon_with_holes_2 pwh = *it;
+
+
+        Block b( polyLineFrom( pwh.outer_boundary() ) );
+        b.subdivide();
+        // b.placeBuildings();
+        mBlocks.push_back(b);
+
+        console() << "--> "  << pwh.number_of_holes() << " holes:" << std::endl;
+        for (auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit, ++k) {
+            console() << " Hole #" << k << " = ";
+
+            Polygon_2 P = *hit;
+
+            if (P.size()) {
+                Block b( polyLineFrom( P ) );
+                b.subdivide();
+//                b.placeBuildings();
+                mBlocks.push_back(b);
+            }
+
+            console() << "[ " << P.size() << " vertices:";
+            for (auto vit = P.vertices_begin(); vit != P.vertices_end(); ++vit)
+                console() << " (" << *vit << ")";
+            console() << " ]" << std::endl;
+
+        }
+    }
+    
+/*
 	mConvexHull = calcConvexHull( mPoints );
 
 	mBlocks.clear();
@@ -154,7 +211,7 @@ void CityscapeApp::layout()
             mBlocks.push_back(b);
         }
 	}
-
+*/
     for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
         it->setup();
     }
