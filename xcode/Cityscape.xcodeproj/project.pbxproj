@@ -15,10 +15,10 @@
 		35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */; };
 		493D46E01A9D734600618E33 /* CinderCGAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493D46DE1A9D734600618E33 /* CinderCGAL.cpp */; };
 		49A6B2E01ABBFD3E000EA750 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.txt */; };
-		49C7ED431A93B8D6004FBA53 /* libCGAL_Core.10.0.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 49C7ED411A93B8D6004FBA53 /* libCGAL_Core.10.0.4.dylib */; };
-		49C7ED441A93B8D6004FBA53 /* libCGAL.10.0.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 49C7ED421A93B8D6004FBA53 /* libCGAL.10.0.4.dylib */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5323E6B60EAFCA7E003A9687 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B50EAFCA7E003A9687 /* QTKit.framework */; };
+		5FBB83481B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */; };
+		5FBB83491B00580B0095ADB6 /* libCGAL.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */; };
 		5FEFD9C51A92CD910093F109 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */; };
 		5FEFD9C61A92CD910093F109 /* libmpfr.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEFD9B91A928CF60093F109 /* libmpfr.4.dylib */; };
 		5FEFD9CB1A92D38B0093F109 /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEFD9BD1A928DB90093F109 /* libboost_thread-mt.dylib */; };
@@ -45,15 +45,13 @@
 		493D46DE1A9D734600618E33 /* CinderCGAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CinderCGAL.cpp; path = ../src/CinderCGAL.cpp; sourceTree = "<group>"; };
 		493D46DF1A9D734600618E33 /* CinderCGAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CinderCGAL.h; path = ../include/CinderCGAL.h; sourceTree = "<group>"; };
 		49A6B2DF1ABBFD3E000EA750 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = ../TODO.txt; sourceTree = "<group>"; };
-		49C7ED411A93B8D6004FBA53 /* libCGAL_Core.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.10.0.4.dylib; path = ../../../../../usr/local/Cellar/cgal/4.5.1/lib/libCGAL_Core.10.0.4.dylib; sourceTree = "<group>"; };
-		49C7ED421A93B8D6004FBA53 /* libCGAL.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.10.0.4.dylib; path = ../../../../../usr/local/Cellar/cgal/4.5.1/lib/libCGAL.10.0.4.dylib; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
+		5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL_Core.11.0.0.dylib; sourceTree = "<group>"; };
+		5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL.11.0.0.dylib; sourceTree = "<group>"; };
 		5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../usr/local/Cellar/gmp/6.0.0a/lib/libgmp.10.dylib; sourceTree = "<group>"; };
 		5FEFD9B91A928CF60093F109 /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpfr.4.dylib; path = "../../../../../usr/local/Cellar/mpfr/3.1.2-p10/lib/libmpfr.4.dylib"; sourceTree = "<group>"; };
-		5FEFD9BB1A928D5D0093F109 /* libCGAL_Core.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.10.0.4.dylib; path = ../../../../../usr/local/Cellar/cgal/4.5/lib/libCGAL_Core.10.0.4.dylib; sourceTree = "<group>"; };
 		5FEFD9BD1A928DB90093F109 /* libboost_thread-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.57.0/lib/libboost_thread-mt.dylib"; sourceTree = "<group>"; };
-		5FEFD9C11A928ED10093F109 /* libCGAL.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.10.0.4.dylib; path = ../../../../../usr/local/Cellar/cgal/4.5/lib/libCGAL.10.0.4.dylib; sourceTree = "<group>"; };
 		5FEFD9C71A92CD920093F109 /* libboost_context-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_context-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.57.0/lib/libboost_context-mt.dylib"; sourceTree = "<group>"; };
 		5FEFD9C91A92D3480093F109 /* libboost_timer-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_timer-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.57.0/lib/libboost_timer-mt.dylib"; sourceTree = "<group>"; };
 		5FEFD9CC1A92F8F00093F109 /* Road.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Road.cpp; path = ../src/Road.cpp; sourceTree = "<group>"; };
@@ -74,8 +72,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				49C7ED431A93B8D6004FBA53 /* libCGAL_Core.10.0.4.dylib in Frameworks */,
-				49C7ED441A93B8D6004FBA53 /* libCGAL.10.0.4.dylib in Frameworks */,
+				5FBB83481B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib in Frameworks */,
+				5FBB83491B00580B0095ADB6 /* libCGAL.11.0.0.dylib in Frameworks */,
 				5FEFD9CB1A92D38B0093F109 /* libboost_thread-mt.dylib in Frameworks */,
 				5FEFD9C51A92CD910093F109 /* libgmp.10.dylib in Frameworks */,
 				5FEFD9C61A92CD910093F109 /* libmpfr.4.dylib in Frameworks */,
@@ -186,13 +184,11 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				49C7ED411A93B8D6004FBA53 /* libCGAL_Core.10.0.4.dylib */,
-				49C7ED421A93B8D6004FBA53 /* libCGAL.10.0.4.dylib */,
+				5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */,
+				5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */,
 				5FEFD9C91A92D3480093F109 /* libboost_timer-mt.dylib */,
 				5FEFD9C71A92CD920093F109 /* libboost_context-mt.dylib */,
-				5FEFD9C11A928ED10093F109 /* libCGAL.10.0.4.dylib */,
 				5FEFD9BD1A928DB90093F109 /* libboost_thread-mt.dylib */,
-				5FEFD9BB1A928D5D0093F109 /* libCGAL_Core.10.0.4.dylib */,
 				5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */,
 				5FEFD9B91A928CF60093F109 /* libmpfr.4.dylib */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
@@ -298,11 +294,10 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/cgal/4.5/lib,
 					/usr/local/Cellar/gmp/6.0.0a/lib,
 					"/usr/local/Cellar/mpfr/3.1.2-p10/lib",
 					/usr/local/Cellar/boost/1.57.0/lib,
-					/usr/local/Cellar/cgal/4.5.2/lib,
+					/usr/local/Cellar/cgal/4.6/lib,
 				);
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder_d.a\"";
 				PRODUCT_NAME = Cityscape;
@@ -332,11 +327,10 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/cgal/4.5/lib,
 					/usr/local/Cellar/gmp/6.0.0a/lib,
 					"/usr/local/Cellar/mpfr/3.1.2-p10/lib",
 					/usr/local/Cellar/boost/1.57.0/lib,
-					/usr/local/Cellar/cgal/4.5.2/lib,
+					/usr/local/Cellar/cgal/4.6/lib,
 				);
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder.a\"";
 				PRODUCT_NAME = Cityscape;
