@@ -1,7 +1,8 @@
 /*
  Next steps:
- - find longest segment in a polyline
- - find line for dividing polyline in half along longest segment
+ - figure out strategy for dealing with holes in holes on blocks
+ - draw should outline blocks
+ - see why buildings aren't being displayed
  */
 
 #include "cinder/app/AppNative.h"
@@ -53,8 +54,8 @@ void CityscapeApp::prepareSettings( Settings *settings )
 
 void CityscapeApp::setup()
 {
-	mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 100 ) );
-	mParams->addParam( "Limit", &mClipCityLimit, "key=l" );
+    mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 100 ) );
+    mParams->addParam( "Limit", &mClipCityLimit, "key=l" );
     mParams->addButton( "Test 1", [&] {
         mPoints.clear();
         mPoints.push_back(Vec2f(133,41));
@@ -178,68 +179,57 @@ void CityscapeApp::addPoint(Vec2f pos)
 void CityscapeApp::layout()
 {
 	float width = 20.0;
-//	vector<PolyLine2f> allRoads;
 
 	mRoads.clear();
     mBlocks.clear();
 
+    Polygon_set_2 unPaved;
 	for ( uint i = 1, size = mPoints.size(); i < size; i += 2 ) {
 		Road road(mPoints[i-1], mPoints[i], width);
 		mRoads.push_back(road);
-//		allRoads = PolyLine2f::calcUnion({ road.outline }, allRoads);
+
+        unPaved.join( polygonFrom( road.outline ) );
 	}
-
-
-    Vec2i windowSize = getWindowSize();
-    Polygon_2 window;
-    window.push_back( K::Point_2( 0, 0 ) );
-    window.push_back( K::Point_2( windowSize.x, 0 ) );
-    window.push_back( K::Point_2( windowSize.x, windowSize.y ) );
-    window.push_back( K::Point_2( 0, windowSize.y ) );
-
-    Polygon_set_2 unPaved;
-    for ( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
-        console() << "road: " << it->pointA << "\t-> " << it->pointB << endl;
-        unPaved.join( polygonFrom( it->outline ) );
-    }
     unPaved.complement();
-    unPaved.intersection(window); // Intersect with the clipping rectangle.
+
+    if (mClipCityLimit) {
+        Vec2i windowSize = getWindowSize();
+        Polygon_2 window;
+        window.push_back( K::Point_2( 0, 0 ) );
+        window.push_back( K::Point_2( windowSize.x, 0 ) );
+        window.push_back( K::Point_2( windowSize.x, windowSize.y ) );
+        window.push_back( K::Point_2( 0, windowSize.y ) );
+        
+        unPaved.intersection(window); // Intersect with the clipping rectangle.
+    }
 
 
-
+    console() << "Number of polygons with holes: " << unPaved.number_of_polygons_with_holes() << std::endl;
+    unsigned int block_id = 0;
     std::list<Polygon_with_holes_2> res;
     unPaved.polygons_with_holes (std::back_inserter (res));
     for (auto it = res.begin(); it != res.end(); ++it) {
-        unsigned int k = 1;
         Polygon_with_holes_2 pwh = *it;
 
+        if ( pwh.is_unbounded() ) {
+            console() << "\tPolygon is unbounded...\n";
+            continue;
+        }
+
+        console() << "Block: " << block_id << std::endl;
+        console() << "\tNumber of holes: " << pwh.number_of_holes() << std::endl;
+        std::vector<PolyLine2f> holes;
+        holes.reserve( pwh.number_of_holes() );
+        for ( auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit ) {
+            holes.push_back( polyLineFrom( *hit ) );
+        }
 
         Block b( polyLineFrom( pwh.outer_boundary() ) );
         b.subdivide();
         // b.placeBuildings();
         mBlocks.push_back(b);
-
-        console() << "--> "  << pwh.number_of_holes() << " holes:" << std::endl;
-        for (auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit, ++k) {
-            console() << " Hole #" << k << " = ";
-
-            Polygon_2 P = *hit;
-
-            if (P.size()) {
-                Block b( polyLineFrom( P ) );
-                b.subdivide();
-//                b.placeBuildings();
-                mBlocks.push_back(b);
-            }
-
-            console() << "[ " << P.size() << " vertices:";
-            for (auto vit = P.vertices_begin(); vit != P.vertices_end(); ++vit)
-                console() << " (" << *vit << ")";
-            console() << " ]" << std::endl;
-
-        }
     }
-    
+
 /*
 	mConvexHull = calcConvexHull( mPoints );
 
