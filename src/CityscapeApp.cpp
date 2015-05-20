@@ -40,7 +40,7 @@ class CityscapeApp : public AppNative {
 	PolyLine2f      mDivider;
 	vector<Road>    mRoads;
 	vector<Block>   mBlocks;
-
+    bool            mClipCityLimit = false;
     ci::gl::VboMesh mMesh;
 
 	params::InterfaceGlRef  mParams;
@@ -54,19 +54,67 @@ void CityscapeApp::prepareSettings( Settings *settings )
 void CityscapeApp::setup()
 {
 	mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 100 ) );
-//	mParams->addParam( "Area", &mArea );
-	mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); } );
+	mParams->addParam( "Limit", &mClipCityLimit, "key=l" );
+    mParams->addButton( "Test 1", [&] {
+        mPoints.clear();
+        mPoints.push_back(Vec2f(133,41));
+        mPoints.push_back(Vec2f(143,451));
+        mPoints.push_back(Vec2f(143,451));
+        mPoints.push_back(Vec2f(495,424));
+        mPoints.push_back(Vec2f(491,421));
+        mPoints.push_back(Vec2f(370,254));
+        mPoints.push_back(Vec2f(377,262));
+        mPoints.push_back(Vec2f(529,131));
+        layout();
+    }, "key=1" );
+    mParams->addButton( "Test 2", [&] {
+        mPoints.clear();
+        mPoints.push_back(Vec2f(133,41));
+        mPoints.push_back(Vec2f(143,451));
+        mPoints.push_back(Vec2f(143,451));
+        mPoints.push_back(Vec2f(495,424));
+        mPoints.push_back(Vec2f(491,421));
+        mPoints.push_back(Vec2f(370,254));
+        mPoints.push_back(Vec2f(377,262));
+        mPoints.push_back(Vec2f(529,131));
+        mPoints.push_back(Vec2f(131,47));
+        mPoints.push_back(Vec2f(523,132));
+        layout();
+    }, "key=2" );
+    mParams->addButton( "Test 3", [&] {
+        mPoints.clear();
+        mPoints.push_back(Vec2f(119.284,17.3257));
+        mPoints.push_back(Vec2f(301.294,1226.4));
+        mPoints.push_back(Vec2f(301.294,1226.4));
+        mPoints.push_back(Vec2f(546.399,74.1908));
+        mPoints.push_back(Vec2f(544.513,79.3862));
+        mPoints.push_back(Vec2f(118.603,19.5102));
+        layout();
+    }, "key=3" );
+    mParams->addButton( "Test 4", [&] {
+        mPoints.clear();
+        mPoints.push_back(Vec2f(119.284,17.3257));
+        mPoints.push_back(Vec2f(301.294,1226.4));
+        mPoints.push_back(Vec2f(301.294,1226.4));
+        mPoints.push_back(Vec2f(546.399,74.1908));
+        mPoints.push_back(Vec2f(544.513,79.3862));
+        mPoints.push_back(Vec2f(118.603,19.5102));
+        mPoints.push_back(Vec2f(163.104,60.2898));
+        mPoints.push_back(Vec2f(306.353,918.302));
+        mPoints.push_back(Vec2f(306.353,918.302));
+        mPoints.push_back(Vec2f(490.026,113.687));
+        mPoints.push_back(Vec2f(490.026,113.687));
+        mPoints.push_back(Vec2f(163.104,60.2898));
+        mPoints.push_back(Vec2f(216.101,115.129));
+        mPoints.push_back(Vec2f(310.713,599.953));
+        mPoints.push_back(Vec2f(310.713,599.953));
+        mPoints.push_back(Vec2f(421.241,167.717));
+        mPoints.push_back(Vec2f(421.241,167.717));
+        mPoints.push_back(Vec2f(220.751,122.422));
+        layout();
+    }, "key=4" );
+    mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); }, "key=0" );
 
-    mPoints.push_back(Vec2f(133,41));
-    mPoints.push_back(Vec2f(143,451));
-    mPoints.push_back(Vec2f(143,451));
-    mPoints.push_back(Vec2f(495,424));
-    mPoints.push_back(Vec2f(491,421));
-    mPoints.push_back(Vec2f(370,254));
-    mPoints.push_back(Vec2f(377,262));
-    mPoints.push_back(Vec2f(529,131));
-//    mPoints.push_back(Vec2f(131,47));
-//    mPoints.push_back(Vec2f(523,132));
 
 	layout();
 
@@ -123,12 +171,9 @@ void CityscapeApp::update()
 void CityscapeApp::addPoint(Vec2f pos)
 {
 	mPoints.push_back( pos );
-    console() << "clicked: "<< pos << endl;
+    console() << "mPoints.push_back(Vec2f(" << pos.x << "," << pos.y << "));\n";
 	layout();
 }
-
-
-
 
 void CityscapeApp::layout()
 {
