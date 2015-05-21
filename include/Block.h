@@ -12,42 +12,27 @@
 #include "cinder/TriMesh.h"
 #include "cinder/Triangulate.h"
 
+#include "FlatShape.h"
+
 class Lot;
 
 class Block {
 public:
 
-    typedef std::vector<ci::PolyLine2f> PolyLine2fs;
-
     Block( const Block &src )
-        : mId(src.mId), mOutline(src.mOutline), mHoles(src.mHoles), mLots(src.mLots), mMesh(src.mMesh)
+        : mShape(src.mShape), mId(src.mId), mLots(src.mLots)
     {}
-    Block( const unsigned int bid, const ci::PolyLine2f outline, const PolyLine2fs holes = {} )
-        : mId(bid), mOutline(outline), mHoles(holes)
-    {
-        ci::Triangulator triangulator;
-        triangulator.addPolyLine( outline );
-        for( auto it = holes.begin(); it != holes.end(); ++it ) {
-            triangulator.addPolyLine( *it );
-        }
-
-        mMesh = triangulator.calcMesh();
-    };
-
+    Block( const unsigned int bid, const ci::PolyLine2f outline, const FlatShape::PolyLine2fs holes = {} )
+        : mShape(outline, holes), mId(bid)
+    {}
     void setup();
     void draw();
     void subdivide();
     void placeBuildings();
 
-    const ci::PolyLine2f outline();
-    const PolyLine2fs holes();
-
+    FlatShape mShape;
     unsigned int mId;
-    ci::PolyLine2f mOutline;
-    PolyLine2fs mHoles;
     std::vector<Lot> mLots;
-    ci::TriMesh2d mMesh;
-
 };
 
 #endif /* defined(__Cityscape__Block__) */

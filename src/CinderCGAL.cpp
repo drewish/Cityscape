@@ -9,7 +9,6 @@
 #include "CinderCGAL.h"
 
 #include <CGAL/exceptions.h>
-#include <CGAL/linear_least_squares_fitting_2.h>
 
 using namespace ci;
 
@@ -65,12 +64,3 @@ ci::PolyLine2f polyLineFrom(const Polygon_2 &p)
     return poly;
 }
 
-K::Point_2 getCentroid( Polygon_2 p )
-{
-    K::Point_2 centroid = K::Point_2(0, 0);
-    K::Line_2 line;
-    CGAL::Dimension_tag<0> dt;
-    CGAL::linear_least_squares_fitting_2( p.vertices_begin(), p.vertices_end(), line, centroid, dt);
-
-    return centroid;
-}

@@ -58,16 +58,6 @@ void drawSkeleton(const SsPtr &ss)
     gl::drawSolidCircle(vecFrom(begin->vertex()->point()), 2);
 }
 
-const ci::PolyLine2f Block::outline()
-{
-    return mOutline;
-}
-
-const Block::PolyLine2fs Block::holes()
-{
-    return mHoles;
-}
-
 void Block::setup()
 {
     for( auto it = mLots.begin(); it != mLots.end(); ++it ) {
@@ -89,10 +79,10 @@ void Block::subdivide()
 {
     // Assume the outline is closed and first == last.
     // Don't want to bother with less than a triangle.
-    if (mOutline.size() < 4) return;
+    if (mShape.outline().size() < 4) return;
 
-    Polygon_with_holes_2 poly( polygonFrom( mOutline ) );
-    for ( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {
+    Polygon_with_holes_2 poly( polygonFrom( mShape.outline() ) );
+    for ( auto it = mShape.holes().begin(); it != mShape.holes().end(); ++it ) {
         poly.add_hole( polygonFrom( *it ) );
     }
 

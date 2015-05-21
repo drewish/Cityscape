@@ -35,10 +35,4 @@ Polygon_with_holes_2 polygonFrom(const ci::PolyLine2f &outline, const std::vecto
 ci::PolyLine2f polyLineFrom(const Polygon_2 &p);
 
 
-K::Point_2 getCentroid( Polygon_2 p );
-
-
-
-
-
 #endif /* defined(__Cityscape__CinderCGAL__) */

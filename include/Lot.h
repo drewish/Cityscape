@@ -9,19 +9,20 @@
 #ifndef __Cityscape__Lot__
 #define __Cityscape__Lot__
 
+#include "FlatShape.h"
 #include "Building.h"
 
 class Lot {
   public:
-    Lot( const Lot &src ) : mId(src.mId), outline(src.outline), mColor(src.mColor), building(src.building), buildingPosition(src.buildingPosition) { };
-    Lot( const unsigned int lid, const ci::PolyLine2f outline ) : mId(lid), outline(outline) { };
+    Lot( const Lot &src ) : mShape(src.mShape), mId(src.mId), mColor(src.mColor), building(src.building), buildingPosition(src.buildingPosition) { };
+    Lot( const unsigned int lid, const ci::PolyLine2f outline ) : mShape(outline), mId(lid) { };
     
     void place( const Building b );
     void setup();
     void draw();
 
     unsigned int mId;
-    ci::PolyLine2f outline;
+    FlatShape mShape;
     ci::Color mColor;
     Building building;
     ci::Vec2f buildingPosition;

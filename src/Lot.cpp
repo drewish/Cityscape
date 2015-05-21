@@ -8,8 +8,6 @@
 
 #include "Lot.h"
 
-#include "CinderCGAL.h"
-
 using namespace ci;
 
 void Lot::setup()
@@ -21,7 +19,7 @@ void Lot::draw()
 {
     gl::lineWidth( 1 );
     gl::color( ColorA( mColor, 0.4 ) );
-    gl::drawSolid( outline );
+    gl::draw( mShape.mesh() );
 
     gl::pushModelView();
     gl::translate(buildingPosition);
@@ -33,5 +31,5 @@ void Lot::place( const Building b ) {
     building = b;
     // TODO: just placing it in the center for now. would be good to take
     // the street into consideration.
-    buildingPosition = vecFrom( getCentroid( polygonFrom( outline ) ) );
+    buildingPosition = mShape.centroid();
 }

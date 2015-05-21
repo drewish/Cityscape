@@ -229,7 +229,7 @@ void CityscapeApp::layout()
 
         Block b( block_id++, polyLineFrom( pwh.outer_boundary() ), holes );
         b.subdivide();
-        //b.placeBuildings();
+        b.placeBuildings();
         mBlocks.push_back(b);
     }
 

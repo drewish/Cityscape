@@ -17,6 +17,7 @@
 		49A6B2E01ABBFD3E000EA750 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.txt */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5323E6B60EAFCA7E003A9687 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B50EAFCA7E003A9687 /* QTKit.framework */; };
+		5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */; };
 		5FBB83481B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */; };
 		5FBB83491B00580B0095ADB6 /* libCGAL.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */; };
 		5FEFD9C51A92CD910093F109 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */; };
@@ -47,6 +48,8 @@
 		49A6B2DF1ABBFD3E000EA750 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = ../TODO.txt; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
+		5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatShape.cpp; path = ../src/FlatShape.cpp; sourceTree = "<group>"; };
+		5F5C2D831B0D9FF200541E95 /* FlatShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlatShape.h; sourceTree = "<group>"; };
 		5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL_Core.11.0.0.dylib; sourceTree = "<group>"; };
 		5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL.11.0.0.dylib; sourceTree = "<group>"; };
 		5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../usr/local/Cellar/gmp/6.0.0a/lib/libgmp.10.dylib; sourceTree = "<group>"; };
@@ -59,7 +62,7 @@
 		5FEFD9D21A92F9B30093F109 /* Lot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Lot.cpp; path = ../src/Lot.cpp; sourceTree = "<group>"; };
 		5FEFD9D51A92F9FF0093F109 /* Block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Block.cpp; path = ../src/Block.cpp; sourceTree = "<group>"; };
 		5FEFD9D81A92FB450093F109 /* Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Block.h; path = ../include/Block.h; sourceTree = "<group>"; };
-		5FEFD9D91A92FB450093F109 /* Building.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Building.h; path = ../include/Building.h; sourceTree = "<group>"; };
+		5FEFD9D91A92FB450093F109 /* Building.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Building.h; sourceTree = "<group>"; };
 		5FEFD9DA1A92FB450093F109 /* Lot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Lot.h; path = ../include/Lot.h; sourceTree = "<group>"; };
 		5FEFD9DB1A92FB450093F109 /* Road.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Road.h; path = ../include/Road.h; sourceTree = "<group>"; };
 		87F1E1C66EC543B1852B8B39 /* Cityscape_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Cityscape_Prefix.pch; path = ../xcode/Cityscape_Prefix.pch; sourceTree = "<group>"; };
@@ -107,6 +110,7 @@
 				5FEFD9D51A92F9FF0093F109 /* Block.cpp */,
 				5FEFD9D21A92F9B30093F109 /* Lot.cpp */,
 				5FEFD9CF1A92F9550093F109 /* Building.cpp */,
+				5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -167,6 +171,7 @@
 				5FEFD9D81A92FB450093F109 /* Block.h */,
 				5FEFD9DA1A92FB450093F109 /* Lot.h */,
 				5FEFD9D91A92FB450093F109 /* Building.h */,
+				5F5C2D831B0D9FF200541E95 /* FlatShape.h */,
 			);
 			name = Headers;
 			path = ../include;
@@ -263,6 +268,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5FEFD9CE1A92F8F00093F109 /* Road.cpp in Sources */,
+				5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */,
 				35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */,
 				5FEFD9D71A92F9FF0093F109 /* Block.cpp in Sources */,
 				493D46E01A9D734600618E33 /* CinderCGAL.cpp in Sources */,
