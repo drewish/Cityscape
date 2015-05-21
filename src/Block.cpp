@@ -81,15 +81,10 @@ void Block::subdivide()
     // Don't want to bother with less than a triangle.
     if (mShape.outline().size() < 4) return;
 
-    Polygon_with_holes_2 poly( polygonFrom( mShape.outline() ) );
-    for ( auto it = mShape.holes().begin(); it != mShape.holes().end(); ++it ) {
-        poly.add_hole( polygonFrom( *it ) );
-    }
-
     float steps = 0.0;
 
     try {
-        SsPtr skel = CGAL::create_interior_straight_skeleton_2(poly);
+        SsPtr skel = CGAL::create_interior_straight_skeleton_2( mShape.polygon_with_holes() );
 
         mLots.clear();
         mLots.reserve(skel->size_of_faces());

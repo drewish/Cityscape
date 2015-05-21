@@ -16,6 +16,7 @@
 #include "cinder/params/Params.h"
 
 #include "CinderCGAL.h"
+#include "FlatShape.h"
 #include "Road.h"
 #include "Building.h"
 #include "Lot.h"
@@ -218,16 +219,12 @@ void CityscapeApp::layout()
             console() << "\tPolygon is unbounded...\n";
             continue;
         }
+        FlatShape fs(pwh);
 
         console() << "Block: " << block_id << std::endl;
         console() << "\tNumber of holes: " << pwh.number_of_holes() << std::endl;
-        std::vector<PolyLine2f> holes;
-        holes.reserve( pwh.number_of_holes() );
-        for ( auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit ) {
-            holes.push_back( polyLineFrom( *hit ) );
-        }
 
-        Block b( block_id++, polyLineFrom( pwh.outer_boundary() ), holes );
+        Block b( block_id++, fs );
         b.subdivide();
         b.placeBuildings();
         mBlocks.push_back(b);

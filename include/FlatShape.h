@@ -11,6 +11,7 @@
 
 #include "cinder/TriMesh.h"
 #include "cinder/Triangulate.h"
+#include "CinderCGAL.h"
 
 class FlatShape {
   public:
@@ -19,17 +20,21 @@ class FlatShape {
     FlatShape( const FlatShape &s )
         : mOutline(s.mOutline), mHoles(s.mHoles), mMesh(s.mMesh)
     {}
-    FlatShape( const ci::PolyLine2f outline, const PolyLine2fs holes = {} )
+    FlatShape( const ci::PolyLine2f &outline, const PolyLine2fs &holes = {} )
         : mOutline(outline), mHoles(holes)
     {
-        // TODO might be good to lazily create this when they first ask for the mesh.
-        ci::Triangulator triangulator;
-        triangulator.addPolyLine( outline );
-        for( auto it = holes.begin(); it != holes.end(); ++it ) {
-            triangulator.addPolyLine( *it );
+        mMesh = makeMesh();
+    };
+    FlatShape( const Polygon_with_holes_2 &pwh )
+    {
+        mOutline = polyLineFrom( pwh.outer_boundary() );
+
+        mHoles.reserve( pwh.number_of_holes() );
+        for ( auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit ) {
+            mHoles.push_back( polyLineFrom( *hit ) );
         }
 
-        mMesh = triangulator.calcMesh();
+        mMesh = makeMesh();
     };
 
     const ci::PolyLine2f outline() { return mOutline; }
@@ -37,8 +42,12 @@ class FlatShape {
     const ci::TriMesh2d mesh() { return mMesh; }
 
     const ci::Vec2f centroid();
+    const Polygon_with_holes_2 polygon_with_holes();
 
   private:
+
+    const ci::TriMesh2d makeMesh();
+
     ci::PolyLine2f mOutline;
     PolyLine2fs mHoles;
     ci::TriMesh2d mMesh;
