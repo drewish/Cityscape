@@ -1,8 +1,11 @@
 /*
  Next steps:
  - figure out strategy for dealing with holes in holes on blocks
+ - add options to toggle drawing obects
  - draw should outline blocks
- - see why buildings aren't being displayed
+ - put roofs on buildings
+ - orient buildings
+ -
  */
 
 #include "cinder/app/AppNative.h"
@@ -224,9 +227,9 @@ void CityscapeApp::layout()
             holes.push_back( polyLineFrom( *hit ) );
         }
 
-        Block b( polyLineFrom( pwh.outer_boundary() ) );
+        Block b( block_id++, polyLineFrom( pwh.outer_boundary() ), holes );
         b.subdivide();
-        // b.placeBuildings();
+        //b.placeBuildings();
         mBlocks.push_back(b);
     }
 

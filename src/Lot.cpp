@@ -8,8 +8,9 @@
 
 #include "Lot.h"
 
-
 #include "CinderCGAL.h"
+
+using namespace ci;
 
 void Lot::setup()
 {

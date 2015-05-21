@@ -9,23 +9,22 @@
 #ifndef __Cityscape__Lot__
 #define __Cityscape__Lot__
 
-using namespace ci;
-
 #include "Building.h"
 
 class Lot {
   public:
-    Lot( const Lot &src ) : outline(src.outline), mColor(src.mColor), building(src.building), buildingPosition(src.buildingPosition) { };
-    Lot( const PolyLine2f outline ) : outline(outline) { };
+    Lot( const Lot &src ) : mId(src.mId), outline(src.outline), mColor(src.mColor), building(src.building), buildingPosition(src.buildingPosition) { };
+    Lot( const unsigned int lid, const ci::PolyLine2f outline ) : mId(lid), outline(outline) { };
     
     void place( const Building b );
     void setup();
     void draw();
-    
-    PolyLine2f outline;
-    Color mColor;
+
+    unsigned int mId;
+    ci::PolyLine2f outline;
+    ci::Color mColor;
     Building building;
-    Vec2f buildingPosition;
+    ci::Vec2f buildingPosition;
 };
 
 #endif /* defined(__Cityscape__Lot__) */
