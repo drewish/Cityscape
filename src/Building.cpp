@@ -12,9 +12,9 @@
 using namespace ci;
 using namespace std;
 
-void Building::setup()
+void Building::layout()
 {
-    mFloors = Rand::randInt(5);
+//        mFloors = Rand::randInt(5);
 
     gl::VboMesh::Layout layout;
     layout.setStaticIndices();

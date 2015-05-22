@@ -58,10 +58,12 @@ void drawSkeleton(const SsPtr &ss)
     gl::drawSolidCircle(vecFrom(begin->vertex()->point()), 2);
 }
 
-void Block::setup()
+void Block::layout()
 {
+    subdivide();
+
     for( auto it = mLots.begin(); it != mLots.end(); ++it ) {
-        it->setup();
+        it->layout();
     }
 }
 
@@ -119,11 +121,4 @@ void Block::subdivide()
 	catch (...) {
 		return;
 	}
-}
-
-void Block::placeBuildings()
-{
-    for (auto lotIt = mLots.begin(); lotIt != mLots.end(); ++lotIt) {
-        lotIt->place(Building());
-    }
 }

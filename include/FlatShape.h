@@ -42,6 +42,8 @@ class FlatShape {
     const ci::TriMesh2d mesh() { return mMesh; }
 
     const ci::Vec2f centroid();
+
+    const Polygon_2 polygon();
     const Polygon_with_holes_2 polygon_with_holes();
 
   private:

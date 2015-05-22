@@ -22,8 +22,14 @@ const ci::Vec2f FlatShape::centroid()
     return vecFrom( centroid );
 }
 
-const Polygon_with_holes_2 FlatShape::polygon_with_holes() {
-    Polygon_with_holes_2 poly( polygonFrom( mOutline ) );
+const Polygon_2 FlatShape::polygon()
+{
+    return polygonFrom( mOutline );
+}
+
+const Polygon_with_holes_2 FlatShape::polygon_with_holes()
+{
+    Polygon_with_holes_2 poly( polygon() );
     for ( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {
         poly.add_hole( polygonFrom( *it ) );
     }

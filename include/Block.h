@@ -26,7 +26,7 @@ public:
     Block( const unsigned int bid, const FlatShape &fs )
     : mShape(fs), mId(bid)
     {}
-    void setup();
+    void layout();
     void draw( const Options &options );
     void subdivide();
     void placeBuildings();

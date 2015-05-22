@@ -1,11 +1,9 @@
 /*
  Next steps:
- - figure out strategy for dealing with holes in holes on blocks
- - add options to toggle drawing obects
- - draw should outline blocks
+ - sub-divide large block with more streets (i guess start with a manhattan grid?)
  - put roofs on buildings
  - orient buildings
- -
+ - mark portions of lot that face a road
  */
 
 #include "cinder/app/AppNative.h"
@@ -112,12 +110,19 @@ void CityscapeApp::setup()
         layout();
     }, "key=4" );
     mParams->addButton( "Test 5", [&] {
-        mPoints.push_back(Vec2f(216.101,115.129));
-        mPoints.push_back(Vec2f(311.713,599.953));
-        mPoints.push_back(Vec2f(310.713,598.953));
-        mPoints.push_back(Vec2f(422.241,165.717));
-        mPoints.push_back(Vec2f(421.241,167.717));
-        mPoints.push_back(Vec2f(220.751,122.422));
+        mPoints.clear();
+        mPoints.push_back(Vec2f(0.8666,1108.26));
+        mPoints.push_back(Vec2f(158.236,41.0269));
+        mPoints.push_back(Vec2f(159.075,44.556));
+        mPoints.push_back(Vec2f(313.45,0.94));
+        mPoints.push_back(Vec2f(313.45,0.94));
+        mPoints.push_back(Vec2f(408.625,90.0115));
+        mPoints.push_back(Vec2f(408.625,90.0115));
+        mPoints.push_back(Vec2f(331.941,319.65));
+        mPoints.push_back(Vec2f(331.941,319.65));
+        mPoints.push_back(Vec2f(313.635,1054.66));
+        mPoints.push_back(Vec2f(313.635,1054.66));
+        mPoints.push_back(Vec2f(0.1429,1069.64));
         layout();
     }, "key=5" );
     mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); }, "key=0" );
@@ -191,8 +196,6 @@ void CityscapeApp::layout()
         unPaved.intersection(window); // Intersect with the clipping rectangle.
     }
 
-
-    console() << "Number of polygons with holes: " << unPaved.number_of_polygons_with_holes() << std::endl;
     unsigned int block_id = 0;
     std::list<Polygon_with_holes_2> res;
     unPaved.polygons_with_holes (std::back_inserter (res));
@@ -200,17 +203,14 @@ void CityscapeApp::layout()
         Polygon_with_holes_2 pwh = *it;
 
         if ( pwh.is_unbounded() ) {
-            console() << "\tPolygon is unbounded...\n";
+            console() << "Polygon is unbounded...\n";
             continue;
         }
         FlatShape fs(pwh);
 
         console() << "Block: " << block_id << std::endl;
-        console() << "\tNumber of holes: " << pwh.number_of_holes() << std::endl;
 
         Block b( block_id++, fs );
-        b.subdivide();
-        b.placeBuildings();
         mBlocks.push_back(b);
     }
 
@@ -232,10 +232,10 @@ void CityscapeApp::layout()
 	}
 */
     for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
-        it->setup();
+        it->layout();
     }
     for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
-        it->setup();
+        it->layout();
     }
 }
 

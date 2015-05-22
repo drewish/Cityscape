@@ -17,15 +17,16 @@ class Building {
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.
     // Default to a 10x10 square
-    Building() : mOutline(ci::PolyLine2f( { ci::Vec2f(-10, -10), ci::Vec2f(-10, 10), ci::Vec2f(10, 10), ci::Vec2f(10, -10) } )) {};
+    Building() : mOutline(ci::PolyLine2f( { ci::Vec2f(10, -10), ci::Vec2f(10, 10), ci::Vec2f(-10, 10), ci::Vec2f(-10, -10) } )) {};
     Building( const ci::PolyLine2f outline ) : mOutline(outline) { };
     Building( const Building &src ) : mOutline(src.mOutline), mFloors(src.mFloors) { };
 
-    void setup();
+    void layout();
     void draw( const Options &options );
     
     ci::PolyLine2f mOutline;
     ci::gl::VboMesh mMesh;
+    float mArea = 0;
     unsigned int mFloors = 1;
 };
 

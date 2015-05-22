@@ -10,7 +10,7 @@
 
 using namespace ci;
 
-void Road::setup()
+void Road::layout()
 {
 }
 

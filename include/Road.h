@@ -25,7 +25,7 @@ class Road {
         outline.setClosed();
     };
 
-    void setup();
+    void layout();
     void draw( const Options &options );
 
     const ci::Vec2f pointA, pointB;
