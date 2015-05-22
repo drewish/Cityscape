@@ -1,9 +1,16 @@
 /*
  Next steps:
  - sub-divide large block with more streets (i guess start with a manhattan grid?)
- - put roofs on buildings
- - orient buildings
+ - change render pass to draw road, block, lot, building in order
+ - more variety in building outlines
+ - put roofs on buildings:
+   - flat
+   - hipped
+   - gabled
+   - gambrel
+   - shed
  - mark portions of lot that face a road
+ - orient buildings toward street
  */
 
 #include "cinder/app/AppNative.h"

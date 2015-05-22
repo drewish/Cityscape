@@ -20,11 +20,11 @@ void Lot::layout()
     // space
     Polygon_2 p = mShape.polygon();
     float area = CGAL::polygon_area_2( p.vertices_begin(), p.vertices_end(), K() ).floatValue();
-    if ( area < 200 ) {
+    if ( area < 400 ) {
         mBuilding.mFloors = 0;
     }
     else {
-        mBuilding.mFloors = sqrt(area) / 20;//Rand::randInt(5);
+        mBuilding.mFloors = (int) sqrt(area) / 20;//Rand::randInt(5);
     }
 
     mBuilding.layout();

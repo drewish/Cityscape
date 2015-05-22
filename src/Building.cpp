@@ -44,7 +44,7 @@ void Building::layout()
 void Building::draw( const Options &options )
 {
     if ( options.drawBuildings ) {
-        gl::color( ColorA( 0.5f, 0.2f, 0.4f, 0.8f ) );
+        gl::color( mColor );
         gl::draw( mMesh );
     }
 }

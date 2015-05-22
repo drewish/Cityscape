@@ -109,8 +109,10 @@ void Block::subdivide()
 
             Lot l = Lot(lot_id++, lotOutline);
 
-            l.mColor = Color( 1.0-steps,0,steps );
-            steps += 0.1;
+            l.mColor = ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 );
+            l.mBuilding.mColor = l.mColor;
+            steps += 0.17;
+            if (steps > 1) steps -= 1.0;
 
             mLots.push_back(l);
         }

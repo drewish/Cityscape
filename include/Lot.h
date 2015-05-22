@@ -23,7 +23,7 @@ class Lot {
 
     unsigned int mId;
     FlatShape mShape;
-    ci::Color mColor;
+    ci::ColorA mColor;
     Building mBuilding;
     ci::Vec2f buildingPosition;
 };
