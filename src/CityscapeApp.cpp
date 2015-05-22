@@ -21,6 +21,7 @@
 #include "Building.h"
 #include "Lot.h"
 #include "Block.h"
+#include "Options.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -38,6 +39,8 @@ class CityscapeApp : public AppNative {
 	void addPoint(Vec2f);
 	void layout();
 
+    Options         mOptions;
+
     CameraPersp     mCamera;
 
 	vector<Vec2f>   mPoints;
@@ -45,7 +48,6 @@ class CityscapeApp : public AppNative {
 	PolyLine2f      mDivider;
 	vector<Road>    mRoads;
 	vector<Block>   mBlocks;
-    bool            mClipCityLimit = false;
     ci::gl::VboMesh mMesh;
 
 	params::InterfaceGlRef  mParams;
@@ -58,8 +60,12 @@ void CityscapeApp::prepareSettings( Settings *settings )
 
 void CityscapeApp::setup()
 {
-    mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 100 ) );
-    mParams->addParam( "Limit", &mClipCityLimit, "key=l" );
+    mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 300 ) );
+    mParams->addParam( "Roads", &mOptions.drawRoads, "key=a" );
+    mParams->addParam( "Block", &mOptions.drawBlocks, "key=s" );
+    mParams->addParam( "Lot", &mOptions.drawLots, "key=d" );
+    mParams->addParam( "Building", &mOptions.drawBuildings, "key=f" );
+    mParams->addParam( "Clip City", &mOptions.clipCityLimit, "key=c" );
     mParams->addButton( "Test 1", [&] {
         mPoints.clear();
         mPoints.push_back(Vec2f(133,41));
@@ -97,29 +103,24 @@ void CityscapeApp::setup()
         layout();
     }, "key=3" );
     mParams->addButton( "Test 4", [&] {
-        mPoints.clear();
-        mPoints.push_back(Vec2f(119.284,17.3257));
-        mPoints.push_back(Vec2f(301.294,1226.4));
-        mPoints.push_back(Vec2f(301.294,1226.4));
-        mPoints.push_back(Vec2f(546.399,74.1908));
-        mPoints.push_back(Vec2f(544.513,79.3862));
-        mPoints.push_back(Vec2f(118.603,19.5102));
         mPoints.push_back(Vec2f(163.104,60.2898));
         mPoints.push_back(Vec2f(306.353,918.302));
         mPoints.push_back(Vec2f(306.353,918.302));
         mPoints.push_back(Vec2f(490.026,113.687));
         mPoints.push_back(Vec2f(490.026,113.687));
         mPoints.push_back(Vec2f(163.104,60.2898));
+        layout();
+    }, "key=4" );
+    mParams->addButton( "Test 5", [&] {
         mPoints.push_back(Vec2f(216.101,115.129));
-        mPoints.push_back(Vec2f(310.713,599.953));
-        mPoints.push_back(Vec2f(310.713,599.953));
-        mPoints.push_back(Vec2f(421.241,167.717));
+        mPoints.push_back(Vec2f(311.713,599.953));
+        mPoints.push_back(Vec2f(310.713,598.953));
+        mPoints.push_back(Vec2f(422.241,165.717));
         mPoints.push_back(Vec2f(421.241,167.717));
         mPoints.push_back(Vec2f(220.751,122.422));
         layout();
-    }, "key=4" );
+    }, "key=5" );
     mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); }, "key=0" );
-
 
 	layout();
 
@@ -152,23 +153,6 @@ void CityscapeApp::setup()
     mMesh.bufferPositions(positions);
 }
 
-// Assumes line does not self intersecting
-// Treats the line as closed (you wanted area right?)
-// http://www.mathsisfun.com/geometry/area-irregular-polygons.html
-float area( PolyLine2f line ) {
-	float sum = 0.0;
-	if ( line.size() > 1 ) {
-		PolyLine2f::iterator it;
-		Vec2f prev, curr;
-		for ( it = line.begin(), prev = *it++; it != line.end() ; it++ ) {
-			curr = *it;
-			sum += ( prev.y + curr.y ) / 2.0 * ( curr.x - prev.x );
-			prev = curr;
-		}
-	}
-	return sum;
-}
-
 void CityscapeApp::update()
 {
 }
@@ -196,7 +180,7 @@ void CityscapeApp::layout()
 	}
     unPaved.complement();
 
-    if (mClipCityLimit) {
+    if (mOptions.clipCityLimit) {
         Vec2i windowSize = getWindowSize();
         Polygon_2 window;
         window.push_back( K::Point_2( 0, 0 ) );
@@ -283,12 +267,12 @@ void CityscapeApp::draw()
     gl::draw(mMesh);
 
 	for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
-        it->draw();
+        it->draw( mOptions );
 	}
 
     gl::lineWidth(4);
 	for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
-        it->draw();
+        it->draw( mOptions );
     }
 
 /*

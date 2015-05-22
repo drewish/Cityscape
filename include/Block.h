@@ -13,6 +13,7 @@
 #include "cinder/Triangulate.h"
 
 #include "FlatShape.h"
+#include "Options.h"
 
 class Lot;
 
@@ -22,14 +23,11 @@ public:
     Block( const Block &src )
         : mShape(src.mShape), mId(src.mId), mLots(src.mLots)
     {}
-    Block( const unsigned int bid, const ci::PolyLine2f &outline, const FlatShape::PolyLine2fs &holes = {} )
-        : mShape(outline, holes), mId(bid)
-    {}
     Block( const unsigned int bid, const FlatShape &fs )
     : mShape(fs), mId(bid)
     {}
     void setup();
-    void draw();
+    void draw( const Options &options );
     void subdivide();
     void placeBuildings();
 

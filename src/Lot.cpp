@@ -15,15 +15,19 @@ void Lot::setup()
     building.setup();
 }
 
-void Lot::draw()
+void Lot::draw( const Options &options )
 {
-    gl::lineWidth( 1 );
-    gl::color( ColorA( mColor, 0.4 ) );
-    gl::draw( mShape.mesh() );
+    if ( options.drawLots ) {
+gl::enableWireframe();
+        gl::lineWidth( 1 );
+        gl::color( ColorA( mColor, 0.4 ) );
+        gl::draw( mShape.mesh() );
+gl::disableWireframe();
+    }
 
     gl::pushModelView();
     gl::translate(buildingPosition);
-    building.draw();
+    building.draw( options );
     gl::popModelView();
 }
 

@@ -41,8 +41,10 @@ void Building::setup()
     mMesh.bufferPositions( verts );
 }
 
-void Building::draw()
+void Building::draw( const Options &options )
 {
-//    gl::color( ColorA( 0.5f, 0.2f, 0.4f, 0.8f ) );
-    gl::draw( mMesh );
+    if ( options.drawBuildings ) {
+        gl::color( ColorA( 0.5f, 0.2f, 0.4f, 0.8f ) );
+        gl::draw( mMesh );
+    }
 }

@@ -46,6 +46,7 @@
 		493D46DE1A9D734600618E33 /* CinderCGAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CinderCGAL.cpp; path = ../src/CinderCGAL.cpp; sourceTree = "<group>"; };
 		493D46DF1A9D734600618E33 /* CinderCGAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CinderCGAL.h; path = ../include/CinderCGAL.h; sourceTree = "<group>"; };
 		49A6B2DF1ABBFD3E000EA750 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO.txt; path = ../TODO.txt; sourceTree = "<group>"; };
+		49E8F7C51B0EDB1C006FF1E5 /* Options.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
 		5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatShape.cpp; path = ../src/FlatShape.cpp; sourceTree = "<group>"; };
@@ -172,6 +173,7 @@
 				5FEFD9DA1A92FB450093F109 /* Lot.h */,
 				5FEFD9D91A92FB450093F109 /* Building.h */,
 				5F5C2D831B0D9FF200541E95 /* FlatShape.h */,
+				49E8F7C51B0EDB1C006FF1E5 /* Options.h */,
 			);
 			name = Headers;
 			path = ../include;

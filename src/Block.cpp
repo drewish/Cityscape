@@ -65,13 +65,15 @@ void Block::setup()
     }
 }
 
-void Block::draw()
+void Block::draw( const Options &options )
 {
-    gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
-    // gl::draw( mMesh );
+    if ( options.drawBlocks ) {
+        gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
+        gl::draw( mShape.mesh() );
+    }
 
     for( auto it = mLots.begin(); it != mLots.end(); ++it ) {
-        it->draw();
+        it->draw( options );
     }
 }
 

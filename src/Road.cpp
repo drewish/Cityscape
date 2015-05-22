@@ -8,12 +8,16 @@
 
 #include "Road.h"
 
+using namespace ci;
+
 void Road::setup()
 {
 }
 
-void Road::draw()
+void Road::draw( const Options &options )
 {
-    gl::color( ColorA( 0.3f, 0.3f, 0.3f, 0.4f ) );
-    gl::drawSolid( outline );
+    if ( options.drawRoads ) {
+        gl::color( ColorA( 0.3f, 0.3f, 0.3f, 0.4f ) );
+        gl::drawSolid( outline );
+    }
 }

@@ -11,16 +11,16 @@
 
 #include "FlatShape.h"
 #include "Building.h"
+#include "Options.h"
 
 class Lot {
   public:
     Lot( const Lot &src ) : mShape(src.mShape), mId(src.mId), mColor(src.mColor), building(src.building), buildingPosition(src.buildingPosition) { };
-    Lot( const unsigned int lid, const ci::PolyLine2f &outline ) : mShape(outline), mId(lid) { };
     Lot( const unsigned int lid, const FlatShape &fs ) : mShape(fs), mId(lid) { };
 
     void place( const Building b );
     void setup();
-    void draw();
+    void draw( const Options &options );
 
     unsigned int mId;
     FlatShape mShape;

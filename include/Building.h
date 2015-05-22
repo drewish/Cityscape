@@ -10,6 +10,7 @@
 #define __Cityscape__Building__
 
 #include "cinder/gl/Vbo.h"
+#include "Options.h"
 
 class Building {
   public:
@@ -21,7 +22,7 @@ class Building {
     Building( const Building &src ) : mOutline(src.mOutline), mFloors(src.mFloors) { };
 
     void setup();
-    void draw();
+    void draw( const Options &options );
     
     ci::PolyLine2f mOutline;
     ci::gl::VboMesh mMesh;
