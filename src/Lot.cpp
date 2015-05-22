@@ -18,11 +18,9 @@ void Lot::setup()
 void Lot::draw( const Options &options )
 {
     if ( options.drawLots ) {
-gl::enableWireframe();
         gl::lineWidth( 1 );
         gl::color( ColorA( mColor, 0.4 ) );
         gl::draw( mShape.mesh() );
-gl::disableWireframe();
     }
 
     gl::pushModelView();

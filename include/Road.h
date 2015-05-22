@@ -18,10 +18,10 @@ class Road {
     {
         ci::Vec2f normal = ci::Vec2f(b.y - a.y, -(b.x - a.x)).normalized();
         ci::Vec2f offset = normal * width / 2;
-        outline.push_back(a + offset);
-        outline.push_back(a - offset);
-        outline.push_back(b - offset);
         outline.push_back(b + offset);
+        outline.push_back(b - offset);
+        outline.push_back(a - offset);
+        outline.push_back(a + offset);
         outline.setClosed();
     };
 

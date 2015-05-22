@@ -29,7 +29,7 @@ inline K::Point_2 pointFrom(const ci::Vec2f &p)
     return K::Point_2(p.x, p.y);
 }
 
-Polygon_2 polygonFrom(const ci::PolyLine2f &p, bool forceClockwise = true);
+Polygon_2 polygonFrom( const ci::PolyLine2f &p );
 Polygon_with_holes_2 polygonFrom(const ci::PolyLine2f &outline, const std::vector<ci::PolyLine2f> &holes);
 
 ci::PolyLine2f polyLineFrom(const Polygon_2 &p);

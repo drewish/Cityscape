@@ -12,7 +12,7 @@
 
 using namespace ci;
 
-Polygon_2 polygonFrom(const ci::PolyLine2f &p, bool forceClockwise)
+Polygon_2 polygonFrom( const ci::PolyLine2f &p )
 {
     Polygon_2 poly;
     auto begin = p.begin(),
@@ -30,10 +30,6 @@ Polygon_2 polygonFrom(const ci::PolyLine2f &p, bool forceClockwise)
         poly.push_back(pointFrom(*i++));
     } while (i != end);
 
-    // Ensure counter clockwise order
-    if (forceClockwise && poly.is_clockwise_oriented()) {
-        poly.reverse_orientation();
-    }
     return poly;
 }
 
