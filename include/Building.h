@@ -26,7 +26,7 @@ class Building {
 
     ci::ColorA mColor;
     ci::PolyLine2f mOutline;
-    unsigned int mFloors = 1;
+    uint32_t mFloors = 1;
     ci::gl::VboMesh mMesh;
     float mArea = 0;
 

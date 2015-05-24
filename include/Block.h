@@ -23,7 +23,7 @@ public:
     Block( const Block &src )
         : mShape(src.mShape), mId(src.mId), mLots(src.mLots)
     {}
-    Block( const unsigned int bid, const FlatShape &fs )
+    Block( const uint32_t bid, const FlatShape &fs )
     : mShape(fs), mId(bid)
     {}
     void layout();
@@ -32,7 +32,7 @@ public:
     void placeBuildings();
 
     FlatShape mShape;
-    unsigned int mId;
+    uint32_t mId;
     std::vector<Lot> mLots;
 };
 
