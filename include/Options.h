@@ -13,7 +13,7 @@ struct Options {
     bool drawRoads = true;
     bool drawBlocks = false;
     bool drawLots = true;
-    bool drawBuildings = false;
+    bool drawBuildings = true;
     bool clipCityLimit = false;
 };
 

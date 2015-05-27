@@ -38,8 +38,7 @@ const Polygon_with_holes_2 FlatShape::polygon_with_holes()
 
 const ci::TriMesh2d FlatShape::makeMesh() {
     // TODO might be good to lazily create this when they first ask for the mesh.
-    ci::Triangulator triangulator;
-    triangulator.addPolyLine( mOutline );
+    ci::Triangulator triangulator( mOutline );
     for( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {
         triangulator.addPolyLine( *it );
     }

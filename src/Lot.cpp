@@ -16,6 +16,9 @@ void Lot::layout()
     // the street into consideration.
     buildingPosition = mShape.centroid();
 
+    mBuilding = Building( Building::lshape() );
+    mBuilding.mColor = mColor;
+
     // Vary the floors based on the space... TODO should check for available
     // space
     Polygon_2 p = mShape.polygon();

@@ -140,7 +140,6 @@ void CityscapeApp::setup()
     Vec2i center = getWindowCenter();
     mCamera.lookAt( Vec3f( center.x, center.y - 600, 400.0f ), Vec3f(center,0.0), Vec3f::yAxis() );
 
-
     // For some fucking reason i have to build and render a mesh in this class
     // to be able to have the buildings render without dying....
     gl::VboMesh::Layout layout;
@@ -277,9 +276,11 @@ void CityscapeApp::draw()
         it->draw( mOptions );
 	}
 
-    gl::lineWidth(4);
-	for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
-        it->draw( mOptions );
+	for( auto block = mBlocks.begin(); block != mBlocks.end(); ++block ) {
+        block->draw( mOptions );
+        for( auto lot = block->mLots.begin(); lot != block->mLots.end(); ++lot ) {
+            lot->draw( mOptions );
+        }
     }
 
 /*

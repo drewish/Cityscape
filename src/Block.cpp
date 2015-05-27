@@ -73,10 +73,6 @@ void Block::draw( const Options &options )
         gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
         gl::draw( mShape.mesh() );
     }
-
-    for( auto it = mLots.begin(); it != mLots.end(); ++it ) {
-        it->draw( options );
-    }
 }
 
 void Block::subdivide()
@@ -93,7 +89,6 @@ void Block::subdivide()
         mLots.clear();
         mLots.reserve(skel->size_of_faces());
 
-
         unsigned int lot_id = 0;
         for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
 
@@ -108,13 +103,11 @@ void Block::subdivide()
             } while (edge != start);
 
             Lot l = Lot(lot_id++, lotOutline);
-
             l.mColor = ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 );
-            l.mBuilding.mColor = l.mColor;
+            mLots.push_back(l);
+
             steps += 0.17;
             if (steps > 1) steps -= 1.0;
-
-            mLots.push_back(l);
         }
     }
     catch (CGAL::Precondition_exception e) {
