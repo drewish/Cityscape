@@ -25,7 +25,7 @@ void Building::draw( const Options &options )
 //        gl::enableWireframe();
         gl::color( mColor );
         gl::draw( mMesh );
-//        gl::disableWireframe();
+        gl::disableWireframe();
     }
 }
 
@@ -78,7 +78,26 @@ gl::VboMesh Building::makeMesh(RoofStyle roof, ci::PolyLine2f outline, uint32_t 
         for ( auto i = roofIndices.begin(); i != roofIndices.end(); ++i) {
             indices.push_back( index + *i );
         }
+    } else if ( roof == HIPPED ) {
+        // - build straight skeleton
+        // - compute skeleton vertex height based off distance from incident edges?
+        // - triangulate faces
+    } else if ( roof == GABLED ) {
+        // - build straight skeleton
+        // - find skeleton vertexes with 3 edges, 2 of which are on the contour, then move that vertex out to contour
+        // - compute skeleton vertex height based off distance from incident edges?
+        // - triangulate faces
+    } else if ( roof == GAMBREL ) {
+        // probably based off GABLED with an extra division of the faces to give it the barn look
+    } else if ( roof == SHED ) {
+        // probably requires customizing the wall heights
+        // - find longest line and use that as intersection of roof plane
+        // - determine slope of roof
+        // - compute heights of outline vertexes based on their position on roof plane
+
     }
+
+
 
     gl::VboMesh mesh = gl::VboMesh( verts.size(), indices.size(), layout, GL_TRIANGLES );
     mesh.bufferIndices( indices );
