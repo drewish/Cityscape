@@ -1,6 +1,5 @@
 /*
  Next steps:
- - sub-divide large block with more streets (i guess start with a manhattan grid?)
  - change render pass to draw road, block, lot, building in order
  - more variety in building outlines
  - put roofs on buildings:
@@ -9,6 +8,7 @@
    - gabled
    - gambrel
    - shed
+ - sub-divide large block with more streets (i guess start with a manhattan grid?)
  - mark portions of lot that face a road
  - orient buildings toward street
  */
@@ -35,27 +35,31 @@ using namespace std;
 class CityscapeApp : public AppNative {
   public:
     void prepareSettings( Settings *settings );
-	void setup();
-	void mouseDown( MouseEvent event );
-	void mouseDrag( MouseEvent event );
-	void update();
-	void draw();
+    void setup();
 
-	void addPoint(Vec2f);
-	void layout();
+    void mouseMove( MouseEvent event );
+    void mouseDown( MouseEvent event );
+    void mouseDrag( MouseEvent event );
+    void update();
+    void draw();
+
+    void addPoint(Vec2f);
+    void layout();
 
     Options         mOptions;
 
     CameraPersp     mCamera;
 
-	vector<Vec2f>   mPoints;
-	PolyLine2f      mConvexHull;
-	PolyLine2f      mDivider;
-	vector<Road>    mRoads;
-	vector<Block>   mBlocks;
+    vector<Vec2f>   mPoints;
+    PolyLine2f      mConvexHull;
+    PolyLine2f      mDivider;
+    vector<Road>    mRoads;
+    vector<Block>   mBlocks;
     ci::gl::VboMesh mMesh;
 
-	params::InterfaceGlRef  mParams;
+    params::InterfaceGlRef  mParams;
+
+    Vec2i mMousePos;
 };
 
 void CityscapeApp::prepareSettings( Settings *settings )
@@ -260,7 +264,11 @@ void CityscapeApp::mouseDown( MouseEvent event )
 
 void CityscapeApp::mouseDrag( MouseEvent event )
 {
-//	addPoint( event.getPos() );
+}
+
+void CityscapeApp::mouseMove( MouseEvent event )
+{
+    mMousePos = event.getPos();
 }
 
 void CityscapeApp::draw()
