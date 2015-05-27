@@ -17,8 +17,7 @@ class Building {
 
     static ci::PolyLine2f triangle() {
         return ci::PolyLine2f( {
-            ci::Vec2f(10, -10), ci::Vec2f(10, 10),
-            ci::Vec2f(-10, 10)
+            ci::Vec2f(10, -10), ci::Vec2f(10, 10), ci::Vec2f(-10, 10)
         } );
     }
 
@@ -31,10 +30,28 @@ class Building {
 
     static ci::PolyLine2f lshape() {
         return ci::PolyLine2f( {
-            ci::Vec2f(-5, 0), ci::Vec2f(-5, -10), ci::Vec2f(-15, -10),
-            ci::Vec2f(-15, 10), ci::Vec2f(15, 10), ci::Vec2f(15, 0)
+            ci::Vec2f(15, 0), ci::Vec2f(15, 10), ci::Vec2f(-15, 10),
+            ci::Vec2f(-15, -10), ci::Vec2f(-5, -10), ci::Vec2f(-5, 0),
         } );
     }
+
+    static ci::PolyLine2f plus() {
+        return ci::PolyLine2f( {
+            ci::Vec2f(15,-5), ci::Vec2f(15,5), ci::Vec2f(5,5),
+            ci::Vec2f(5,15), ci::Vec2f(-5,15), ci::Vec2f(-5,5),
+            ci::Vec2f(-15,5), ci::Vec2f(-15,-5), ci::Vec2f(-5,-5),
+            ci::Vec2f(-5,-15), ci::Vec2f(5,-15), ci::Vec2f(5,-5),
+        } );
+    }
+
+    static ci::PolyLine2f tee() {
+        return ci::PolyLine2f( {
+            ci::Vec2f(5,10), ci::Vec2f(-5,10), ci::Vec2f(-5,0),
+            ci::Vec2f(-15,0), ci::Vec2f(-15,-10), ci::Vec2f(15,-10),
+            ci::Vec2f(15,0), ci::Vec2f(5,0),
+        } );
+    }
+
 
     // TODO: check coding style for capitalization
     // http://www.johnriebli.com/roof-types--house-styles.html
