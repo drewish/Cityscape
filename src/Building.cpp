@@ -10,38 +10,37 @@
 #include "cinder/Rand.h"
 #include "cinder/Triangulate.h"
 
+#include "CinderCGAL.h"
+#include <CGAL/create_straight_skeleton_2.h>
+typedef CGAL::Straight_skeleton_2<K> Ss;
+typedef boost::shared_ptr<Ss> SsPtr;
+
 using namespace ci;
 using namespace std;
 
 void Building::layout()
 {
-//        mFloors = Rand::randInt(5);
     mMesh = makeMesh(mRoof, mOutline, mFloors);
 }
 
 void Building::draw( const Options &options )
 {
     if ( options.drawBuildings ) {
-//        gl::enableWireframe();
         gl::color( mColor );
+        gl::draw( mMesh );
+        gl::enableWireframe();
         gl::draw( mMesh );
         gl::disableWireframe();
     }
 }
 
-gl::VboMesh Building::makeMesh(RoofStyle roof, ci::PolyLine2f outline, uint32_t floors)
+// Build walls
+//
+// We're building the walls using individual triangles (rather than strip) so we
+// can use Cinder's triangulator to build the flat roof.
+//
+void buildWalls(const PolyLine2f &outline, const float roofHeight, vector<Vec3f> &verts, vector<uint32_t> &indices)
 {
-    gl::VboMesh::Layout layout;
-    layout.setStaticIndices();
-    layout.setStaticPositions();
-
-    vector<Vec3f> verts;
-    vector<uint32_t> indices;
-
-    float roofHeight = floors * 10;
-
-    // Build walls—we're doing this using individual triangles so we can use
-    // Cinder's triangulator to build the flat roof.
     for ( auto i = outline.begin(); i != outline.end(); ++i ) {
         verts.push_back(Vec3f(i->x, i->y, 0));
         verts.push_back(Vec3f(i->x, i->y, roofHeight));
@@ -62,23 +61,71 @@ gl::VboMesh Building::makeMesh(RoofStyle roof, ci::PolyLine2f outline, uint32_t 
     indices.push_back(0);
     indices.push_back(index - 1);
     indices.push_back(index - 2);
+}
 
+void buildFlatRoof(const PolyLine2f &outline, const float roofHeight, vector<Vec3f> &verts, vector<uint32_t> &indices)
+{
+    uint32_t index = verts.size();
+
+    ci::Triangulator triangulator( outline );
+    ci::TriMesh2d roofMesh = triangulator.calcMesh();
+
+    std::vector<Vec2f> roofVerts = roofMesh.getVertices();
+    for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
+        verts.push_back( Vec3f( *i, roofHeight ) );
+    }
+
+    std::vector<uint32_t> roofIndices = roofMesh.getIndices();
+    for ( auto i = roofIndices.begin(); i != roofIndices.end(); ++i) {
+        indices.push_back( index + *i );
+    }
+}
+
+
+gl::VboMesh Building::makeMesh(const RoofStyle roof, const ci::PolyLine2f &outline, uint32_t floors)
+{
+    vector<Vec3f> verts;
+    vector<uint32_t> indices;
+
+    float roofHeight = floors * 10;
+
+//    buildWalls(outline, roofHeight, verts, indices);
 
     // Build roof
     if ( roof == FLAT ) {
-        ci::Triangulator triangulator( outline );
-        ci::TriMesh2d roofMesh = triangulator.calcMesh();
-
-        std::vector<Vec2f> roofVerts = roofMesh.getVertices();
-        for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
-            verts.push_back( Vec3f( *i, roofHeight ) );
-        }
-
-        std::vector<uint32_t> roofIndices = roofMesh.getIndices();
-        for ( auto i = roofIndices.begin(); i != roofIndices.end(); ++i) {
-            indices.push_back( index + *i );
-        }
+        buildFlatRoof(outline, roofHeight, verts, indices);
     } else if ( roof == HIPPED ) {
+
+        SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom( outline ), K() );
+        for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
+
+            PolyLine2f faceOutline;
+            Ss::Halfedge_handle edge, start;
+
+            start = face->halfedge();
+            edge = start;
+            do {
+                faceOutline.push_back(vecFrom(edge->vertex()->point()));
+                edge = edge->next();
+            } while (edge != start);
+
+
+            uint32_t index = verts.size();
+
+            ci::Triangulator triangulator( faceOutline );
+            ci::TriMesh2d roofMesh = triangulator.calcMesh();
+
+            std::vector<Vec2f> roofVerts = roofMesh.getVertices();
+            for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
+                verts.push_back( Vec3f( *i, roofHeight ) );
+            }
+
+            std::vector<uint32_t> roofIndices = roofMesh.getIndices();
+            for ( auto i = roofIndices.begin(); i != roofIndices.end(); ++i) {
+                indices.push_back( index + *i );
+            }
+
+        }
         // - build straight skeleton
         // - compute skeleton vertex height based off distance from incident edges?
         // - triangulate faces
@@ -94,14 +141,13 @@ gl::VboMesh Building::makeMesh(RoofStyle roof, ci::PolyLine2f outline, uint32_t 
         // - find longest line and use that as intersection of roof plane
         // - determine slope of roof
         // - compute heights of outline vertexes based on their position on roof plane
-
     }
 
-
-
+    gl::VboMesh::Layout layout;
+    layout.setStaticIndices();
+    layout.setStaticPositions();
     gl::VboMesh mesh = gl::VboMesh( verts.size(), indices.size(), layout, GL_TRIANGLES );
     mesh.bufferIndices( indices );
     mesh.bufferPositions( verts );
-
     return mesh;
 }

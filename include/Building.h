@@ -73,15 +73,15 @@ class Building {
     void layout();
     void draw( const Options &options );
 
-    ci::ColorA mColor;
+    ci::ColorA mColor = ci::ColorA(0.25, 0.5, 0.25, 0.25);
     ci::PolyLine2f mOutline;
-    RoofStyle mRoof = FLAT;
+    RoofStyle mRoof = HIPPED;
     uint32_t mFloors = 1;
     ci::gl::VboMesh mMesh;
     float mArea = 0;
 
   private:
-    ci::gl::VboMesh makeMesh(RoofStyle roof, ci::PolyLine2f outline, unsigned int floors);
+    ci::gl::VboMesh makeMesh(const RoofStyle roof, const ci::PolyLine2f &outline, unsigned int floors);
 
 };
 
