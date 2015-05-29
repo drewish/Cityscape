@@ -41,6 +41,7 @@ class CityscapeApp : public AppNative {
     void mouseMove( MouseEvent event );
     void mouseDown( MouseEvent event );
     void mouseDrag( MouseEvent event );
+    void resize();
     void update();
     void draw();
 
@@ -138,11 +139,8 @@ void CityscapeApp::setup()
     }, "key=5" );
     mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); }, "key=0" );
 
-	layout();
-
-    mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
-    Vec2i center = getWindowCenter();
-    mCamera.lookAt( Vec3f( center.x, center.y - 600, 400.0f ), Vec3f(center,0.0), Vec3f::yAxis() );
+    resize();
+    layout();
 
     // For some fucking reason i have to build and render a mesh in this class
     // to be able to have the buildings render without dying....
@@ -166,6 +164,13 @@ void CityscapeApp::setup()
     positions.push_back( Vec3f(  0.5, -0.5, -0.5 ) );
     positions.push_back( Vec3f( -0.5, -0.5, -0.5 ) );
     mMesh.bufferPositions(positions);
+}
+
+void CityscapeApp::resize()
+{
+    mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
+    Vec2i center = getWindowCenter();
+    mCamera.lookAt( Vec3f( center.x, center.y - 600, 400.0f ), Vec3f(center,0.0), Vec3f::yAxis() );
 }
 
 void CityscapeApp::update()
