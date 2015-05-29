@@ -15,7 +15,9 @@ using namespace ci;
 #include "CinderCGAL.h"
 #include <CGAL/exceptions.h>
 #include <CGAL/create_straight_skeleton_from_polygon_with_holes_2.h>
-typedef CGAL::Straight_skeleton_2<K> Ss;
+#include <CGAL/Polygon_set_2.h>
+
+typedef CGAL::Straight_skeleton_2<InexactK> Ss;
 typedef boost::shared_ptr<Ss> SsPtr;
 
 void drawSkeleton(const SsPtr &ss)
@@ -84,19 +86,16 @@ void Block::subdivide()
     float steps = 0.0;
 
     try {
-        SsPtr skel = CGAL::create_interior_straight_skeleton_2( mShape.polygon_with_holes() );
+        SsPtr skel = CGAL::create_interior_straight_skeleton_2( mShape.polygon_with_holes<InexactK>() );
 
         mLots.clear();
         mLots.reserve(skel->size_of_faces());
 
         unsigned int lot_id = 0;
         for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
-
             PolyLine2f lotOutline;
-            Ss::Halfedge_handle edge, start;
-
-            start = face->halfedge();
-            edge = start;
+            Ss::Halfedge_handle start = face->halfedge(),
+                edge = start;
             do {
                 lotOutline.push_back(vecFrom(edge->vertex()->point()));
                 edge = edge->next();

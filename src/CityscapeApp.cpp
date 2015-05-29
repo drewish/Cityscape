@@ -21,6 +21,7 @@
 #include "cinder/params/Params.h"
 
 #include "CinderCGAL.h"
+#include <CGAL/Polygon_set_2.h>
 #include "FlatShape.h"
 #include "Road.h"
 #include "Building.h"
@@ -51,7 +52,6 @@ class CityscapeApp : public AppNative {
     CameraPersp     mCamera;
 
     vector<Vec2f>   mPoints;
-    PolyLine2f      mConvexHull;
     PolyLine2f      mDivider;
     vector<Road>    mRoads;
     vector<Block>   mBlocks;
@@ -186,31 +186,31 @@ void CityscapeApp::layout()
 	mRoads.clear();
     mBlocks.clear();
 
-    Polygon_set_2 unPaved;
+    CGAL::Polygon_set_2<ExactK> unPaved;
 	for ( uint i = 1, size = mPoints.size(); i < size; i += 2 ) {
 		Road road(mPoints[i-1], mPoints[i], width);
 		mRoads.push_back(road);
 
-        unPaved.join( polygonFrom( road.outline ) );
+        unPaved.join( polygonFrom<ExactK>( road.outline ) );
 	}
     unPaved.complement();
 
     if (mOptions.clipCityLimit) {
         Vec2i windowSize = getWindowSize();
-        Polygon_2 window;
-        window.push_back( K::Point_2( 0, 0 ) );
-        window.push_back( K::Point_2( windowSize.x, 0 ) );
-        window.push_back( K::Point_2( windowSize.x, windowSize.y ) );
-        window.push_back( K::Point_2( 0, windowSize.y ) );
+        CGAL::Polygon_2<ExactK> window;
+        window.push_back( ExactK::Point_2( 0, 0 ) );
+        window.push_back( ExactK::Point_2( windowSize.x, 0 ) );
+        window.push_back( ExactK::Point_2( windowSize.x, windowSize.y ) );
+        window.push_back( ExactK::Point_2( 0, windowSize.y ) );
         
         unPaved.intersection(window); // Intersect with the clipping rectangle.
     }
 
     unsigned int block_id = 0;
-    std::list<Polygon_with_holes_2> res;
+    std::list<CGAL::Polygon_with_holes_2<ExactK>> res;
     unPaved.polygons_with_holes (std::back_inserter (res));
     for (auto it = res.begin(); it != res.end(); ++it) {
-        Polygon_with_holes_2 pwh = *it;
+        CGAL::Polygon_with_holes_2<ExactK> pwh = *it;
 
         if ( pwh.is_unbounded() ) {
             console() << "Polygon is unbounded...\n";
@@ -224,23 +224,7 @@ void CityscapeApp::layout()
         mBlocks.push_back(b);
     }
 
-/*
-	mConvexHull = calcConvexHull( mPoints );
 
-	mBlocks.clear();
-	vector<PolyLine2f> pieces = PolyLine2f::calcDifference({ mConvexHull }, allRoads);
-    
-	for( auto it = pieces.begin(); it != pieces.end(); ++it ) {
-        if (it->size()) {
-            Block b(*it);
-            b.subdivide();
-            for (auto lotIt = b.lots.begin(); lotIt != b.lots.end(); ++lotIt) {
-                lotIt->place(Building());
-            }
-            mBlocks.push_back(b);
-        }
-	}
-*/
     for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
         it->layout();
     }
@@ -290,19 +274,6 @@ void CityscapeApp::draw()
             lot->draw( mOptions );
         }
     }
-
-/*
-	// draw convex hull points
-	gl::color( Color( 0.0f, 0, 1.0f ) );
-	for( auto it = mConvexHull.begin(); it != mConvexHull.end(); ++it ) {
-		gl::drawSolidCircle( *it, 4 );
-	}
-
-	gl::color( ColorA( 1.0f, 0.8f, 0, 0.6f ) );
-	for( auto it = mPoints.begin(); it != mPoints.end(); ++it ) {
-		gl::drawSolidCircle( *it, 3 );
-	}
-*/
 
 	mParams->draw();
 }

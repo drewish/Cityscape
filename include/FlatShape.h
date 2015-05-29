@@ -25,13 +25,13 @@ class FlatShape {
     {
         mMesh = makeMesh();
     };
-    FlatShape( const Polygon_with_holes_2 &pwh )
+    FlatShape( const CGAL::Polygon_with_holes_2<ExactK> &pwh )
     {
-        mOutline = polyLineFrom( pwh.outer_boundary() );
+        mOutline = polyLineFrom<ExactK>( pwh.outer_boundary() );
 
         mHoles.reserve( pwh.number_of_holes() );
         for ( auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit ) {
-            mHoles.push_back( polyLineFrom( *hit ) );
+            mHoles.push_back( polyLineFrom<ExactK>( *hit ) );
         }
 
         mMesh = makeMesh();
@@ -43,9 +43,22 @@ class FlatShape {
 
     const ci::Vec2f centroid();
 
-    const Polygon_2 polygon();
-    const Polygon_with_holes_2 polygon_with_holes();
+    template<class K>
+    inline const CGAL::Polygon_2<K> polygon()
+    {
+        return polygonFrom<K>( mOutline );
+    }
 
+    template<class K>
+    inline const CGAL::Polygon_with_holes_2<K> polygon_with_holes()
+    {
+        CGAL::Polygon_with_holes_2<K> poly( polygon<K>() );
+        for ( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {
+            poly.add_hole( polygonFrom<K>( *it ) );
+        }
+        return poly;
+    }
+    
   private:
 
     const ci::TriMesh2d makeMesh();

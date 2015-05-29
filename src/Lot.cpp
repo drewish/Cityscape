@@ -21,8 +21,8 @@ void Lot::layout()
 
     // Vary the floors based on the space... TODO should check for available
     // space
-    Polygon_2 p = mShape.polygon();
-    float area = CGAL::polygon_area_2( p.vertices_begin(), p.vertices_end(), K() ).floatValue();
+    CGAL::Polygon_2<InexactK> p = mShape.polygon<InexactK>();
+    float area = CGAL::polygon_area_2( p.vertices_begin(), p.vertices_end(), InexactK() );
     if ( area < 400 ) {
         mBuilding.mFloors = 0;
     }

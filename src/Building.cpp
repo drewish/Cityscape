@@ -12,7 +12,7 @@
 
 #include "CinderCGAL.h"
 #include <CGAL/create_straight_skeleton_2.h>
-typedef CGAL::Straight_skeleton_2<K> Ss;
+typedef CGAL::Straight_skeleton_2<InexactK> Ss;
 typedef boost::shared_ptr<Ss> SsPtr;
 
 using namespace ci;
@@ -96,25 +96,26 @@ gl::VboMesh Building::makeMesh(const RoofStyle roof, const ci::PolyLine2f &outli
         buildFlatRoof(outline, roofHeight, verts, indices);
     } else if ( roof == HIPPED ) {
 
-        SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom( outline ), K() );
+        // - build straight skeleton
+        SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom<InexactK>( outline ), InexactK() );
         for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
 
             PolyLine2f faceOutline;
-            Ss::Halfedge_handle edge, start;
-
-            start = face->halfedge();
-            edge = start;
+            Ss::Halfedge_handle start = face->halfedge(),
+                edge = start;
             do {
-                faceOutline.push_back(vecFrom(edge->vertex()->point()));
+                faceOutline.push_back( vecFrom( edge->vertex()->point() ) );
                 edge = edge->next();
             } while (edge != start);
 
 
+            // - triangulate faces
             uint32_t index = verts.size();
 
             ci::Triangulator triangulator( faceOutline );
             ci::TriMesh2d roofMesh = triangulator.calcMesh();
 
+            // - compute skeleton vertex height based off distance from incident edges?
             std::vector<Vec2f> roofVerts = roofMesh.getVertices();
             for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
                 verts.push_back( Vec3f( *i, roofHeight ) );
@@ -124,11 +125,7 @@ gl::VboMesh Building::makeMesh(const RoofStyle roof, const ci::PolyLine2f &outli
             for ( auto i = roofIndices.begin(); i != roofIndices.end(); ++i) {
                 indices.push_back( index + *i );
             }
-
         }
-        // - build straight skeleton
-        // - compute skeleton vertex height based off distance from incident edges?
-        // - triangulate faces
     } else if ( roof == GABLED ) {
         // - build straight skeleton
         // - find skeleton vertexes with 3 edges, 2 of which are on the contour, then move that vertex out to contour
