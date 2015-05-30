@@ -81,7 +81,6 @@ void buildFlatRoof(const PolyLine2f &outline, const float roofHeight, vector<Vec
     }
 }
 
-
 gl::VboMesh Building::makeMesh(const RoofStyle roof, const ci::PolyLine2f &outline, uint32_t floors)
 {
     vector<Vec3f> verts;
@@ -89,7 +88,7 @@ gl::VboMesh Building::makeMesh(const RoofStyle roof, const ci::PolyLine2f &outli
 
     float roofHeight = floors * 10;
 
-//    buildWalls(outline, roofHeight, verts, indices);
+    buildWalls(outline, roofHeight, verts, indices);
 
     // Build roof
     if ( roof == FLAT ) {
@@ -98,8 +97,23 @@ gl::VboMesh Building::makeMesh(const RoofStyle roof, const ci::PolyLine2f &outli
 
         // - build straight skeleton
         SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom<InexactK>( outline ), InexactK() );
-        for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
 
+        // - compute skeleton vertex height based off distance from incident edges?
+        std::map<std::pair<float, float>, float> heightMap;
+        for( auto vert = skel->vertices_begin(); vert != skel->vertices_end(); ++vert ) {
+            if (vert->is_contour()) { continue; }
+
+            Ss::Halfedge_handle definingEdge = *(vert->defining_contour_halfedges_begin());
+            InexactK::Line_2 line = InexactK::Line_2(
+                definingEdge->vertex()->point(),
+                definingEdge->prev()->vertex()->point()
+            );
+            InexactK::Point_2 p = vert->point();
+            heightMap[ std::make_pair( p.x(), p.y() ) ] = CGAL::sqrt( CGAL::squared_distance( p, line ) );
+        }
+
+        // - put triangulated faces into the mesh
+        for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
             PolyLine2f faceOutline;
             Ss::Halfedge_handle start = face->halfedge(),
                 edge = start;
@@ -108,17 +122,15 @@ gl::VboMesh Building::makeMesh(const RoofStyle roof, const ci::PolyLine2f &outli
                 edge = edge->next();
             } while (edge != start);
 
-
-            // - triangulate faces
             uint32_t index = verts.size();
-
             ci::Triangulator triangulator( faceOutline );
             ci::TriMesh2d roofMesh = triangulator.calcMesh();
 
-            // - compute skeleton vertex height based off distance from incident edges?
             std::vector<Vec2f> roofVerts = roofMesh.getVertices();
             for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
-                verts.push_back( Vec3f( *i, roofHeight ) );
+                auto it = heightMap.find( std::make_pair( i->x, i->y ) );
+                float h = it == heightMap.end() ? 0.0 : it->second;
+                verts.push_back( Vec3f( *i, roofHeight + h ) );
             }
 
             std::vector<uint32_t> roofIndices = roofMesh.getIndices();

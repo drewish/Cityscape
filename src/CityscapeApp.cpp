@@ -3,8 +3,6 @@
  - change render pass to draw road, block, lot, building in order
  - more variety in building outlines
  - put roofs on buildings:
-   - flat
-   - hipped
    - gabled
    - gambrel
    - shed
