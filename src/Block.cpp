@@ -79,6 +79,18 @@ void Block::draw( const Options &options )
 
 void Block::subdivide()
 {
+    // Use the entire block for a lot for now.
+    mLots.clear();
+    PolyLine2f lotOutline = mShape.outline();
+    uint32_t lot_id = 0;
+    Lot lot = Lot(lot_id, lotOutline, ColorA( CM_HSV, 1, 1.0, 0.75, 0.5 ));
+    mLots.push_back(lot);
+}
+
+/*
+// Old straight skeleton based lot sub divisioning
+void Block::subdivide()
+{
     // Assume the outline is closed and first == last.
     // Don't want to bother with less than a triangle.
     if (mShape.outline().size() < 4) return;
@@ -116,3 +128,4 @@ void Block::subdivide()
 		return;
 	}
 }
+ */

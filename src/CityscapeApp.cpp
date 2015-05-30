@@ -1,12 +1,13 @@
 /*
  Next steps:
- - change render pass to draw road, block, lot, building in order
- - more variety in building outlines
- - put roofs on buildings:
-   - gabled
-   - gambrel
-   - shed
  - sub-divide large block with more streets (i guess start with a manhattan grid?)
+ - randomly choose building outlines, roof style, height
+ - ensure building fits on lot, scale up to use free space
+ - put roofs on buildings:
+     - gabled
+     - gambrel
+     - shed
+ - expand roof outline to overlap house
  - mark portions of lot that face a road
  - orient buildings toward street
  */
@@ -178,7 +179,7 @@ void CityscapeApp::update()
 void CityscapeApp::addPoint(Vec2f pos)
 {
 	mPoints.push_back( pos );
-    console() << "mPoints.push_back(Vec2f(" << pos.x << "," << pos.y << "));\n";
+//    console() << "mPoints.push_back(Vec2f(" << pos.x << "," << pos.y << "));\n";
 	layout();
 }
 
