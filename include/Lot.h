@@ -15,7 +15,14 @@
 
 class Lot {
   public:
-    Lot( const Lot &src ) : mShape(src.mShape), mId(src.mId), mColor(src.mColor), mBuilding(src.mBuilding), buildingPosition(src.buildingPosition) { };
+    Lot( const Lot &src ) :
+        mShape(src.mShape),
+        mId(src.mId),
+        mColor(src.mColor),
+        mBuilding(src.mBuilding),
+        buildingPosition(src.buildingPosition),
+        buildingRotation(src.buildingRotation)
+    { };
     Lot( const uint32_t lid, const FlatShape &fs, const ci::Color c ) : mShape(fs), mId(lid), mColor(c) { };
 
     void layout();
@@ -26,6 +33,7 @@ class Lot {
     ci::ColorA mColor;
     Building mBuilding;
     ci::Vec2f buildingPosition;
+    float buildingRotation = 0;
 };
 
 #endif /* defined(__Cityscape__Lot__) */

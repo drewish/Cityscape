@@ -19,14 +19,17 @@ void Lot::layout()
     mBuilding = Building( Building::lshape() );
     mBuilding.mColor = mColor;
 
-    // Vary the floors based on the space... TODO should check for available
-    // space
-    float area = mShape.polygon<InexactK>().area();
-    if ( area < 400 ) {
+    std::vector<PolyLine2f> a = { mShape.outline() },
+        b = { mBuilding.outline(buildingPosition) },
+        diff = PolyLine2f::calcDifference( b,a );
+    if ( diff.size() != 0 ) {
         mBuilding.mFloors = 0;
     }
     else {
-        mBuilding.mFloors = (int) sqrt(area) / 20;//Rand::randInt(5);
+        // Vary the floors based on the area...
+        // TODO: would be interesting to make taller buildings on smaller lots
+        float area = mShape.polygon<InexactK>().area();
+        mBuilding.mFloors = (int) sqrt(area) / 20;
     }
 
     mBuilding.layout();
@@ -42,6 +45,7 @@ void Lot::draw( const Options &options )
 
     gl::pushModelView();
     gl::translate(buildingPosition);
+    gl::rotate(buildingRotation);
     mBuilding.draw( options );
     gl::popModelView();
 }

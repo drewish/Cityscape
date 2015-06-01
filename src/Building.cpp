@@ -25,13 +25,26 @@ void Building::layout()
 
 void Building::draw( const Options &options )
 {
-    if ( options.drawBuildings ) {
+    if ( options.drawBuildings && mFloors > 0 ) {
         gl::color( mColor );
         gl::draw( mMesh );
         gl::enableWireframe();
         gl::draw( mMesh );
         gl::disableWireframe();
     }
+}
+
+PolyLine2f Building::outline(const Vec2f offset, const float rotation)
+{
+    MatrixAffine2f matrix;
+    matrix.rotate( rotation );
+    matrix.translate( offset );
+
+    PolyLine2f ret = PolyLine2f();
+    for( auto it = mOutline.begin(); it != mOutline.end(); ++it ) {
+        ret.push_back( matrix.transformPoint( *it ) );
+    }
+    return ret;
 }
 
 // Build walls

@@ -56,6 +56,7 @@ class Building {
     // TODO: check coding style for capitalization
     // http://www.johnriebli.com/roof-types--house-styles.html
     enum RoofStyle {
+        NONE = 0,
         FLAT,
         HIPPED,
         GABLED,
@@ -73,9 +74,11 @@ class Building {
     void layout();
     void draw( const Options &options );
 
+    ci::PolyLine2f outline(const ci::Vec2f offset = ci::Vec2f::zero(), const float rotation = 0.0);
+
     ci::ColorA mColor = ci::ColorA(0.25, 0.5, 0.25, 0.25);
     ci::PolyLine2f mOutline;
-    RoofStyle mRoof = HIPPED;
+    RoofStyle mRoof = FLAT;
     uint32_t mFloors = 1;
     ci::gl::VboMesh mMesh;
     float mArea = 0;

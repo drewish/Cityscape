@@ -27,6 +27,7 @@ class Road {
 
     void layout();
     void draw( const Options &options );
+    const ci::Rectf bounds();
 
     const ci::Vec2f pointA, pointB;
     ci::PolyLine2f outline;

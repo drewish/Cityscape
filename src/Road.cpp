@@ -21,3 +21,13 @@ void Road::draw( const Options &options )
         gl::drawSolid( outline );
     }
 }
+
+const Rectf Road::bounds()
+{
+    auto p = outline.begin();
+    Rectf bounds( *p, *p );
+    for ( ++p; p != outline.end(); ++p ) {
+        bounds.include( *p );
+    }
+    return bounds;
+}

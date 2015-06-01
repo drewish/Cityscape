@@ -1,15 +1,20 @@
 /*
  Next steps:
- - sub-divide large block with more streets (i guess start with a manhattan grid?)
- - randomly choose building outlines, roof style, height
- - ensure building fits on lot, scale up to use free space
- - put roofs on buildings:
+ - Create a roadways class
+ - City: sub-divide large block with more streets (i guess start with a manhattan grid?)
+ - Lot: scale building to fit free space
+ - Building: optimize mesh building and rendering. migh need a floorplan class
+   so we only build the mesh once. if we had separate roof and wall meshes we 
+   could scale walls based on height.
+ - Lot: randomly choose building outlines, roof style, height
+ - Building: expand roof outline to overlap house
+ - Block: use skeleton to find propertly line then subdivide lots.
+ - Building: put roofs on buildings:
      - gabled
      - gambrel
      - shed
- - expand roof outline to overlap house
- - mark portions of lot that face a road
- - orient buildings toward street
+ - Lot: mark portions of lot that face a road
+ - Lot: orient buildings toward street
  */
 
 #include "cinder/app/AppNative.h"
@@ -146,17 +151,14 @@ void CityscapeApp::setup()
     gl::VboMesh::Layout layout;
     layout.setStaticIndices();
     layout.setStaticPositions();
-
     int quadCount = 1;
     int vertCount = quadCount * 4;
     mMesh = gl::VboMesh(vertCount, quadCount * 4, layout, GL_QUADS);
-
     vector<uint32_t> indices;
     for (int i=0; i < vertCount; i++) {
         indices.push_back(i);
     }
     mMesh.bufferIndices(indices);
-
     vector<Vec3f> positions;
     positions.push_back( Vec3f( -0.5,  0.5, -0.5 ) );
     positions.push_back( Vec3f(  0.5,  0.5, -0.5 ) );
@@ -168,8 +170,7 @@ void CityscapeApp::setup()
 void CityscapeApp::resize()
 {
     mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
-    Vec2i center = getWindowCenter();
-    mCamera.lookAt( Vec3f( center.x, center.y - 600, 400.0f ), Vec3f(center,0.0), Vec3f::yAxis() );
+    mCamera.lookAt( Vec3f( 320, 240 - 600, 400.0f ), Vec3f(320, 240,0.0), Vec3f::yAxis() );
 }
 
 void CityscapeApp::update()
@@ -183,21 +184,66 @@ void CityscapeApp::addPoint(Vec2f pos)
 	layout();
 }
 
+void buildHighways(const vector<Vec2f> &points, vector<Road> &roads)
+{
+    float roadWidth = 20.0;
+    for( uint i = 1, size = points.size(); i < size; i += 2 ) {
+        Road road(points[i-1], points[i], roadWidth);
+        roads.push_back(road);
+    }
+}
+
+void buildSideStreets(vector<Road> &roads)
+{
+}
+
+void buildBlocks()
+{
+}
+
 void CityscapeApp::layout()
 {
-	float width = 20.0;
-
-	mRoads.clear();
+    mRoads.clear();
     mBlocks.clear();
 
-    CGAL::Polygon_set_2<ExactK> unPaved;
-	for ( uint i = 1, size = mPoints.size(); i < size; i += 2 ) {
-		Road road(mPoints[i-1], mPoints[i], width);
-		mRoads.push_back(road);
+    CGAL::Polygon_set_2<ExactK> roadways, unpaved;
 
-        unPaved.join( polygonFrom<ExactK>( road.outline ) );
-	}
-    unPaved.complement();
+    buildHighways( mPoints, mRoads );
+
+    // Add some secondary streets
+    //    buildSideStreets( mRoads );
+    if ( mRoads.size() != 0 ) {
+        // - find bounding box for roads
+        auto r = mRoads.begin();
+        Rectf bounds( r->bounds() );
+        for ( ++r; r != mRoads.end(); ++r ) {
+            bounds.include( r->bounds() );
+        }
+
+        // - create narrow roads to cover the bounding box
+        float roadWidth = 10.0;
+        for ( float x = bounds.x1; x < bounds.x2; x += 50 ) {
+            Road road( Vec2f( x, bounds.y1 ), Vec2f( x, bounds.y2 ), roadWidth);
+            mRoads.push_back( road );
+//            roadways.join( polygonFrom<ExactK>( road.outline ) );
+        }
+        for ( float y = bounds.y1; y < bounds.y2; y += 100 ) {
+            Road road( Vec2f( bounds.x1, y ), Vec2f( bounds.x2, y ), roadWidth);
+            mRoads.push_back( road );
+//            roadways.join( polygonFrom<ExactK>( road.outline ) );
+        }
+
+        // - make roadway orientation configurable globally
+
+        // - make roadway orientation configurable at the block level (meaning we
+        //   run this for each block)
+
+    }
+
+    for ( auto r = mRoads.begin(); r != mRoads.end(); ++r ) {
+        roadways.join( polygonFrom<ExactK>( r->outline ) );
+    }
+    unpaved.complement(roadways);
 
     if (mOptions.clipCityLimit) {
         Vec2i windowSize = getWindowSize();
@@ -207,13 +253,13 @@ void CityscapeApp::layout()
         window.push_back( ExactK::Point_2( windowSize.x, windowSize.y ) );
         window.push_back( ExactK::Point_2( 0, windowSize.y ) );
         
-        unPaved.intersection(window); // Intersect with the clipping rectangle.
+        unpaved.intersection(window); // Intersect with the clipping rectangle.
     }
 
     unsigned int block_id = 0;
     std::list<CGAL::Polygon_with_holes_2<ExactK>> res;
-    unPaved.polygons_with_holes (std::back_inserter (res));
-    for (auto it = res.begin(); it != res.end(); ++it) {
+    unpaved.polygons_with_holes( std::back_inserter( res ) );
+    for ( auto it = res.begin(); it != res.end(); ++it ) {
         CGAL::Polygon_with_holes_2<ExactK> pwh = *it;
 
         if ( pwh.is_unbounded() ) {
