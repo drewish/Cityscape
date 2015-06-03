@@ -25,12 +25,9 @@
 #include "cinder/params/Params.h"
 
 #include "CinderCGAL.h"
-#include <CGAL/Polygon_set_2.h>
 #include "FlatShape.h"
-#include "Road.h"
+#include "RoadNetwork.h"
 #include "Building.h"
-#include "Lot.h"
-#include "Block.h"
 #include "Options.h"
 
 using namespace ci;
@@ -56,10 +53,7 @@ class CityscapeApp : public AppNative {
 
     CameraPersp     mCamera;
 
-    vector<Vec2f>   mPoints;
-    PolyLine2f      mDivider;
-    vector<Road>    mRoads;
-    vector<Block>   mBlocks;
+    RoadNetwork     mRoads;
     ci::gl::VboMesh mMesh;
 
     params::InterfaceGlRef  mParams;
@@ -81,67 +75,72 @@ void CityscapeApp::setup()
     mParams->addParam( "Building", &mOptions.drawBuildings, "key=f" );
     mParams->addParam( "Clip City", &mOptions.clipCityLimit, "key=c" );
     mParams->addButton( "Test 1", [&] {
-        mPoints.clear();
-        mPoints.push_back(Vec2f(133,41));
-        mPoints.push_back(Vec2f(143,451));
-        mPoints.push_back(Vec2f(143,451));
-        mPoints.push_back(Vec2f(495,424));
-        mPoints.push_back(Vec2f(491,421));
-        mPoints.push_back(Vec2f(370,254));
-        mPoints.push_back(Vec2f(377,262));
-        mPoints.push_back(Vec2f(529,131));
-        layout();
+        mRoads.clear();
+        mRoads.addPoints({
+            Vec2f(133,41),
+            Vec2f(143,451),
+            Vec2f(143,451),
+            Vec2f(495,424),
+            Vec2f(491,421),
+            Vec2f(370,254),
+            Vec2f(377,262),
+            Vec2f(529,131),
+        });
     }, "key=1" );
     mParams->addButton( "Test 2", [&] {
-        mPoints.clear();
-        mPoints.push_back(Vec2f(133,41));
-        mPoints.push_back(Vec2f(143,451));
-        mPoints.push_back(Vec2f(143,451));
-        mPoints.push_back(Vec2f(495,424));
-        mPoints.push_back(Vec2f(491,421));
-        mPoints.push_back(Vec2f(370,254));
-        mPoints.push_back(Vec2f(377,262));
-        mPoints.push_back(Vec2f(529,131));
-        mPoints.push_back(Vec2f(131,47));
-        mPoints.push_back(Vec2f(523,132));
-        layout();
+        mRoads.clear();
+        mRoads.addPoints({
+            Vec2f(133,41),
+            Vec2f(143,451),
+            Vec2f(143,451),
+            Vec2f(495,424),
+            Vec2f(491,421),
+            Vec2f(370,254),
+            Vec2f(377,262),
+            Vec2f(529,131),
+            Vec2f(131,47),
+            Vec2f(523,132),
+        });
     }, "key=2" );
     mParams->addButton( "Test 3", [&] {
-        mPoints.clear();
-        mPoints.push_back(Vec2f(119.284,17.3257));
-        mPoints.push_back(Vec2f(301.294,1226.4));
-        mPoints.push_back(Vec2f(301.294,1226.4));
-        mPoints.push_back(Vec2f(546.399,74.1908));
-        mPoints.push_back(Vec2f(544.513,79.3862));
-        mPoints.push_back(Vec2f(118.603,19.5102));
-        layout();
+        mRoads.clear();
+        mRoads.addPoints({
+            Vec2f(119.284,17.3257),
+            Vec2f(301.294,1226.4),
+            Vec2f(301.294,1226.4),
+            Vec2f(546.399,74.1908),
+            Vec2f(544.513,79.3862),
+            Vec2f(118.603,19.5102),
+        });
     }, "key=3" );
     mParams->addButton( "Test 4", [&] {
-        mPoints.push_back(Vec2f(163.104,60.2898));
-        mPoints.push_back(Vec2f(306.353,918.302));
-        mPoints.push_back(Vec2f(306.353,918.302));
-        mPoints.push_back(Vec2f(490.026,113.687));
-        mPoints.push_back(Vec2f(490.026,113.687));
-        mPoints.push_back(Vec2f(163.104,60.2898));
-        layout();
+        mRoads.addPoints({
+            Vec2f(163.104,60.2898),
+            Vec2f(306.353,918.302),
+            Vec2f(306.353,918.302),
+            Vec2f(490.026,113.687),
+            Vec2f(490.026,113.687),
+            Vec2f(163.104,60.2898),
+        });
     }, "key=4" );
     mParams->addButton( "Test 5", [&] {
-        mPoints.clear();
-        mPoints.push_back(Vec2f(0.8666,1108.26));
-        mPoints.push_back(Vec2f(158.236,41.0269));
-        mPoints.push_back(Vec2f(159.075,44.556));
-        mPoints.push_back(Vec2f(313.45,0.94));
-        mPoints.push_back(Vec2f(313.45,0.94));
-        mPoints.push_back(Vec2f(408.625,90.0115));
-        mPoints.push_back(Vec2f(408.625,90.0115));
-        mPoints.push_back(Vec2f(331.941,319.65));
-        mPoints.push_back(Vec2f(331.941,319.65));
-        mPoints.push_back(Vec2f(313.635,1054.66));
-        mPoints.push_back(Vec2f(313.635,1054.66));
-        mPoints.push_back(Vec2f(0.1429,1069.64));
-        layout();
+        mRoads.clear();
+        mRoads.addPoints({
+            Vec2f(0.8666,1108.26),
+            Vec2f(158.236,41.0269),
+            Vec2f(159.075,44.556),
+            Vec2f(313.45,0.94),
+            Vec2f(313.45,0.94),
+            Vec2f(408.625,90.0115),
+            Vec2f(408.625,90.0115),
+            Vec2f(331.941,319.65),
+            Vec2f(331.941,319.65),
+            Vec2f(313.635,1054.66),
+            Vec2f(313.635,1054.66),
+            Vec2f(0.1429,1069.64),
+        });
     }, "key=5" );
-    mParams->addButton( "Clear Points", [&] { mPoints.clear(); layout(); }, "key=0" );
+    mParams->addButton( "Clear Points", [&] { mRoads.clear(); }, "key=0" );
 
     resize();
     layout();
@@ -179,108 +178,13 @@ void CityscapeApp::update()
 
 void CityscapeApp::addPoint(Vec2f pos)
 {
-	mPoints.push_back( pos );
-//    console() << "mPoints.push_back(Vec2f(" << pos.x << "," << pos.y << "));\n";
-	layout();
-}
-
-void buildHighways(const vector<Vec2f> &points, vector<Road> &roads)
-{
-    float roadWidth = 20.0;
-    for( uint i = 1, size = points.size(); i < size; i += 2 ) {
-        Road road(points[i-1], points[i], roadWidth);
-        roads.push_back(road);
-    }
-}
-
-void buildSideStreets(vector<Road> &roads)
-{
-}
-
-void buildBlocks()
-{
+	mRoads.addPoint( pos );
+//    console() << "mRoads.addPoint(Vec2f(" << pos.x << "," << pos.y << "));\n";
 }
 
 void CityscapeApp::layout()
 {
-    mRoads.clear();
-    mBlocks.clear();
-
-    CGAL::Polygon_set_2<ExactK> roadways, unpaved;
-
-    buildHighways( mPoints, mRoads );
-
-    // Add some secondary streets
-    //    buildSideStreets( mRoads );
-    if ( mRoads.size() != 0 ) {
-        // - find bounding box for roads
-        auto r = mRoads.begin();
-        Rectf bounds( r->bounds() );
-        for ( ++r; r != mRoads.end(); ++r ) {
-            bounds.include( r->bounds() );
-        }
-
-        // - create narrow roads to cover the bounding box
-        float roadWidth = 10.0;
-        for ( float x = bounds.x1; x < bounds.x2; x += 50 ) {
-            Road road( Vec2f( x, bounds.y1 ), Vec2f( x, bounds.y2 ), roadWidth);
-            mRoads.push_back( road );
-//            roadways.join( polygonFrom<ExactK>( road.outline ) );
-        }
-        for ( float y = bounds.y1; y < bounds.y2; y += 100 ) {
-            Road road( Vec2f( bounds.x1, y ), Vec2f( bounds.x2, y ), roadWidth);
-            mRoads.push_back( road );
-//            roadways.join( polygonFrom<ExactK>( road.outline ) );
-        }
-
-        // - make roadway orientation configurable globally
-
-        // - make roadway orientation configurable at the block level (meaning we
-        //   run this for each block)
-
-    }
-
-    for ( auto r = mRoads.begin(); r != mRoads.end(); ++r ) {
-        roadways.join( polygonFrom<ExactK>( r->outline ) );
-    }
-    unpaved.complement(roadways);
-
-    if (mOptions.clipCityLimit) {
-        Vec2i windowSize = getWindowSize();
-        CGAL::Polygon_2<ExactK> window;
-        window.push_back( ExactK::Point_2( 0, 0 ) );
-        window.push_back( ExactK::Point_2( windowSize.x, 0 ) );
-        window.push_back( ExactK::Point_2( windowSize.x, windowSize.y ) );
-        window.push_back( ExactK::Point_2( 0, windowSize.y ) );
-        
-        unpaved.intersection(window); // Intersect with the clipping rectangle.
-    }
-
-    unsigned int block_id = 0;
-    std::list<CGAL::Polygon_with_holes_2<ExactK>> res;
-    unpaved.polygons_with_holes( std::back_inserter( res ) );
-    for ( auto it = res.begin(); it != res.end(); ++it ) {
-        CGAL::Polygon_with_holes_2<ExactK> pwh = *it;
-
-        if ( pwh.is_unbounded() ) {
-            console() << "Polygon is unbounded...\n";
-            continue;
-        }
-        FlatShape fs(pwh);
-
-        console() << "Block: " << block_id << std::endl;
-
-        Block b( block_id++, fs );
-        mBlocks.push_back(b);
-    }
-
-
-    for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
-        it->layout();
-    }
-    for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
-        it->layout();
-    }
+    mRoads.layout();
 }
 
 void CityscapeApp::mouseDown( MouseEvent event )
@@ -314,16 +218,7 @@ void CityscapeApp::draw()
 
     gl::draw(mMesh);
 
-	for( auto it = mRoads.begin(); it != mRoads.end(); ++it ) {
-        it->draw( mOptions );
-	}
-
-	for( auto block = mBlocks.begin(); block != mBlocks.end(); ++block ) {
-        block->draw( mOptions );
-        for( auto lot = block->mLots.begin(); lot != block->mLots.end(); ++lot ) {
-            lot->draw( mOptions );
-        }
-    }
+    mRoads.draw( mOptions );
 
 	mParams->draw();
 }

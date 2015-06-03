@@ -9,13 +9,11 @@
 #ifndef __Cityscape__Block__
 #define __Cityscape__Block__
 
-#include "cinder/TriMesh.h"
-#include "cinder/Triangulate.h"
 
 #include "FlatShape.h"
+#include "Lot.h"
 #include "Options.h"
 
-class Lot;
 
 class Block {
 public:
