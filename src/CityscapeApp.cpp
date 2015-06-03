@@ -1,22 +1,3 @@
-/*
- Next steps:
- - Create a roadways class
- - City: sub-divide large block with more streets (i guess start with a manhattan grid?)
- - Lot: scale building to fit free space
- - Building: optimize mesh building and rendering. migh need a floorplan class
-   so we only build the mesh once. if we had separate roof and wall meshes we 
-   could scale walls based on height.
- - Lot: randomly choose building outlines, roof style, height
- - Building: expand roof outline to overlap house
- - Block: use skeleton to find propertly line then subdivide lots.
- - Building: put roofs on buildings:
-     - gabled
-     - gambrel
-     - shed
- - Lot: mark portions of lot that face a road
- - Lot: orient buildings toward street
- */
-
 #include "cinder/app/AppNative.h"
 #include "cinder/Camera.h"
 #include "cinder/ConvexHull.h"
