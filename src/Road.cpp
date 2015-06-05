@@ -17,7 +17,7 @@ void Road::layout()
 void Road::draw( const Options &options )
 {
     if ( options.drawRoads ) {
-        gl::color( ColorA( 0.3f, 0.3f, 0.3f, 0.4f ) );
+        gl::color( ColorA( 0.3f, 0.3f, 0.3f, 1.0f ) );
         gl::drawSolid( outline );
     }
 }

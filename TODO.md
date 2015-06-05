@@ -1,6 +1,6 @@
-## Block
+## World
 
-- Use skeleton to find propertly line then sub-divide lots.
+- Draw colored ground
 
 ## Building
 
@@ -27,3 +27,8 @@
 - Randomly choose building outlines, roof style, height
 - Track/mark portions of lot that face a road
 - Orient buildings towards street
+
+## Block
+
+- Use skeleton to find property line then sub-divide lots.
+

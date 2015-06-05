@@ -35,7 +35,7 @@ class CityscapeApp : public AppNative {
     CameraPersp     mCamera;
 
     RoadNetwork     mRoads;
-    ci::gl::VboMesh mMesh;
+    ci::gl::VboMesh mSkyMesh;
 
     params::InterfaceGlRef  mParams;
 
@@ -46,6 +46,54 @@ void CityscapeApp::prepareSettings( Settings *settings )
 {
     settings->enableHighDensityDisplay();
 }
+
+void buildSkyMesh( ci::gl::VboMesh &skyMesh )
+{
+    // Sky
+    vector<Vec3f> positions;
+    float y = 500;
+    float minX = -200, maxX = 800;
+    float minZ = 0, midZ = 50, maxZ = 200;
+
+    vector<Color> colors;
+    Color darkBlue = Color8u(108, 184, 251);
+    Color medBlue = Color8u(160, 212, 250);
+    Color lightBlue = Color8u(174, 214, 246);
+
+    positions.push_back( Vec3f( maxX, y, maxZ ) );
+    positions.push_back( Vec3f( minX, y, maxZ ) );
+    colors.push_back( darkBlue );
+    colors.push_back( darkBlue );
+
+    positions.push_back( Vec3f( minX, y, midZ ) );
+    positions.push_back( Vec3f( maxX, y, midZ ) );
+    positions.push_back( Vec3f( maxX, y, midZ ) );
+    positions.push_back( Vec3f( minX, y, midZ ) );
+    colors.push_back( medBlue );
+    colors.push_back( medBlue );
+    colors.push_back( medBlue );
+    colors.push_back( medBlue );
+
+    positions.push_back( Vec3f( minX, y, minZ ) );
+    positions.push_back( Vec3f( maxX, y, minZ ) );
+    colors.push_back( lightBlue );
+    colors.push_back( lightBlue );
+
+    vector<uint32_t> indices;
+    for (int i=0; i < 8; i++) {
+        indices.push_back(i);
+    }
+
+    gl::VboMesh::Layout layout;
+    layout.setStaticIndices();
+    layout.setStaticPositions();
+    layout.setStaticColorsRGB();
+    skyMesh = gl::VboMesh(indices.size(), positions.size(), layout, GL_QUADS);
+    skyMesh.bufferIndices(indices);
+    skyMesh.bufferPositions(positions);
+    skyMesh.bufferColorsRGB(colors);
+}
+
 
 void CityscapeApp::setup()
 {
@@ -126,31 +174,13 @@ void CityscapeApp::setup()
     resize();
     layout();
 
-    // For some fucking reason i have to build and render a mesh in this class
-    // to be able to have the buildings render without dying....
-    gl::VboMesh::Layout layout;
-    layout.setStaticIndices();
-    layout.setStaticPositions();
-    int quadCount = 1;
-    int vertCount = quadCount * 4;
-    mMesh = gl::VboMesh(vertCount, quadCount * 4, layout, GL_QUADS);
-    vector<uint32_t> indices;
-    for (int i=0; i < vertCount; i++) {
-        indices.push_back(i);
-    }
-    mMesh.bufferIndices(indices);
-    vector<Vec3f> positions;
-    positions.push_back( Vec3f( -0.5,  0.5, -0.5 ) );
-    positions.push_back( Vec3f(  0.5,  0.5, -0.5 ) );
-    positions.push_back( Vec3f(  0.5, -0.5, -0.5 ) );
-    positions.push_back( Vec3f( -0.5, -0.5, -0.5 ) );
-    mMesh.bufferPositions(positions);
+    buildSkyMesh( mSkyMesh );
 }
 
 void CityscapeApp::resize()
 {
     mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
-    mCamera.lookAt( Vec3f( 320, 240 - 600, 400.0f ), Vec3f(320, 240,0.0), Vec3f::yAxis() );
+    mCamera.lookAt( Vec3f( 320, -360, 400 ), Vec3f(320, 240, 0), Vec3f::yAxis() );
 }
 
 void CityscapeApp::update()
@@ -197,7 +227,7 @@ void CityscapeApp::draw()
 
     gl::setMatrices( mCamera );
 
-    gl::draw(mMesh);
+    gl::draw(mSkyMesh);
 
     mRoads.draw( mOptions );
 
