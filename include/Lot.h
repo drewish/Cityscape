@@ -23,7 +23,10 @@ class Lot {
         buildingPosition(src.buildingPosition),
         buildingRotation(src.buildingRotation)
     { };
-    Lot( const uint32_t lid, const FlatShape &fs, const ci::Color c ) : mShape(fs), mId(lid), mColor(c) { };
+    Lot( const uint32_t lid, const FlatShape &fs, const ci::Color &c ) : mShape(fs), mId(lid), mColor(c) { };
+
+    void buildInCenter();
+    void buildFullLot();
 
     void layout();
     void draw( const Options &options );

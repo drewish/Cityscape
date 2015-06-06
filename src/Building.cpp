@@ -26,7 +26,7 @@ void Building::layout()
 void Building::draw( const Options &options )
 {
     if ( options.drawBuildings && mFloors > 0 ) {
-        gl::color( mColor );
+        gl::color( ColorA( mColor, 0.5 ) );
         gl::draw( mMesh );
         gl::enableWireframe();
         gl::draw( mMesh );

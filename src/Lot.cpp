@@ -7,17 +7,18 @@
 //
 
 #include "Lot.h"
+#include "cinder/Rand.h"
 
 using namespace ci;
 
-void Lot::layout()
+
+void Lot::buildInCenter()
 {
     // TODO: just placing it in the center for now. would be good to take
     // the street into consideration.
     buildingPosition = mShape.centroid();
 
-    mBuilding = Building( Building::lshape() );
-    mBuilding.mColor = mColor;
+    mBuilding = Building( Building::lshape(), mColor );
 
     std::vector<PolyLine2f> a = { mShape.outline() },
         b = { mBuilding.outline(buildingPosition) },
@@ -31,7 +32,24 @@ void Lot::layout()
         float area = mShape.polygon<InexactK>().area();
         mBuilding.mFloors = (int) sqrt(area) / 20;
     }
+}
 
+void Lot::buildFullLot()
+{
+    buildingPosition = Vec2f::zero();
+
+    mBuilding = Building( mShape.outline(), mColor );
+
+    // Vary the floors based on the area...
+    // TODO: would be interesting to make taller buildings on smaller lots
+    float area = mShape.polygon<InexactK>().area();
+    mBuilding.mFloors = (int) (sqrt(area) / 20)  + ci::randInt(5);
+}
+
+void Lot::layout()
+{
+    buildFullLot();
+    
     mBuilding.layout();
 }
 

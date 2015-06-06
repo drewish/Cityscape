@@ -103,7 +103,7 @@ void RoadNetwork::buildBlocks()
         if ( it->is_unbounded() ) continue;
 
         cinder::app::console() << "Block: " << block_id << std::endl;
-        mBlocks.push_back( Block( block_id++, FlatShape( *it ) ) );
+        mBlocks.push_back( Block( block_id++, FlatShape( *it ), ColorA( 1.0, 1.0, 0.0, 0.3 ) ) );
     }
 }
 

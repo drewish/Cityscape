@@ -62,7 +62,7 @@ void drawSkeleton(const SsPtr &ss)
 
 void Block::layout()
 {
-    subdivide();
+    subdivideNotReally();
 
     for( auto it = mLots.begin(); it != mLots.end(); ++it ) {
         it->layout();
@@ -77,7 +77,7 @@ void Block::draw( const Options &options )
     }
 }
 
-void Block::subdivide()
+void Block::subdivideNotReally()
 {
     // Use the entire block for a lot for now.
     mLots.clear();
@@ -87,9 +87,8 @@ void Block::subdivide()
     mLots.push_back(lot);
 }
 
-/*
 // Old straight skeleton based lot sub divisioning
-void Block::subdivide()
+void Block::subdivideSkeleton()
 {
     // Assume the outline is closed and first == last.
     // Don't want to bother with less than a triangle.
@@ -113,8 +112,7 @@ void Block::subdivide()
                 edge = edge->next();
             } while (edge != start);
 
-            Lot l = Lot(lot_id++, lotOutline);
-            l.mColor = ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 );
+            Lot l = Lot(lot_id++, lotOutline, ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
             mLots.push_back(l);
 
             steps += 0.17;
@@ -128,4 +126,4 @@ void Block::subdivide()
 		return;
 	}
 }
- */
+

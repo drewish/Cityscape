@@ -21,12 +21,13 @@ public:
     Block( const Block &src )
         : mShape(src.mShape), mId(src.mId), mLots(src.mLots)
     {}
-    Block( const uint32_t bid, const FlatShape &fs )
+    Block( const uint32_t bid, const FlatShape &fs, const ci::Color &c )
     : mShape(fs), mId(bid)
     {}
     void layout();
     void draw( const Options &options );
-    void subdivide();
+    void subdivideNotReally();
+    void subdivideSkeleton();
     void placeBuildings();
 
     FlatShape mShape;

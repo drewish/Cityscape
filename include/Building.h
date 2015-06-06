@@ -68,7 +68,7 @@ class Building {
     // it to fit on the lot.
     // Default to a 10x10 square
     Building() : mOutline( square() ) {};
-    Building( const ci::PolyLine2f outline ) : mOutline(outline) { };
+    Building( const ci::PolyLine2f outline, const ci::Color &c ) : mOutline(outline), mColor(c) { };
     Building( const Building &s ) : mColor(s.mColor), mOutline(s.mOutline), mFloors(s.mFloors), mRoof(s.mRoof) { };
 
     void layout();
