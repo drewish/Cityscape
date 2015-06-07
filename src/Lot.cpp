@@ -17,8 +17,10 @@ void Lot::buildInCenter()
     // TODO: just placing it in the center for now. would be good to take
     // the street into consideration.
     buildingPosition = mShape.centroid();
+    buildingRotation = 90 * randInt(4);
 
-    mBuilding = Building( Building::lshape(), mColor );
+    mBuilding = Building( Building::randomOutline(), mColor );
+
 
     std::vector<PolyLine2f> a = { mShape.outline() },
         b = { mBuilding.outline(buildingPosition) },
@@ -48,7 +50,7 @@ void Lot::buildFullLot()
 
 void Lot::layout()
 {
-    buildFullLot();
+    buildInCenter();
     
     mBuilding.layout();
 }

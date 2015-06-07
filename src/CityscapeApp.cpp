@@ -51,7 +51,7 @@ void buildSkyMesh( ci::gl::VboMesh &skyMesh )
 {
     // Sky
     vector<Vec3f> positions;
-    float y = 500;
+    float y = 1500;
     float minX = -200, maxX = 800;
     float minZ = 0, midZ = 50, maxZ = 200;
 

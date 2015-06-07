@@ -10,6 +10,7 @@
 #define __Cityscape__Building__
 
 #include "cinder/gl/Vbo.h"
+#include "cinder/Rand.h"
 #include "Options.h"
 
 class Building {
@@ -50,6 +51,22 @@ class Building {
             ci::Vec2f(-15,0), ci::Vec2f(-15,-10), ci::Vec2f(15,-10),
             ci::Vec2f(15,0), ci::Vec2f(5,0),
         } );
+    }
+
+    static ci::PolyLine2f randomOutline() {
+        switch (ci::randInt(5)) {
+            case 0:
+                return triangle();
+            case 1:
+                return square();
+            case 2:
+                return lshape();
+            case 3:
+                return plus();
+            default:
+                return tee();
+
+        }
     }
 
 
