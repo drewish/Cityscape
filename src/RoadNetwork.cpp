@@ -130,11 +130,20 @@ void RoadNetwork::draw( const Options &options )
 
     for( auto block = mBlocks.begin(); block != mBlocks.end(); ++block ) {
         block->draw( options );
-
         // Sort of tacky to go in like this but the hope is that all the lots
         // draw atop the blocks.
         for( auto lot = block->mLots.begin(); lot != block->mLots.end(); ++lot ) {
             lot->draw( options );
         }
     }
+
+    // Draw buildings on top of lots and blocks
+    for( auto block = mBlocks.begin(); block != mBlocks.end(); ++block ) {
+        // Sort of tacky to go in like this but the hope is that all the lots
+        // draw atop the blocks.
+        for( auto lot = block->mLots.begin(); lot != block->mLots.end(); ++lot ) {
+            lot->drawBuilding( options );
+        }
+    }
+
 }

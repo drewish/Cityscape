@@ -26,11 +26,22 @@ void Building::layout()
 void Building::draw( const Options &options )
 {
     if ( options.drawBuildings && mFloors > 0 ) {
-        gl::color( ColorA( mColor, 0.5 ) );
+        options.buildingShader->bind();
+//        options.buildingShader->uniform( "zoom", 0.5f );
+
+        gl::enable( GL_CULL_FACE );
+        glCullFace( GL_BACK );
+
+        gl::color( ColorA( mColor, 1.0 ) );
         gl::draw( mMesh );
-        gl::enableWireframe();
-        gl::draw( mMesh );
-        gl::disableWireframe();
+
+        options.buildingShader->unbind();
+
+//        gl::enableWireframe();
+//        gl::draw( mMesh );
+//        gl::disableWireframe();
+
+        gl::disable( GL_CULL_FACE );
     }
 }
 

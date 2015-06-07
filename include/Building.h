@@ -95,8 +95,8 @@ class Building {
 
     ci::ColorA mColor = ci::ColorA(0.25, 0.5, 0.25, 0.25);
     ci::PolyLine2f mOutline;
-    RoofStyle mRoof = FLAT;
-    uint32_t mFloors = 1;
+    RoofStyle mRoof = HIPPED;
+    uint32_t mFloors = 2;
     ci::gl::VboMesh mMesh;
     float mArea = 0;
 

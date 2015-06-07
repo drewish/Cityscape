@@ -1,15 +1,16 @@
 #include "cinder/app/AppNative.h"
 #include "cinder/Camera.h"
-#include "cinder/ConvexHull.h"
-#include "cinder/Rand.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/GlslProg.h"
 #include "cinder/params/Params.h"
+#include "cinder/Rand.h"
 
+#include "Building.h"
 #include "CinderCGAL.h"
 #include "FlatShape.h"
-#include "RoadNetwork.h"
-#include "Building.h"
 #include "Options.h"
+#include "Resources.h"
+#include "RoadNetwork.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -37,6 +38,7 @@ class CityscapeApp : public AppNative {
     RoadNetwork     mRoads;
     ci::gl::VboMesh mSkyMesh;
 
+    gl::GlslProgRef	mBuildingShader;
     params::InterfaceGlRef  mParams;
 
     Vec2i mMousePos;
@@ -171,6 +173,17 @@ void CityscapeApp::setup()
     }, "key=5" );
     mParams->addButton( "Clear Points", [&] { mRoads.clear(); }, "key=0" );
 
+//    try {
+        mOptions.buildingShader = gl::GlslProg::create( loadResource( RES_VERT ), loadResource( RES_FRAG ) );
+//    }
+//    catch( gl::GlslProgCompileExc &exc ) {
+//        console() << "Shader compile error: " << std::endl;
+//        console() << exc.what();
+//    }
+//    catch( ... ) {
+//        console() << "Unable to load shader" << std::endl;
+//    }
+
     resize();
     layout();
 
@@ -224,12 +237,17 @@ void CityscapeApp::draw()
 {
 	gl::clear( Color( 0.9, 0.9, 0.9 ) );
 	gl::enableAlphaBlending();
+    gl::enableDepthRead();
+    gl::enableDepthWrite();
 
     gl::setMatrices( mCamera );
 
     gl::draw(mSkyMesh);
 
     mRoads.draw( mOptions );
+
+    gl::disableDepthWrite();
+    gl::disableDepthRead();
 
 	mParams->draw();
 }

@@ -62,7 +62,10 @@ void Lot::draw( const Options &options )
         gl::color( ColorA( mColor, 0.4 ) );
         gl::draw( mShape.mesh() );
     }
+}
 
+void Lot::drawBuilding( const Options &options )
+{
     gl::pushModelView();
     gl::translate(buildingPosition);
     gl::rotate(buildingRotation);

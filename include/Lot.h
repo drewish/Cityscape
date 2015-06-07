@@ -30,6 +30,7 @@ class Lot {
 
     void layout();
     void draw( const Options &options );
+    void drawBuilding( const Options &options );
 
     uint32_t mId;
     FlatShape mShape;

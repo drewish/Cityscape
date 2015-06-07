@@ -17,6 +17,8 @@
 		497E4AB31B1EBA6600AF6B17 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 497E4AB21B1EBA6600AF6B17 /* README.md */; };
 		498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */; };
 		49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.md */; };
+		49E959221B23EC340093E4C8 /* vert.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 49E959211B23EC340093E4C8 /* vert.glsl */; };
+		49E959241B23EC4D0093E4C8 /* frag.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 49E959231B23EC4D0093E4C8 /* frag.glsl */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5323E6B60EAFCA7E003A9687 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B50EAFCA7E003A9687 /* QTKit.framework */; };
 		5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */; };
@@ -52,6 +54,8 @@
 		498D89CB1B1C027300A962B5 /* RoadNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoadNetwork.h; sourceTree = "<group>"; };
 		49A6B2DF1ABBFD3E000EA750 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = TODO.md; path = ../TODO.md; sourceTree = "<group>"; };
 		49E8F7C51B0EDB1C006FF1E5 /* Options.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
+		49E959211B23EC340093E4C8 /* vert.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = vert.glsl; path = ../resources/vert.glsl; sourceTree = "<group>"; };
+		49E959231B23EC4D0093E4C8 /* frag.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = frag.glsl; path = ../resources/frag.glsl; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
 		5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatShape.cpp; path = ../src/FlatShape.cpp; sourceTree = "<group>"; };
@@ -190,6 +194,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				49E959211B23EC340093E4C8 /* vert.glsl */,
+				49E959231B23EC4D0093E4C8 /* frag.glsl */,
 				0AE48136C1644371A1A5B3C8 /* CinderApp.icns */,
 				ACB4D9448A764F68A540CED0 /* Info.plist */,
 			);
@@ -266,6 +272,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */,
+				49E959241B23EC4D0093E4C8 /* frag.glsl in Resources */,
+				49E959221B23EC340093E4C8 /* vert.glsl in Resources */,
 				A27A70ECAE7549F98B411A74 /* CinderApp.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
