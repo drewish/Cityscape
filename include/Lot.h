@@ -19,7 +19,7 @@ class Lot {
         mShape(src.mShape),
         mId(src.mId),
         mColor(src.mColor),
-        mBuilding(src.mBuilding),
+        mBuildingRef(src.mBuildingRef),
         buildingPosition(src.buildingPosition),
         buildingRotation(src.buildingRotation)
     { };
@@ -35,7 +35,7 @@ class Lot {
     uint32_t mId;
     FlatShape mShape;
     ci::ColorA mColor;
-    Building mBuilding;
+    BuildingRef mBuildingRef;
     ci::Vec2f buildingPosition;
     float buildingRotation = 0;
 };

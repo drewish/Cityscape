@@ -19,20 +19,20 @@ void Lot::buildInCenter()
     buildingPosition = mShape.centroid();
     buildingRotation = 90 * randInt(4);
 
-    mBuilding = Building( Building::randomOutline(), mColor );
+    mBuildingRef = Building::createRandom();
 
 
     std::vector<PolyLine2f> a = { mShape.outline() },
-        b = { mBuilding.outline(buildingPosition) },
+        b = { mBuildingRef->outline(buildingPosition) },
         diff = PolyLine2f::calcDifference( b,a );
     if ( diff.size() != 0 ) {
-        mBuilding.mFloors = 0;
+        mBuildingRef = NULL;
     }
     else {
         // Vary the floors based on the area...
         // TODO: would be interesting to make taller buildings on smaller lots
         float area = mShape.polygon<InexactK>().area();
-        mBuilding.mFloors = (int) sqrt(area) / 20;
+        mBuildingRef->mFloors = (int) sqrt(area) / 20;
     }
 }
 
@@ -40,19 +40,19 @@ void Lot::buildFullLot()
 {
     buildingPosition = Vec2f::zero();
 
-    mBuilding = Building( mShape.outline(), mColor );
+    mBuildingRef = Building::create( mShape.outline() );
 
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots
     float area = mShape.polygon<InexactK>().area();
-    mBuilding.mFloors = (int) (sqrt(area) / 20)  + ci::randInt(5);
+    mBuildingRef->mFloors = (int) (sqrt(area) / 20)  + ci::randInt(5);
 }
 
 void Lot::layout()
 {
     buildInCenter();
-    
-    mBuilding.layout();
+
+    if ( mBuildingRef ) mBuildingRef->layout();
 }
 
 void Lot::draw( const Options &options )
@@ -66,9 +66,11 @@ void Lot::draw( const Options &options )
 
 void Lot::drawBuilding( const Options &options )
 {
+    if ( !mBuildingRef ) return;
+
     gl::pushModelView();
     gl::translate(buildingPosition);
     gl::rotate(buildingRotation);
-    mBuilding.draw( options );
+    mBuildingRef->draw( options );
     gl::popModelView();
 }

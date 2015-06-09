@@ -13,8 +13,20 @@
 #include "cinder/Rand.h"
 #include "Options.h"
 
+class Building;
+typedef std::shared_ptr<Building> BuildingRef;
+
 class Building {
   public:
+
+    static BuildingRef create( const ci::PolyLine2f outline ) {
+        return BuildingRef( new Building( outline ) );
+    }
+
+    static BuildingRef createRandom( ) {
+        return BuildingRef( new Building( randomOutline() ) );
+    }
+
 
     static ci::PolyLine2f triangle() {
         return ci::PolyLine2f( {
@@ -83,25 +95,23 @@ class Building {
 
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.
-    // Default to a 10x10 square
-    Building() : mOutline( square() ) {};
-    Building( const ci::PolyLine2f outline, const ci::Color &c ) : mOutline(outline), mColor(c) { };
-    Building( const Building &s ) : mColor(s.mColor), mOutline(s.mOutline), mFloors(s.mFloors), mRoof(s.mRoof) { };
+//    Building() : mOutline( square() ) {};
+    Building( const ci::PolyLine2f outline ) : mOutline(outline) {  };
+    Building( const Building &s ) : mMeshRef(s.mMeshRef), mOutline(s.mOutline), mFloors(s.mFloors), mRoof(s.mRoof) { };
 
     void layout();
     void draw( const Options &options );
 
     ci::PolyLine2f outline(const ci::Vec2f offset = ci::Vec2f::zero(), const float rotation = 0.0);
 
-    ci::ColorA mColor = ci::ColorA(0.25, 0.5, 0.25, 0.25);
     ci::PolyLine2f mOutline;
     RoofStyle mRoof = HIPPED;
     uint32_t mFloors = 2;
-    ci::gl::VboMesh mMesh;
+    ci::gl::VboMeshRef mMeshRef;
     float mArea = 0;
 
   private:
-    ci::gl::VboMesh makeMesh(const RoofStyle roof, const ci::PolyLine2f &outline, unsigned int floors);
+    ci::gl::VboMeshRef makeMesh(const RoofStyle roof, const ci::PolyLine2f &outline, unsigned int floors);
 
 };
 

@@ -36,7 +36,10 @@ public:
     void addPoint( const ci::Vec2f &pos )
     {
         mPoints.push_back( pos );
-        layout();
+        // Don't bother redoing the layout if we have an odd number of points.
+        if ( mPoints.size() % 2 == 0 ) {
+            layout();
+        }
     }
     void layout();
     void draw( const Options &options );
