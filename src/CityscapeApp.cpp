@@ -136,12 +136,14 @@ void CityscapeApp::setup()
     mParams->addButton( "Test 3", [&] {
         mRoads.clear();
         mRoads.addPoints({
-            Vec2f(119.284,17.3257),
-            Vec2f(301.294,1226.4),
-            Vec2f(301.294,1226.4),
-            Vec2f(546.399,74.1908),
-            Vec2f(544.513,79.3862),
-            Vec2f(118.603,19.5102),
+            Vec2f(-391.031,1191.03),
+            Vec2f(1026.58,1173.85),
+            Vec2f(1026.58,1173.85),
+            Vec2f(538.783,-52.5473),
+            Vec2f(538.783,-52.5473),
+            Vec2f(103.206,-48.1886),
+            Vec2f(103.206,-48.1886),
+            Vec2f(-391.031,1191.03),
         });
     }, "key=3" );
     mParams->addButton( "Test 4", [&] {
@@ -203,7 +205,7 @@ void CityscapeApp::update()
 void CityscapeApp::addPoint(Vec2f pos)
 {
 	mRoads.addPoint( pos );
-//    console() << "mRoads.addPoint(Vec2f(" << pos.x << "," << pos.y << "));\n";
+    console() << "Vec2f(" << pos.x << "," << pos.y << "),\n";
 }
 
 void CityscapeApp::layout()
