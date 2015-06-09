@@ -22,6 +22,8 @@ templates, which slowed my progress. But as I've started to discover how to use
 it, I found the breadth of CGAL's functionality to be amazing. It may not do it
 fast, but it'll do it accurately.
 
+![Screen shot of Cityscape](./SEEME.png)
+
 
 ## Installation
 
