@@ -19,20 +19,19 @@ void Lot::buildInCenter()
     buildingPosition = mShape.centroid();
     buildingRotation = 90 * randInt(4);
 
-    mBuildingRef = Building::createRandom();
+    // Vary the floors based on the area...
+    // TODO: would be interesting to make taller buildings on smaller lots
+    float area = mShape.polygon<InexactK>().area();
+    int floors = (int) sqrt(area) / 20;
 
+    mBuildingRef = Building::createRandom( floors, BuildingPlan::HIPPED_ROOF );
+    if (!mBuildingRef) { return;     }
 
     std::vector<PolyLine2f> a = { mShape.outline() },
-        b = { mBuildingRef->outline(buildingPosition) },
+        b = { mBuildingRef->plan().outline(buildingPosition) },
         diff = PolyLine2f::calcDifference( b,a );
     if ( diff.size() != 0 ) {
         mBuildingRef = NULL;
-    }
-    else {
-        // Vary the floors based on the area...
-        // TODO: would be interesting to make taller buildings on smaller lots
-        float area = mShape.polygon<InexactK>().area();
-        mBuildingRef->mFloors = (int) sqrt(area) / 20;
     }
 }
 
@@ -40,12 +39,12 @@ void Lot::buildFullLot()
 {
     buildingPosition = Vec2f::zero();
 
-    mBuildingRef = Building::create( mShape.outline() );
-
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots
     float area = mShape.polygon<InexactK>().area();
-    mBuildingRef->mFloors = (int) (sqrt(area) / 20)  + ci::randInt(5);
+    int floors = (int) (sqrt(area) / 20)  + ci::randInt(5);
+
+    mBuildingRef = Building::create( BuildingPlan( mShape.outline(), floors, BuildingPlan::FLAT_ROOF ) );
 }
 
 void Lot::layout()

@@ -9,110 +9,39 @@
 #ifndef __Cityscape__Building__
 #define __Cityscape__Building__
 
+#include <boost/flyweight.hpp>
+#include <boost/flyweight/key_value.hpp>
+using namespace ::boost::flyweights;
+
 #include "cinder/gl/Vbo.h"
-#include "cinder/Rand.h"
+#include "BuildingPlan.h"
 #include "Options.h"
 
 class Building;
 typedef std::shared_ptr<Building> BuildingRef;
 
+
 class Building {
   public:
 
-    static BuildingRef create( const ci::PolyLine2f outline ) {
-        return BuildingRef( new Building( outline ) );
+    static BuildingRef create( const BuildingPlan plan ) {
+        return BuildingRef( new Building( plan ) );
     }
 
-    static BuildingRef createRandom( ) {
-        return BuildingRef( new Building( randomOutline() ) );
+    static BuildingRef createRandom( const uint32_t floors, const BuildingPlan::RoofStyle roof ) {
+        return BuildingRef( new Building( BuildingPlan::random( floors, roof ) ) );
     }
 
-
-    static ci::PolyLine2f triangle() {
-        return ci::PolyLine2f( {
-            ci::Vec2f(10, -10), ci::Vec2f(10, 10), ci::Vec2f(-10, 10)
-        } );
-    }
-
-    static ci::PolyLine2f square() {
-        return ci::PolyLine2f( {
-            ci::Vec2f(10, -10), ci::Vec2f(10, 10),
-            ci::Vec2f(-10, 10), ci::Vec2f(-10, -10)
-        } );
-    }
-
-    static ci::PolyLine2f lshape() {
-        return ci::PolyLine2f( {
-            ci::Vec2f(15, 0), ci::Vec2f(15, 10), ci::Vec2f(-15, 10),
-            ci::Vec2f(-15, -10), ci::Vec2f(-5, -10), ci::Vec2f(-5, 0),
-        } );
-    }
-
-    static ci::PolyLine2f plus() {
-        return ci::PolyLine2f( {
-            ci::Vec2f(15,-5), ci::Vec2f(15,5), ci::Vec2f(5,5),
-            ci::Vec2f(5,15), ci::Vec2f(-5,15), ci::Vec2f(-5,5),
-            ci::Vec2f(-15,5), ci::Vec2f(-15,-5), ci::Vec2f(-5,-5),
-            ci::Vec2f(-5,-15), ci::Vec2f(5,-15), ci::Vec2f(5,-5),
-        } );
-    }
-
-    static ci::PolyLine2f tee() {
-        return ci::PolyLine2f( {
-            ci::Vec2f(5,10), ci::Vec2f(-5,10), ci::Vec2f(-5,0),
-            ci::Vec2f(-15,0), ci::Vec2f(-15,-10), ci::Vec2f(15,-10),
-            ci::Vec2f(15,0), ci::Vec2f(5,0),
-        } );
-    }
-
-    static ci::PolyLine2f randomOutline() {
-        switch (ci::randInt(5)) {
-            case 0:
-                return triangle();
-            case 1:
-                return square();
-            case 2:
-                return lshape();
-            case 3:
-                return plus();
-            default:
-                return tee();
-
-        }
-    }
-
-
-    // TODO: check coding style for capitalization
-    // http://www.johnriebli.com/roof-types--house-styles.html
-    enum RoofStyle {
-        NONE = 0,
-        FLAT,
-        HIPPED,
-        GABLED,
-        GAMBREL,
-        SHED
-    };
-
-    // Outline's coords should be centered around the origin so we can transform
-    // it to fit on the lot.
-//    Building() : mOutline( square() ) {};
-    Building( const ci::PolyLine2f outline ) : mOutline(outline) {  };
-    Building( const Building &s ) : mMeshRef(s.mMeshRef), mOutline(s.mOutline), mFloors(s.mFloors), mRoof(s.mRoof) { };
+    Building( const BuildingPlan plan ) : mPlan(plan) { };
+    Building( const Building &s ) : mPlan(s.mPlan) { };
 
     void layout();
-    void draw( const Options &options );
+    void draw( const Options &options ) const;
 
-    ci::PolyLine2f outline(const ci::Vec2f offset = ci::Vec2f::zero(), const float rotation = 0.0);
+    const BuildingPlan plan() { return mPlan; };
 
-    ci::PolyLine2f mOutline;
-    RoofStyle mRoof = HIPPED;
-    uint32_t mFloors = 2;
-    ci::gl::VboMeshRef mMeshRef;
-    float mArea = 0;
-
-  private:
-    ci::gl::VboMeshRef makeMesh(const RoofStyle roof, const ci::PolyLine2f &outline, unsigned int floors);
-
+private:
+    BuildingPlan mPlan;
 };
 
 #endif /* defined(__Cityscape__Building__) */
