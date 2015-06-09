@@ -49,7 +49,7 @@ void Lot::buildFullLot()
 
 void Lot::layout()
 {
-    buildInCenter();
+    buildFullLot();
 
     if ( mBuildingRef ) mBuildingRef->layout();
 }
