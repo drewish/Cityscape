@@ -14,8 +14,8 @@
 
 class BuildingPlan {
 public:
-    // TODO: check coding style for capitalization
     // http://www.johnriebli.com/roof-types--house-styles.html
+    // TODO: check coding style for capitalization
     enum RoofStyle {
         FLAT_ROOF = 0,
         HIPPED_ROOF,
