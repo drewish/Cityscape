@@ -19,10 +19,10 @@ class Block {
 public:
 
     Block( const Block &src )
-        : mShape(src.mShape), mId(src.mId), mLots(src.mLots)
+        : mShape(src.mShape), mLots(src.mLots)
     {}
-    Block( const uint32_t bid, const FlatShape &fs, const ci::Color &c )
-    : mShape(fs), mId(bid)
+    Block( const FlatShape &fs, const ci::Color &c )
+    : mShape(fs)
     {}
     void layout();
     void draw( const Options &options );
@@ -31,7 +31,6 @@ public:
     void placeBuildings();
 
     FlatShape mShape;
-    uint32_t mId;
     std::vector<Lot> mLots;
 };
 

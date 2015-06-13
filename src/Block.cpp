@@ -82,8 +82,7 @@ void Block::subdivideNotReally()
     // Use the entire block for a lot for now.
     mLots.clear();
     PolyLine2f lotOutline = mShape.outline();
-    uint32_t lot_id = 0;
-    Lot lot = Lot(lot_id, lotOutline, ColorA( CM_HSV, 1, 1.0, 0.75, 0.5 ));
+    Lot lot = Lot( lotOutline, ColorA( CM_HSV, 1, 1.0, 0.75, 0.5 ) );
     mLots.push_back(lot);
 }
 
@@ -102,7 +101,6 @@ void Block::subdivideSkeleton()
         mLots.clear();
         mLots.reserve(skel->size_of_faces());
 
-        unsigned int lot_id = 0;
         for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
             PolyLine2f lotOutline;
             Ss::Halfedge_handle start = face->halfedge(),
@@ -112,7 +110,7 @@ void Block::subdivideSkeleton()
                 edge = edge->next();
             } while (edge != start);
 
-            Lot l = Lot(lot_id++, lotOutline, ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
+            Lot l = Lot( lotOutline, ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
             mLots.push_back(l);
 
             steps += 0.17;

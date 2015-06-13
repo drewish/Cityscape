@@ -95,15 +95,13 @@ void RoadNetwork::buildBlocks()
     }
 
     // Extract the final blocks
-    unsigned int block_id = 0;
     unpavedShapes.clear();
     unpaved.complement(paved);
     unpaved.polygons_with_holes( std::back_inserter( unpavedShapes ) );
     for ( auto it = unpavedShapes.begin(); it != unpavedShapes.end(); ++it ) {
         if ( it->is_unbounded() ) continue;
 
-        cinder::app::console() << "Block: " << block_id << std::endl;
-        mBlocks.push_back( Block( block_id++, FlatShape( *it ), ColorA( 1.0, 1.0, 0.0, 0.3 ) ) );
+        mBlocks.push_back( Block( FlatShape( *it ), ColorA( 1.0, 1.0, 0.0, 0.3 ) ) );
     }
 }
 

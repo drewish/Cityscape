@@ -17,13 +17,12 @@ class Lot {
   public:
     Lot( const Lot &src ) :
         mShape(src.mShape),
-        mId(src.mId),
         mColor(src.mColor),
         mBuildingRef(src.mBuildingRef),
         buildingPosition(src.buildingPosition),
         buildingRotation(src.buildingRotation)
     { };
-    Lot( const uint32_t lid, const FlatShape &fs, const ci::Color &c ) : mShape(fs), mId(lid), mColor(c) { };
+    Lot( const FlatShape &fs, const ci::Color &c ) : mShape(fs), mColor(c) { };
 
     void buildInCenter();
     void buildFullLot();
@@ -32,7 +31,6 @@ class Lot {
     void draw( const Options &options );
     void drawBuilding( const Options &options );
 
-    uint32_t mId;
     FlatShape mShape;
     ci::ColorA mColor;
     BuildingRef mBuildingRef;
