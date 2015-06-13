@@ -89,13 +89,8 @@ void buildHippedRoof(const PolyLine2f &outline, const float roofHeight, vector<V
     for( auto vert = skel->vertices_begin(); vert != skel->vertices_end(); ++vert ) {
         if (vert->is_contour()) { continue; }
 
-        Ss::Halfedge_handle definingEdge = *(vert->defining_contour_halfedges_begin());
-        InexactK::Line_2 line = InexactK::Line_2(
-                                                 definingEdge->vertex()->point(),
-                                                 definingEdge->prev()->vertex()->point()
-                                                 );
         InexactK::Point_2 p = vert->point();
-        heightMap[ std::make_pair( p.x(), p.y() ) ] = CGAL::sqrt( CGAL::squared_distance( p, line ) );
+        heightMap[ std::make_pair( p.x(), p.y() ) ] = vert->time();
     }
 
     // - triangulate roof faces and add to mesh
