@@ -9,11 +9,10 @@
 #ifndef __Cityscape__Building__
 #define __Cityscape__Building__
 
-#include <boost/flyweight.hpp>
-#include <boost/flyweight/key_value.hpp>
-using namespace ::boost::flyweights;
+//#include <boost/flyweight.hpp>
+//#include <boost/flyweight/key_value.hpp>
+//using namespace ::boost::flyweights;
 
-#include "cinder/gl/Vbo.h"
 #include "BuildingPlan.h"
 #include "Options.h"
 

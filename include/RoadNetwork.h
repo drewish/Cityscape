@@ -10,7 +10,6 @@
 #define __Cityscape__RoadNetwork__
 
 #include "Options.h"
-#include "Road.h"
 #include "Block.h"
 #include "FlatShape.h"
 

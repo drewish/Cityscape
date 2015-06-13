@@ -7,6 +7,7 @@
 //
 
 #include "RoadNetwork.h"
+#include "Road.h"
 #include "Lot.h"
 
 #include "CinderCGAL.h"

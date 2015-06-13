@@ -5,9 +5,6 @@
 #include "cinder/params/Params.h"
 #include "cinder/Rand.h"
 
-#include "Building.h"
-#include "CinderCGAL.h"
-#include "FlatShape.h"
 #include "Options.h"
 #include "Resources.h"
 #include "RoadNetwork.h"
