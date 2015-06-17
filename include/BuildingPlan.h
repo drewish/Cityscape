@@ -77,7 +77,7 @@ public:
         }
     }
 
-    static BuildingPlan random( const uint32_t floors, const RoofStyle roof ) {
+    static BuildingPlan random( const uint32_t floors = 1, const RoofStyle roof = FLAT_ROOF ) {
         return BuildingPlan( randomOutline(), floors, roof );
     }
 

@@ -21,6 +21,7 @@
 		49E959241B23EC4D0093E4C8 /* frag.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 49E959231B23EC4D0093E4C8 /* frag.glsl */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5323E6B60EAFCA7E003A9687 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B50EAFCA7E003A9687 /* QTKit.framework */; };
+		5F4CBE931B31310800440011 /* Mode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F4CBE911B31310800440011 /* Mode.cpp */; };
 		5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */; };
 		5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */; };
 		5FBB83481B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */; };
@@ -59,6 +60,8 @@
 		49E959231B23EC4D0093E4C8 /* frag.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = frag.glsl; path = ../resources/frag.glsl; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
+		5F4CBE911B31310800440011 /* Mode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mode.cpp; path = ../src/Mode.cpp; sourceTree = "<group>"; };
+		5F4CBE921B31310800440011 /* Mode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mode.h; sourceTree = "<group>"; };
 		5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatShape.cpp; path = ../src/FlatShape.cpp; sourceTree = "<group>"; };
 		5F5C2D831B0D9FF200541E95 /* FlatShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlatShape.h; sourceTree = "<group>"; };
 		5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuildingPlan.cpp; path = ../src/BuildingPlan.cpp; sourceTree = "<group>"; };
@@ -118,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */,
+				5F4CBE911B31310800440011 /* Mode.cpp */,
 				493D46DE1A9D734600618E33 /* CinderCGAL.cpp */,
 				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
 				5FEFD9CC1A92F8F00093F109 /* Road.cpp */,
@@ -183,6 +187,7 @@
 				87F1E1C66EC543B1852B8B39 /* Cityscape_Prefix.pch */,
 				01D5293596684B61AD4041D5 /* Resources.h */,
 				493D46DF1A9D734600618E33 /* CinderCGAL.h */,
+				5F4CBE921B31310800440011 /* Mode.h */,
 				5FEFD9DB1A92FB450093F109 /* Road.h */,
 				498D89CB1B1C027300A962B5 /* RoadNetwork.h */,
 				5FEFD9D81A92FB450093F109 /* Block.h */,
@@ -297,6 +302,7 @@
 				5FEFD9D71A92F9FF0093F109 /* Block.cpp in Sources */,
 				493D46E01A9D734600618E33 /* CinderCGAL.cpp in Sources */,
 				497E4AB31B1EBA6600AF6B17 /* README.md in Sources */,
+				5F4CBE931B31310800440011 /* Mode.cpp in Sources */,
 				5FEFD9D41A92F9B30093F109 /* Lot.cpp in Sources */,
 				5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */,
 				5FEFD9D11A92F9550093F109 /* Building.cpp in Sources */,
