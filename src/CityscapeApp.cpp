@@ -142,7 +142,7 @@ void CityscapeApp::layout()
 
 void CityscapeApp::mouseDown( MouseEvent event )
 {
-// TODO only accept clicks in city mode
+    if (!mModeRef) return;
 
     float u = ((float) event.getX()) / getWindowWidth();
     float v = ((float) (getWindowHeight() - event.getY())) / getWindowHeight();
@@ -151,8 +151,7 @@ void CityscapeApp::mouseDown( MouseEvent event )
     Vec3f point;
     if (r.calcPlaneIntersection(Vec3f::zero(), Vec3f::zAxis(), &result)) {
         point = r.calcPosition(result);
-//        console() << "Vec2f(" << point.x << "," << point.y << "),\n";
-//FIXME:      mRoads.addPoint( point.xy() );
+        mModeRef->addPoint( point.xy() );
     }
 }
 

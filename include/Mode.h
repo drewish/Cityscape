@@ -39,6 +39,7 @@ public:
     }
     virtual void setup() {}
     virtual void addParams( ci::params::InterfaceGlRef params) {}
+    virtual void addPoint( ci::Vec2f point ) {}
     virtual void layout() {}
     virtual void draw() {}
 
@@ -50,7 +51,8 @@ class CityMode : public BaseMode
 {
 public:
     void setup();
-    void addParams( ci::params::InterfaceGlRef params ) ;
+    void addParams( ci::params::InterfaceGlRef params );
+    void addPoint( ci::Vec2f point );
     void layout();
     void draw();
 
@@ -61,7 +63,8 @@ class BuildingMode : public BaseMode
 {
 public:
     void setup();
-    void addParams( ci::params::InterfaceGlRef params ) ;
+    void addParams( ci::params::InterfaceGlRef params );
+    void addPoint( ci::Vec2f point );
     void layout();
     void draw();
 

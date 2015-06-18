@@ -94,17 +94,27 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
         });
     }, "key=5" );
 }
+
+void CityMode::addPoint( ci::Vec2f point ) {
+    console() << "Vec2f(" << point.x << "," << point.y << "),\n";
+    mRoads.addPoint( point );
+}
+
 void CityMode::layout() {
     mRoads.layout();
 }
+
 void CityMode::draw() {
     mRoads.draw( mOptions );
 }
+
+// * * *
 
 void BuildingMode::setup() {
     mBuilding = Building::create( BuildingPlan::random( mFloors, mBuildingRoof ) );
     mOptions.drawBuildings = true;
 }
+
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
     params->addButton( "<", [&] {
         mBuilding = Building::create( BuildingPlan( BuildingPlan::triangle(), mFloors, mBuildingRoof ) );
@@ -125,9 +135,14 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
     std::vector<std::string> roofStyles = { "Flat", "Hipped", "Gabled", "Gambrel", "Shed" };
     params->addParam( "Roof", roofStyles,  (int*)(&mBuildingRoof) );
 }
+
+void BuildingMode::addPoint( ci::Vec2f point ) {
+}
+
 void BuildingMode::layout() {
     if (mBuilding) mBuilding->layout();
 }
+
 void BuildingMode::draw() {
     gl::translate( getWindowCenter() );
     gl::rotate( 360.0 * mMousePos.x / (float) getWindowWidth() );
