@@ -19,6 +19,8 @@ typedef boost::shared_ptr<Ss> SsPtr;
 using namespace ci;
 using namespace std;
 
+typedef std::map<std::pair<float, float>, Vec3f> OffsetMap;
+
 const ci::PolyLine2f BuildingPlan::outline(const ci::Vec2f offset, const float rotation) const
 {
     PolyLine2f ret = PolyLine2f();
@@ -80,9 +82,9 @@ void buildFlatRoof(const PolyLine2f &outline, const float roofHeight, vector<Vec
 }
 
 // compute vertex height based off distance from incident edges
-std::map<std::pair<float, float>, Vec3f> heightOfSkeleton( const SsPtr &skel )
+OffsetMap heightOfSkeleton( const SsPtr &skel )
 {
-    std::map<std::pair<float, float>, Vec3f> heightMap;
+    OffsetMap heightMap;
     for( auto vert = skel->vertices_begin(); vert != skel->vertices_end(); ++vert ) {
         if (vert->is_contour()) { continue; }
 
@@ -92,15 +94,9 @@ std::map<std::pair<float, float>, Vec3f> heightOfSkeleton( const SsPtr &skel )
     return heightMap;
 }
 
-void buildHippedRoof(const PolyLine2f &outline, const float roofHeight, vector<Vec3f> &verts, vector<uint32_t> &indices)
+// - triangulate roof faces and add to mesh
+void buildMeshFromSkeletonAndOffsets( const SsPtr &skel, const OffsetMap &offsets, const float roofHeight, vector<Vec3f> &verts, vector<uint32_t> &indices )
 {
-    // - build straight skeleton
-    SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom<InexactK>( outline ), InexactK() );
-
-    // - compute vertex height based off distance from incident edges
-    std::map<std::pair<float, float>, Vec3f> offsetMap = heightOfSkeleton( skel );
-
-    // - triangulate roof faces and add to mesh
     for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
         PolyLine2f faceOutline;
         Ss::Halfedge_handle start = face->halfedge(),
@@ -116,8 +112,8 @@ void buildHippedRoof(const PolyLine2f &outline, const float roofHeight, vector<V
 
         std::vector<Vec2f> roofVerts = roofMesh.getVertices();
         for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
-            auto it = offsetMap.find( std::make_pair( i->x, i->y ) );
-            Vec3f offset = it == offsetMap.end() ? Vec3f::zero() : it->second;
+            auto it = offsets.find( std::make_pair( i->x, i->y ) );
+            Vec3f offset = it == offsets.end() ? Vec3f::zero() : it->second;
             verts.push_back( offset + Vec3f( *i, roofHeight ) );
         }
 
@@ -126,6 +122,71 @@ void buildHippedRoof(const PolyLine2f &outline, const float roofHeight, vector<V
             indices.push_back( index + *i );
         }
     }
+}
+
+void buildHippedRoof(const PolyLine2f &outline, const float roofHeight, vector<Vec3f> &verts, vector<uint32_t> &indices)
+{
+    // - build straight skeleton
+    SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom<InexactK>( outline ), InexactK() );
+
+    // - compute vertex height based off distance from incident edges
+    std::map<std::pair<float, float>, Vec3f> offsetMap = heightOfSkeleton( skel );
+
+    // - triangulate roof faces and add to mesh
+    buildMeshFromSkeletonAndOffsets(skel, offsetMap, roofHeight, verts, indices);
+}
+
+void buildGabledRoof(const PolyLine2f &outline, const float roofHeight, vector<Vec3f> &verts, vector<uint32_t> &indices)
+{
+    // - build straight skeleton
+    SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom<InexactK>( outline ), InexactK() );
+
+    // - compute vertex height based off distance from incident edges
+    std::map<std::pair<float, float>, Vec3f> offsetMap = heightOfSkeleton( skel );
+
+    // - find faces with 3 edges: 1 skeleton and 2 contour
+    for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
+        uint16_t skeletonVerts = 0;
+        uint16_t contourVerts = 0;
+        uint16_t otherVerts = 0;
+        Ss::Vertex_handle skelVert;
+        Ss::Halfedge_handle skelEdge;
+
+        Ss::Halfedge_handle start = face->halfedge();
+        Ss::Halfedge_handle edge = start;
+        do {
+            Ss::Vertex_handle vert = edge->vertex();
+            if ( vert->is_contour() ) {
+                ++contourVerts;
+            } else if ( vert->is_skeleton() ) {
+                ++skeletonVerts;
+                skelVert = vert;
+                skelEdge = edge;
+            } else {
+                ++otherVerts;
+            }
+            edge = edge->next();
+        } while (edge != start);
+
+        if ( skeletonVerts == 1 && contourVerts == 2 && otherVerts == 0) {
+            // Find point where skeleton vector intersects contour edge
+            Ss::Halfedge_handle contourA = skelEdge->next();
+            Ss::Halfedge_handle contourB = contourA->next();
+            Vec2f A = vecFrom( contourA->vertex()->point() );
+            Vec2f B = vecFrom( contourB->vertex()->point() );
+            Vec2f C = vecFrom( skelEdge->vertex()->point() );
+            Vec2f adjustment =  ( (B + A) / 2.0 ) - C;
+
+            // Adjust the position
+            auto it = offsetMap.find( std::make_pair( skelVert->point().x(), skelVert->point().y() ) );
+            if ( it != offsetMap.end() ) {
+                it->second += Vec3f( adjustment, 0.0);
+            }
+        }
+    }
+
+    // - triangulate roof faces and add to mesh
+    buildMeshFromSkeletonAndOffsets(skel, offsetMap, roofHeight, verts, indices);
 }
 
 gl::VboMeshRef BuildingPlan::makeMesh()
@@ -146,10 +207,7 @@ gl::VboMeshRef BuildingPlan::makeMesh()
             buildHippedRoof(mOutline, roofHeight, verts, indices);
             break;
         case GABLED_ROOF:
-            // - build straight skeleton
-            // - find skeleton vertexes with 3 edges, 2 of which are on the contour, then move that vertex out to contour
-            // - compute skeleton vertex height based off distance from incident edges?
-            // - triangulate faces
+            buildGabledRoof(mOutline, roofHeight, verts, indices);
             break;
         case GAMBREL_ROOF:
             // probably based off GABLED with an extra division of the faces to give it the barn look

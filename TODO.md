@@ -8,21 +8,20 @@
 
 ## Building
 
-- Use a shader to do 3-coloring of the building faces
+- Limit shader's pallet to 3-colors for the building faces
 - Separate types of buildings
   - house
   - urban (fills lot, perhaps with small set back on front and back?)
   - sky scraper
   - warehouse
 - Optimize mesh building and rendering.
-  - Might need a FloorPlan class so we only build the mesh once.
+  - Cache plans by outline so they're not rebuilt every time the layout changes.
   - If we had separate roof and wall meshes we could scale walls based on height.
 - Expand roof outline to overlap house (soffit)
 - More roof styles:
   - sawtooth (warehouses)
   - saltbox
   - gabled
-  - gambrel
   - shed
 
 ## Lot
