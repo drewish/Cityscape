@@ -44,12 +44,18 @@ void Lot::buildFullLot()
     float area = mShape.polygon<InexactK>().area();
     int floors = (int) (sqrt(area) / 20)  + ci::randInt(5);
 
-    mBuildingRef = Building::create( BuildingPlan( mShape.outline(), floors, BuildingPlan::FLAT_ROOF ) );
+    if ( area > 100 ) {
+        mBuildingRef = Building::create( BuildingPlan( mShape.outline(), floors, BuildingPlan::FLAT_ROOF ) );
+    }
+    else {
+        mBuildingRef = NULL;
+    }
 }
 
 void Lot::layout()
 {
     buildFullLot();
+//    buildInCenter();
 
     if ( mBuildingRef ) mBuildingRef->layout();
 }

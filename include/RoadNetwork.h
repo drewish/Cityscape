@@ -45,7 +45,7 @@ public:
 
 private:
     void buildHighways( CGAL::Polygon_set_2<ExactK> &paved );
-    void buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved );
+    void buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved, const float blockWidth = 50, const float blockHeight = 100 );
     void buildBlocks();
 
     std::vector<ci::Vec2f> mPoints;

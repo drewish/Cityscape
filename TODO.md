@@ -2,6 +2,9 @@
 
 - Add options to toggle lot subdivision and building styles
 - Draw a yellowish ground color (or just use that as the background color if we need no fade)
+- Add Lot mode
+- Create object specific options. Perhaps as static variables on the object 
+  class? Otherwise class specific structs.
 
 ## Building
 

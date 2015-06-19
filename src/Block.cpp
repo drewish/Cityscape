@@ -62,6 +62,7 @@ void drawSkeleton(const SsPtr &ss)
 
 void Block::layout()
 {
+//    subdivideSkeleton();
     subdivideNotReally();
 
     for( auto it = mLots.begin(); it != mLots.end(); ++it ) {

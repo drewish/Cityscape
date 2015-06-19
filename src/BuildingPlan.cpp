@@ -79,19 +79,26 @@ void buildFlatRoof(const PolyLine2f &outline, const float roofHeight, vector<Vec
     }
 }
 
+// compute vertex height based off distance from incident edges
+std::map<std::pair<float, float>, Vec3f> heightOfSkeleton( const SsPtr &skel )
+{
+    std::map<std::pair<float, float>, Vec3f> heightMap;
+    for( auto vert = skel->vertices_begin(); vert != skel->vertices_end(); ++vert ) {
+        if (vert->is_contour()) { continue; }
+
+        InexactK::Point_2 p = vert->point();
+        heightMap[ std::make_pair( p.x(), p.y() ) ] = Vec3f( 0, 0, vert->time() );
+    }
+    return heightMap;
+}
+
 void buildHippedRoof(const PolyLine2f &outline, const float roofHeight, vector<Vec3f> &verts, vector<uint32_t> &indices)
 {
     // - build straight skeleton
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom<InexactK>( outline ), InexactK() );
 
     // - compute vertex height based off distance from incident edges
-    std::map<std::pair<float, float>, float> heightMap;
-    for( auto vert = skel->vertices_begin(); vert != skel->vertices_end(); ++vert ) {
-        if (vert->is_contour()) { continue; }
-
-        InexactK::Point_2 p = vert->point();
-        heightMap[ std::make_pair( p.x(), p.y() ) ] = vert->time();
-    }
+    std::map<std::pair<float, float>, Vec3f> offsetMap = heightOfSkeleton( skel );
 
     // - triangulate roof faces and add to mesh
     for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
@@ -109,9 +116,9 @@ void buildHippedRoof(const PolyLine2f &outline, const float roofHeight, vector<V
 
         std::vector<Vec2f> roofVerts = roofMesh.getVertices();
         for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
-            auto it = heightMap.find( std::make_pair( i->x, i->y ) );
-            float h = it == heightMap.end() ? 0.0 : it->second;
-            verts.push_back( Vec3f( *i, roofHeight + h ) );
+            auto it = offsetMap.find( std::make_pair( i->x, i->y ) );
+            Vec3f offset = it == offsetMap.end() ? Vec3f::zero() : it->second;
+            verts.push_back( offset + Vec3f( *i, roofHeight ) );
         }
 
         std::vector<uint32_t> roofIndices = roofMesh.getIndices();

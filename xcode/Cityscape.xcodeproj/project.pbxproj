@@ -121,8 +121,8 @@
 			isa = PBXGroup;
 			children = (
 				25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */,
-				5F4CBE911B31310800440011 /* Mode.cpp */,
 				493D46DE1A9D734600618E33 /* CinderCGAL.cpp */,
+				5F4CBE911B31310800440011 /* Mode.cpp */,
 				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
 				5FEFD9CC1A92F8F00093F109 /* Road.cpp */,
 				5FEFD9D51A92F9FF0093F109 /* Block.cpp */,
@@ -187,6 +187,7 @@
 				87F1E1C66EC543B1852B8B39 /* Cityscape_Prefix.pch */,
 				01D5293596684B61AD4041D5 /* Resources.h */,
 				493D46DF1A9D734600618E33 /* CinderCGAL.h */,
+				49E8F7C51B0EDB1C006FF1E5 /* Options.h */,
 				5F4CBE921B31310800440011 /* Mode.h */,
 				5FEFD9DB1A92FB450093F109 /* Road.h */,
 				498D89CB1B1C027300A962B5 /* RoadNetwork.h */,
@@ -195,7 +196,6 @@
 				5FEFD9D91A92FB450093F109 /* Building.h */,
 				5FA1B5331B26ADC6006047DE /* BuildingPlan.h */,
 				5F5C2D831B0D9FF200541E95 /* FlatShape.h */,
-				49E8F7C51B0EDB1C006FF1E5 /* Options.h */,
 			);
 			name = Headers;
 			path = ../include;

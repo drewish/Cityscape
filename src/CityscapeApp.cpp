@@ -28,10 +28,10 @@ class CityscapeApp : public AppNative {
 
     void layout();
 
-    CameraPersp     mCamera;
-    ModeRef         mModeRef;
-    ci::params::InterfaceGlRef  mParams;
-    ci::gl::VboMesh         mSkyMesh;
+    CameraPersp mCamera;
+    ModeRef mModeRef;
+    ci::params::InterfaceGlRef mParams;
+    ci::gl::VboMesh mSkyMesh;
 };
 
 void CityscapeApp::prepareSettings( Settings *settings )
@@ -92,13 +92,13 @@ void CityscapeApp::setup()
     mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 300 ) );
 //    mParams->maximize( false );
 
-    setupModeParams();
+    resize();
 
-    mModeRef = ModeRef( new CityMode() );
+    setupModeParams();
+    mModeRef = ModeRef( new BuildingMode() );
     mModeRef->setup();
     mModeRef->addParams( mParams );
 
-    resize();
     layout();
 
     buildSkyMesh( mSkyMesh );
@@ -123,6 +123,7 @@ void CityscapeApp::setupModeParams()
         mModeRef->addParams( mParams );
     }, "key=w" );
     mParams->addSeparator();
+    mParams->minimize();
 }
 
 void CityscapeApp::resize()

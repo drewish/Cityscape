@@ -111,7 +111,7 @@ void CityMode::draw() {
 // * * *
 
 void BuildingMode::setup() {
-    mBuilding = Building::create( BuildingPlan::random( mFloors, mBuildingRoof ) );
+    mBuilding = Building::create( BuildingPlan( BuildingPlan::lshape(), mFloors, mBuildingRoof ) );
     mOptions.drawBuildings = true;
 }
 

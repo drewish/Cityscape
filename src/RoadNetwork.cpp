@@ -27,7 +27,7 @@ void RoadNetwork::buildHighways( CGAL::Polygon_set_2<ExactK> &paved )
 }
 
 // Add some secondary streets
-void RoadNetwork::buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved )
+void RoadNetwork::buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved, const float blockWidth, const float blockHeight )
 {
 // TODO:
 //  - make roadway orientation configurable
@@ -43,8 +43,6 @@ void RoadNetwork::buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved )
 
 // TODO: this is begging to be moved into a function:
         // Create narrow roads to cover the bounding box
-        float blockWidth = 50;
-        float blockHeight = 100;
         float roadWidth = 10.0;
 
         CGAL::Bbox_2 bounds = chunk->bbox();
@@ -76,7 +74,10 @@ void RoadNetwork::buildBlocks()
     std::list<CGAL::Polygon_with_holes_2<ExactK>> pavedShapes, unpavedShapes;
 
     buildHighways( paved );
-    buildSideStreets( paved );
+    // TODO: Expose these configuration items
+    // TODO: Make this step optional
+    buildSideStreets( paved, 100, 150 );
+
 
 //    if (mOptions.clipCityLimit) {
 //        Vec2i windowSize = getWindowSize();
