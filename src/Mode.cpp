@@ -132,8 +132,7 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
         mBuilding = Building::create( BuildingPlan( BuildingPlan::plus(), mFloors, mBuildingRoof ) );
     }, "key=5" );
 
-    std::vector<std::string> roofStyles = { "Flat", "Hipped", "Gabled", "Gambrel", "Shed" };
-    params->addParam( "Roof", roofStyles,  (int*)(&mBuildingRoof) );
+    params->addParam( "Roof", BuildingPlan::roofStyleNames(),  (int*)(&mBuildingRoof) );
 }
 
 void BuildingMode::addPoint( ci::Vec2f point ) {

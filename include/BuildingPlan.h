@@ -20,9 +20,17 @@ public:
         FLAT_ROOF = 0,
         HIPPED_ROOF,
         GABLED_ROOF,
-        GAMBREL_ROOF,
-        SHED_ROOF
+        SAWTOOTH_ROOF,
+        SHED_ROOF,
+        GAMBREL_ROOF
     };
+
+    static const std::vector<std::string> roofStyleNames() {
+        std::vector<std::string> roofStyles = { "Flat", "Hipped",
+            "Gabled", "Sawtooth", "Shed", "Gambrel" };
+        return roofStyles;
+    }
+
 
     static ci::PolyLine2f triangle() {
         return ci::PolyLine2f( {
