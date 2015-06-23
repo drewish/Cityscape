@@ -12,6 +12,9 @@
 #include "cinder/gl/Vbo.h"
 #include "cinder/Rand.h"
 
+class BuildingPlan;
+typedef std::shared_ptr<BuildingPlan> BuildingPlanRef;
+
 class BuildingPlan {
 public:
     // http://www.johnriebli.com/roof-types--house-styles.html
@@ -91,33 +94,45 @@ public:
         }
     }
 
-    static BuildingPlan random( const uint32_t floors = 1, const RoofStyle roof = FLAT_ROOF ) {
-        return BuildingPlan( randomOutline(), floors, roof );
+    static BuildingPlan random( const RoofStyle roof = FLAT_ROOF ) {
+        return BuildingPlan( randomOutline(), roof );
+    }
+
+    static BuildingPlanRef create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof ) {
+        return BuildingPlanRef( new BuildingPlan( outline, roof ) );
+    }
+
+    static BuildingPlanRef createRandom( const BuildingPlan::RoofStyle roof ) {
+        return BuildingPlanRef( new BuildingPlan( BuildingPlan::random( roof ) ) );
     }
 
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.
-    BuildingPlan( const ci::PolyLine2f outline, const uint32_t floors = 1, const RoofStyle roof = FLAT_ROOF )
-        : mOutline(outline), mFloors(floors), mRoof(roof)
+    BuildingPlan( const ci::PolyLine2f &outline, const RoofStyle roof = FLAT_ROOF )
+        : mOutline(outline), mRoof(roof)
     {
-        mMeshRef = makeMesh();
+        assert( outline.size() );
+        makeMesh();
     };
     BuildingPlan( const BuildingPlan &s )
-        : mOutline(s.mOutline), mFloors(s.mFloors), mRoof(s.mRoof), mMeshRef(s.mMeshRef)
+        : mOutline(s.mOutline), mRoof(s.mRoof), mRoofMeshRef(s.mRoofMeshRef), mWallMeshRef(s.mWallMeshRef)
     { };
 
 
-    const ci::gl::VboMeshRef meshRef() const { return mMeshRef; };
+    const ci::gl::VboMeshRef roofMeshRef() const { return mRoofMeshRef; };
+    const ci::gl::VboMeshRef wallMeshRef() const { return mWallMeshRef; };
     const ci::PolyLine2f outline(const ci::Vec2f offset = ci::Vec2f::zero(), const float rotation = 0.0) const;
 
+    // Needs to become private
+    const float mFloorHeight = 10.0;
+
 private:
-    ci::gl::VboMeshRef makeMesh();
+    void makeMesh();
 
     ci::PolyLine2f mOutline;
     RoofStyle mRoof;
-    uint32_t mFloors;
-    ci::gl::VboMeshRef mMeshRef;
-
+    ci::gl::VboMeshRef mRoofMeshRef;
+    ci::gl::VboMeshRef mWallMeshRef;
 };
 
 #endif /* defined(__Cityscape__BuildingPlan__) */

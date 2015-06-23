@@ -68,9 +68,10 @@ public:
     void layout();
     void draw();
 
-    BuildingRef     mBuilding;
+    BuildingRef mBuilding;
+    ci::PolyLine2f mOutline;
     BuildingPlan::RoofStyle mBuildingRoof = BuildingPlan::SHED_ROOF;
-    uint32_t        mFloors = 1;
+    int32_t mFloors = 1;
     
 };
 

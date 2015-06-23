@@ -45,7 +45,7 @@ void Lot::buildFullLot()
     int floors = (int) (sqrt(area) / 20)  + ci::randInt(5);
 
     if ( area > 100 ) {
-        mBuildingRef = Building::create( BuildingPlan( mShape.outline(), floors, BuildingPlan::FLAT_ROOF ) );
+        mBuildingRef = Building::create( BuildingPlan( mShape.outline(), BuildingPlan::FLAT_ROOF ), floors );
     }
     else {
         mBuildingRef = NULL;

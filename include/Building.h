@@ -23,16 +23,16 @@ typedef std::shared_ptr<Building> BuildingRef;
 class Building {
   public:
 
-    static BuildingRef create( const BuildingPlan plan ) {
-        return BuildingRef( new Building( plan ) );
+    static BuildingRef create( const BuildingPlan plan, const uint32_t floors ) {
+        return BuildingRef( new Building( plan, floors ) );
     }
 
     static BuildingRef createRandom( const uint32_t floors, const BuildingPlan::RoofStyle roof ) {
-        return BuildingRef( new Building( BuildingPlan::random( floors, roof ) ) );
+        return BuildingRef( new Building( BuildingPlan::random( roof ), floors ) );
     }
 
-    Building( const BuildingPlan plan ) : mPlan(plan) { };
-    Building( const Building &s ) : mPlan(s.mPlan) { };
+    Building( const BuildingPlan plan, const uint32_t floors = 1.0 ) : mPlan(plan), mFloors(floors) { };
+    Building( const Building &s ) : mPlan(s.mPlan), mFloors(s.mFloors) { };
 
     void layout();
     void draw( const Options &options ) const;
@@ -41,6 +41,8 @@ class Building {
 
 private:
     BuildingPlan mPlan;
+    uint32_t mFloors;
+
 };
 
 #endif /* defined(__Cityscape__Building__) */

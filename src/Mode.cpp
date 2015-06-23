@@ -111,30 +111,39 @@ void CityMode::draw() {
 // * * *
 
 void BuildingMode::setup() {
-    mBuilding = Building::create( BuildingPlan( BuildingPlan::lshape(), mFloors, mBuildingRoof ) );
+    mOutline = BuildingPlan::lshape();
+    layout();
     mOptions.drawBuildings = true;
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
-    params->addParam( "Roof", BuildingPlan::roofStyleNames(),  (int*)(&mBuildingRoof) );
+    // TODO: figure out how to get an update callback on the drop down list.
+    params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)(&mBuildingRoof) );
+    params->addParam( "Floors", &mFloors).min( 1 ).max( 10 ).updateFn( std::bind( &BuildingMode::layout, this ) );
     params->addSeparator();
     params->addButton( "Square", [&] {
-        mBuilding = Building::create( BuildingPlan( BuildingPlan::square(), mFloors, mBuildingRoof ) );
+        mOutline = BuildingPlan::square();
+        layout();
     }, "key=1" );
     params->addButton( "Rect", [&] {
-        mBuilding = Building::create( BuildingPlan( BuildingPlan::rectangle(60, 40), mFloors, mBuildingRoof ) );
+        mOutline = BuildingPlan::rectangle(60, 40);
+        layout();
     }, "key=2" );
     params->addButton( "L", [&] {
-        mBuilding = Building::create( BuildingPlan( BuildingPlan::lshape(), mFloors, mBuildingRoof ) );
+        mOutline = BuildingPlan::lshape();
+        layout();
     }, "key=3" );
     params->addButton( "T", [&] {
-        mBuilding = Building::create( BuildingPlan( BuildingPlan::tee(), mFloors, mBuildingRoof ) );
+        mOutline = BuildingPlan::tee();
+        layout();
     }, "key=4" );
     params->addButton( "+", [&] {
-        mBuilding = Building::create( BuildingPlan( BuildingPlan::plus(), mFloors, mBuildingRoof ) );
+        mOutline = BuildingPlan::plus();
+        layout();
     }, "key=5" );
     params->addButton( "<", [&] {
-        mBuilding = Building::create( BuildingPlan( BuildingPlan::triangle(), mFloors, mBuildingRoof ) );
+        mOutline = BuildingPlan::triangle();
+        layout();
     }, "key=7" );
 }
 
@@ -142,13 +151,14 @@ void BuildingMode::addPoint( ci::Vec2f point ) {
 }
 
 void BuildingMode::layout() {
-    if (mBuilding) mBuilding->layout();
+    mBuilding = Building::create( BuildingPlan( mOutline, mBuildingRoof ), mFloors );
+    mBuilding->layout();
 }
 
 void BuildingMode::draw() {
     gl::translate( getWindowCenter() );
     gl::rotate( 360.0 * mMousePos.x / (float) getWindowWidth() );
-    gl::scale(10, 10, 10);
+    gl::scale( 8, 8, 8);
 
     if ( mBuilding ) mBuilding->draw( mOptions );
 }
