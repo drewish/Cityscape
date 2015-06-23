@@ -39,9 +39,15 @@ public:
     }
 
     static ci::PolyLine2f square() {
+        return rectangle( 20, 20 );
+    }
+
+    static ci::PolyLine2f rectangle( const uint16_t width, const uint16_t height ) {
+        float w = width / 2.0;
+        float h = height / 2.0;
         return ci::PolyLine2f( {
-            ci::Vec2f(10, -10), ci::Vec2f(10, 10),
-            ci::Vec2f(-10, 10), ci::Vec2f(-10, -10)
+            ci::Vec2f(w, -h), ci::Vec2f(w, h),
+            ci::Vec2f(-w, h), ci::Vec2f(-w, -h)
         } );
     }
 

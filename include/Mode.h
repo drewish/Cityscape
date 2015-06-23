@@ -69,7 +69,7 @@ public:
     void draw();
 
     BuildingRef     mBuilding;
-    BuildingPlan::RoofStyle mBuildingRoof = BuildingPlan::GABLED_ROOF;
+    BuildingPlan::RoofStyle mBuildingRoof = BuildingPlan::SHED_ROOF;
     uint32_t        mFloors = 1;
     
 };

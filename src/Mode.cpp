@@ -116,11 +116,13 @@ void BuildingMode::setup() {
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
-    params->addButton( "<", [&] {
-        mBuilding = Building::create( BuildingPlan( BuildingPlan::triangle(), mFloors, mBuildingRoof ) );
-    }, "key=1" );
-    params->addButton( "[]", [&] {
+    params->addParam( "Roof", BuildingPlan::roofStyleNames(),  (int*)(&mBuildingRoof) );
+    params->addSeparator();
+    params->addButton( "Square", [&] {
         mBuilding = Building::create( BuildingPlan( BuildingPlan::square(), mFloors, mBuildingRoof ) );
+    }, "key=1" );
+    params->addButton( "Rect", [&] {
+        mBuilding = Building::create( BuildingPlan( BuildingPlan::rectangle(60, 40), mFloors, mBuildingRoof ) );
     }, "key=2" );
     params->addButton( "L", [&] {
         mBuilding = Building::create( BuildingPlan( BuildingPlan::lshape(), mFloors, mBuildingRoof ) );
@@ -131,8 +133,9 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
     params->addButton( "+", [&] {
         mBuilding = Building::create( BuildingPlan( BuildingPlan::plus(), mFloors, mBuildingRoof ) );
     }, "key=5" );
-
-    params->addParam( "Roof", BuildingPlan::roofStyleNames(),  (int*)(&mBuildingRoof) );
+    params->addButton( "<", [&] {
+        mBuilding = Building::create( BuildingPlan( BuildingPlan::triangle(), mFloors, mBuildingRoof ) );
+    }, "key=7" );
 }
 
 void BuildingMode::addPoint( ci::Vec2f point ) {

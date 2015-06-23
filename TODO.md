@@ -15,14 +15,13 @@
   - sky scraper
   - warehouse
 - Optimize mesh building and rendering.
+  - Separate meshes for roof and walls. Scale walls for floors.
   - Cache plans by outline so they're not rebuilt every time the layout changes.
-  - If we had separate roof and wall meshes we could scale walls based on height.
 - Expand roof outline to overlap house (soffit)
 - More roof styles:
   - sawtooth (warehouses)
   - saltbox
   - gabled
-  - shed
 
 ## Lot
 

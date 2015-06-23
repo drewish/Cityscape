@@ -29,7 +29,7 @@ void Building::draw( const Options &options ) const
         options.buildingShader->unbind();
 
 //        gl::enableWireframe();
-//        gl::draw( mMesh );
+//        gl::draw( mPlan.meshRef() );
 //        gl::disableWireframe();
 
         gl::disable( GL_CULL_FACE );
