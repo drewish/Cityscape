@@ -70,7 +70,7 @@ public:
 
     BuildingRef mBuilding;
     ci::PolyLine2f mOutline;
-    BuildingPlan::RoofStyle mBuildingRoof = BuildingPlan::SHED_ROOF;
+    BuildingPlan::RoofStyle mBuildingRoof = BuildingPlan::SAWTOOTH_ROOF;
     int32_t mFloors = 1;
     
 };

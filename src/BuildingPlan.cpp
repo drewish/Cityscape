@@ -69,6 +69,9 @@ void buildWallsFromOutlineAndTopOffsets(const PolyLine2f &outline, const OffsetM
     indices.push_back( i - 2 );
 }
 
+// Use cinder's triangulator to convert a polygon into a face of a roof.
+// The offsets adjust the positions of the verticies, allowing a 2d outline to
+// fill a 3d space
 void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const OffsetMap &offsets, vector<Vec3f> &verts, vector<uint32_t> &indices )
 {
     uint32_t index = verts.size();
@@ -88,7 +91,7 @@ void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const Offset
     }
 }
 
-// compute vertex height based off distance from incident edges
+// Compute vertex height based off distance from incident edges
 OffsetMap heightOfSkeleton( const SsPtr &skel )
 {
     OffsetMap heightMap;
@@ -215,6 +218,71 @@ void buildShedRoof(const PolyLine2f &outline, const float slope, vector<Vec3f> &
     buildWallsFromOutlineAndTopOffsets( outline, offsetMap, 0.0, verts, indices );
 }
 
+void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const float downWidth, vector<Vec3f> &verts, vector<uint32_t> &indices)
+{
+    vector<PolyLine2f> outlines({ outline });
+    OffsetMap offsets;
+
+    // TODO Submit Cinder PR for PolyLine bounds
+    Rectf bounds( outline.getPoints() );
+
+    float x = bounds.x1;
+    while ( x < bounds.x2 ) {
+        vector<PolyLine2f> slice, intersection;
+        float width;
+
+        width = upWidth;
+        slice = {
+            PolyLine2f( {
+                Vec2f(x+width, bounds.y1),
+                Vec2f(x+width, bounds.y2),
+                Vec2f(x, bounds.y2),
+                Vec2f(x, bounds.y1),
+            } ),
+        };
+        x += width;
+
+        intersection = PolyLine2f::calcIntersection( slice, outlines );
+        if (intersection.size()) {
+            vector<Vec2f> points = intersection.front().getPoints();
+
+            // HACKY: Find the points with the x value of the up point and set
+            // those to our elevated height.
+            for ( auto i = points.begin(); i != points.end(); ++i ) {
+                if ( i->x == x ) {
+                    offsets[ std::make_pair( i->x, i->y ) ] = Vec3f( 0, 0, 3 );
+                }
+            }
+
+            reverse(points.begin(), points.end());
+            buildRoofFaceFromOutlineAndOffsets( PolyLine2f(points), offsets, verts, indices );
+        }
+
+        width = downWidth;
+        slice = {
+            PolyLine2f( {
+                Vec2f(x+width, bounds.y1),
+                Vec2f(x+width, bounds.y2),
+                Vec2f(x, bounds.y2),
+                Vec2f(x, bounds.y1),
+            } ),
+        };
+        x += width;
+
+        intersection = PolyLine2f::calcIntersection( slice, outlines );
+        if (intersection.size()) {
+            // TODO Submit Cinder PR for PolyLine reverse.
+            vector<Vec2f> points = intersection.front().getPoints();
+            reverse(points.begin(), points.end());
+            buildRoofFaceFromOutlineAndOffsets( PolyLine2f(points), offsets, verts, indices );
+        }
+    }
+
+    // TODO can't use this yet because our outline doesn't have all the new points in it
+    //    buildWallsFromOutlineAndTopOffsets( outline, offsets, 0.0, verts, indices );
+}
+
+
 void BuildingPlan::makeMesh()
 {
     vector<Vec3f> verts;
@@ -246,6 +314,7 @@ void BuildingPlan::makeMesh()
             buildGabledRoof(mOutline, verts, indices);
             break;
         case SAWTOOTH_ROOF:
+            buildSawtoothRoof( mOutline, 2, 3, verts, indices );
             break;
         case SHED_ROOF:
             // Make slope configurable... might be good for other angled roofs.

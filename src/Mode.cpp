@@ -111,9 +111,8 @@ void CityMode::draw() {
 // * * *
 
 void BuildingMode::setup() {
-    mOutline = BuildingPlan::lshape();
-    layout();
     mOptions.drawBuildings = true;
+    mOutline = BuildingPlan::lshape();
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
