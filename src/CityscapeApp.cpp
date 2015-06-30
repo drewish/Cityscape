@@ -44,7 +44,7 @@ void prepareSettings( App::Settings *settings )
 void buildSkyMesh( ci::gl::VboMesh &skyMesh )
 {
     // Sky
-    vector<Vec3f> positions;
+    vector<vec3> positions;
     float y = 1500;
     float minX = -200, maxX = 800;
     float minZ = 0, midZ = 50, maxZ = 200;
@@ -54,22 +54,22 @@ void buildSkyMesh( ci::gl::VboMesh &skyMesh )
     Color medBlue = Color8u(160, 212, 250);
     Color lightBlue = Color8u(174, 214, 246);
 
-    positions.push_back( Vec3f( maxX, y, maxZ ) );
-    positions.push_back( Vec3f( minX, y, maxZ ) );
+    positions.push_back( vec3( maxX, y, maxZ ) );
+    positions.push_back( vec3( minX, y, maxZ ) );
     colors.push_back( darkBlue );
     colors.push_back( darkBlue );
 
-    positions.push_back( Vec3f( minX, y, midZ ) );
-    positions.push_back( Vec3f( maxX, y, midZ ) );
-    positions.push_back( Vec3f( maxX, y, midZ ) );
-    positions.push_back( Vec3f( minX, y, midZ ) );
+    positions.push_back( vec3( minX, y, midZ ) );
+    positions.push_back( vec3( maxX, y, midZ ) );
+    positions.push_back( vec3( maxX, y, midZ ) );
+    positions.push_back( vec3( minX, y, midZ ) );
     colors.push_back( medBlue );
     colors.push_back( medBlue );
     colors.push_back( medBlue );
     colors.push_back( medBlue );
 
-    positions.push_back( Vec3f( minX, y, minZ ) );
-    positions.push_back( Vec3f( maxX, y, minZ ) );
+    positions.push_back( vec3( minX, y, minZ ) );
+    positions.push_back( vec3( maxX, y, minZ ) );
     colors.push_back( lightBlue );
     colors.push_back( lightBlue );
 
@@ -131,7 +131,7 @@ void CityscapeApp::setupModeParams()
 void CityscapeApp::resize()
 {
     mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
-    mCamera.lookAt( Vec3f( 320, -360, 400 ), Vec3f(320, 240, 0), Vec3f::yAxis() );
+    mCamera.lookAt( vec3( 320, -360, 400 ), vec3(320, 240, 0), vec3::yAxis() );
 }
 
 void CityscapeApp::update()
@@ -151,8 +151,8 @@ void CityscapeApp::mouseDown( MouseEvent event )
     float v = ((float) (getWindowHeight() - event.getY())) / getWindowHeight();
     Ray r = mCamera.generateRay(u, v, mCamera.getAspectRatio());
     float result = 0.0f;
-    Vec3f point;
-    if (r.calcPlaneIntersection(glm::zero<ci::vec3>(), Vec3f::zAxis(), &result)) {
+    vec3 point;
+    if (r.calcPlaneIntersection(glm::zero<ci::vec3>(), vec3::zAxis(), &result)) {
         point = r.calcPosition(result);
         mModeRef->addPoint( vec2( point.x, point.y ) );
     }

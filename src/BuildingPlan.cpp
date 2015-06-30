@@ -19,7 +19,7 @@ typedef boost::shared_ptr<Ss> SsPtr;
 using namespace ci;
 using namespace std;
 
-typedef std::map<std::pair<float, float>, Vec3f> OffsetMap;
+typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
 const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float rotation) const
 {
@@ -39,13 +39,13 @@ const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float ro
 // We're building the walls using individual triangles (rather than strip) so we
 // can use Cinder's triangulator to build the roof.
 //
-void buildWallsFromOutlineAndTopOffsets(const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight, vector<Vec3f> &verts, vector<uint32_t> &indices)
+void buildWallsFromOutlineAndTopOffsets(const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight, vector<vec3> &verts, vector<uint32_t> &indices)
 {
     uint32_t base = verts.size();
     for ( auto i = outline.begin(); i != outline.end(); ++i ) {
-        Vec3f bottom = Vec3f( i->x, i->y, 0.0 );
+        vec3 bottom = vec3( i->x, i->y, 0.0 );
         auto it = topOffsets.find( std::make_pair( i->x, i->y ) );
-        Vec3f topOffset = ( it == topOffsets.end() ) ? Vec3f( 0.0, 0.0, defaultTopHeight ) : it->second;
+        vec3 topOffset = ( it == topOffsets.end() ) ? vec3( 0.0, 0.0, defaultTopHeight ) : it->second;
 
         verts.push_back( bottom );
         verts.push_back( bottom + topOffset );
@@ -72,7 +72,7 @@ void buildWallsFromOutlineAndTopOffsets(const PolyLine2f &outline, const OffsetM
 // Use cinder's triangulator to convert a polygon into a face of a roof.
 // The offsets adjust the positions of the verticies, allowing a 2d outline to
 // fill a 3d space
-void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const OffsetMap &offsets, vector<Vec3f> &verts, vector<uint32_t> &indices )
+void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const OffsetMap &offsets, vector<vec3> &verts, vector<uint32_t> &indices )
 {
     uint32_t index = verts.size();
     ci::Triangulator triangulator( outline );
@@ -81,8 +81,8 @@ void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const Offset
     std::vector<vec2> roofVerts = roofMesh.getVertices();
     for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
         auto it = offsets.find( std::make_pair( i->x, i->y ) );
-        Vec3f offset = it == offsets.end() ? glm::zero<ci::vec3>() : it->second;
-        verts.push_back( offset + Vec3f( *i, 0.0 ) );
+        vec3 offset = it == offsets.end() ? glm::zero<ci::vec3>() : it->second;
+        verts.push_back( offset + vec3( *i, 0.0 ) );
     }
 
     std::vector<uint32_t> roofIndices = roofMesh.getIndices();
@@ -99,13 +99,13 @@ OffsetMap heightOfSkeleton( const SsPtr &skel )
         if (vert->is_contour()) { continue; }
 
         InexactK::Point_2 p = vert->point();
-        heightMap[ std::make_pair( p.x(), p.y() ) ] = Vec3f( 0, 0, vert->time() );
+        heightMap[ std::make_pair( p.x(), p.y() ) ] = vec3( 0, 0, vert->time() );
     }
     return heightMap;
 }
 
 // - triangulate roof faces and add to mesh
-void buildRoofFromSkeletonAndOffsets( const SsPtr &skel, const OffsetMap &offsets, vector<Vec3f> &verts, vector<uint32_t> &indices )
+void buildRoofFromSkeletonAndOffsets( const SsPtr &skel, const OffsetMap &offsets, vector<vec3> &verts, vector<uint32_t> &indices )
 {
     for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
         PolyLine2f faceOutline;
@@ -120,13 +120,13 @@ void buildRoofFromSkeletonAndOffsets( const SsPtr &skel, const OffsetMap &offset
     }
 }
 
-void buildFlatRoof(const PolyLine2f &outline, vector<Vec3f> &verts, vector<uint32_t> &indices)
+void buildFlatRoof(const PolyLine2f &outline, vector<vec3> &verts, vector<uint32_t> &indices)
 {
     OffsetMap empty;
     buildRoofFaceFromOutlineAndOffsets( outline, empty, verts, indices );
 }
 
-void buildHippedRoof(const PolyLine2f &outline, vector<Vec3f> &verts, vector<uint32_t> &indices)
+void buildHippedRoof(const PolyLine2f &outline, vector<vec3> &verts, vector<uint32_t> &indices)
 {
     // - build straight skeleton
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom<InexactK>( outline ), InexactK() );
@@ -138,7 +138,7 @@ void buildHippedRoof(const PolyLine2f &outline, vector<Vec3f> &verts, vector<uin
     buildRoofFromSkeletonAndOffsets(skel, offsetMap, verts, indices);
 }
 
-void buildGabledRoof(const PolyLine2f &outline, vector<Vec3f> &verts, vector<uint32_t> &indices)
+void buildGabledRoof(const PolyLine2f &outline, vector<vec3> &verts, vector<uint32_t> &indices)
 {
     // - build straight skeleton
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( polygonFrom<InexactK>( outline ), InexactK() );
@@ -182,7 +182,7 @@ void buildGabledRoof(const PolyLine2f &outline, vector<Vec3f> &verts, vector<uin
             // Adjust the position
             auto it = offsetMap.find( std::make_pair( skelVert->point().x(), skelVert->point().y() ) );
             if ( it != offsetMap.end() ) {
-                it->second += Vec3f( adjustment, 0.0);
+                it->second += vec3( adjustment, 0.0);
             }
         }
     }
@@ -196,7 +196,7 @@ void buildGabledRoof(const PolyLine2f &outline, vector<Vec3f> &verts, vector<uin
 //   longest side of the outline and use that to define the roof plane. another
 //   would be passing in an angle.
 // - get a proper formula for determining height
-void buildShedRoof(const PolyLine2f &outline, const float slope, vector<Vec3f> &verts, vector<uint32_t> &indices)
+void buildShedRoof(const PolyLine2f &outline, const float slope, vector<vec3> &verts, vector<uint32_t> &indices)
 {
     // For now we find the left most point and have the roof slope up along the
     // x-axis from there.
@@ -210,7 +210,7 @@ void buildShedRoof(const PolyLine2f &outline, const float slope, vector<Vec3f> &
     OffsetMap offsetMap;
     for (auto i = outline.begin(); i != outline.end(); ++i) {
         float z = slope * (i->x - leftmost);
-        offsetMap[ std::make_pair( i->x, i->y ) ] = Vec3f( 0, 0, z );
+        offsetMap[ std::make_pair( i->x, i->y ) ] = vec3( 0, 0, z );
     }
 
     // - triangulate roof faces and add to mesh
@@ -218,7 +218,7 @@ void buildShedRoof(const PolyLine2f &outline, const float slope, vector<Vec3f> &
     buildWallsFromOutlineAndTopOffsets( outline, offsetMap, 0.0, verts, indices );
 }
 
-void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const float downWidth, vector<Vec3f> &verts, vector<uint32_t> &indices)
+void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const float downWidth, vector<vec3> &verts, vector<uint32_t> &indices)
 {
     vector<PolyLine2f> outlines({ outline });
     OffsetMap offsets;
@@ -250,7 +250,7 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
             // those to our elevated height.
             for ( auto i = points.begin(); i != points.end(); ++i ) {
                 if ( i->x == x ) {
-                    offsets[ std::make_pair( i->x, i->y ) ] = Vec3f( 0, 0, 3 );
+                    offsets[ std::make_pair( i->x, i->y ) ] = vec3( 0, 0, 3 );
                 }
             }
 
@@ -285,7 +285,7 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
 
 void BuildingPlan::makeMesh()
 {
-    vector<Vec3f> verts;
+    vector<vec3> verts;
     vector<uint32_t> indices;
 
     gl::VboMesh::Layout layout;
