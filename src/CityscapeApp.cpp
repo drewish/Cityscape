@@ -152,7 +152,7 @@ void CityscapeApp::mouseDown( MouseEvent event )
     Ray r = mCamera.generateRay(u, v, mCamera.getAspectRatio());
     float result = 0.0f;
     Vec3f point;
-    if (r.calcPlaneIntersection(Vec3f::zero(), Vec3f::zAxis(), &result)) {
+    if (r.calcPlaneIntersection(glm::zero<ci::vec3>(), Vec3f::zAxis(), &result)) {
         point = r.calcPosition(result);
         mModeRef->addPoint( vec2( point.x, point.y ) );
     }

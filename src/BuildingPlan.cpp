@@ -81,7 +81,7 @@ void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const Offset
     std::vector<vec2> roofVerts = roofMesh.getVertices();
     for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
         auto it = offsets.find( std::make_pair( i->x, i->y ) );
-        Vec3f offset = it == offsets.end() ? Vec3f::zero() : it->second;
+        Vec3f offset = it == offsets.end() ? glm::zero<ci::vec3>() : it->second;
         verts.push_back( offset + Vec3f( *i, 0.0 ) );
     }
 
