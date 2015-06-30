@@ -44,7 +44,7 @@ public:
     virtual void draw() {}
 
     Options   mOptions;
-    ci::Vec2i mMousePos;
+    ci::ivec2 mMousePos;
 };
 
 class CityMode : public BaseMode

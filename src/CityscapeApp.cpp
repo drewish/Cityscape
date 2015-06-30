@@ -91,7 +91,7 @@ void buildSkyMesh( ci::gl::VboMesh &skyMesh )
 
 void CityscapeApp::setup()
 {
-    mParams = params::InterfaceGl::create( "App parameters", Vec2i( 180, 300 ) );
+    mParams = params::InterfaceGl::create( "App parameters", ivec2( 180, 300 ) );
 //    mParams->maximize( false );
 
     resize();

@@ -80,7 +80,7 @@ void RoadNetwork::buildBlocks()
 
 
 //    if (mOptions.clipCityLimit) {
-//        Vec2i windowSize = getWindowSize();
+//        ivec2 windowSize = getWindowSize();
 //        CGAL::Polygon_2<ExactK> window;
 //        window.push_back( ExactK::Point_2( 0, 0 ) );
 //        window.push_back( ExactK::Point_2( windowSize.x, 0 ) );
