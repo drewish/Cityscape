@@ -37,7 +37,7 @@ void Lot::buildInCenter()
 
 void Lot::buildFullLot()
 {
-    buildingPosition = vec2::zero();
+    buildingPosition = glm::zero<ci::vec2>();
 
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots

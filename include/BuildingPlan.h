@@ -121,7 +121,7 @@ public:
 
     const ci::gl::VboMeshRef roofMeshRef() const { return mRoofMeshRef; };
     const ci::gl::VboMeshRef wallMeshRef() const { return mWallMeshRef; };
-    const ci::PolyLine2f outline(const ci::vec2 offset = ci::vec2::zero(), const float rotation = 0.0) const;
+    const ci::PolyLine2f outline(const ci::vec2 offset = glm::zero<ci::vec2>(), const float rotation = 0.0) const;
 
     // Needs to become private
     const float mFloorHeight = 10.0;
