@@ -26,13 +26,13 @@ public:
     }
 
     // Insert multiple points and avoid a layout for each.
-    void addPoints( const std::vector<ci::Vec2f> &points )
+    void addPoints( const std::vector<ci::vec2> &points )
     {
         mPoints.insert( mPoints.end(), points.begin(), points.end() );
         layout();
     }
 
-    void addPoint( const ci::Vec2f &pos )
+    void addPoint( const ci::vec2 &pos )
     {
         mPoints.push_back( pos );
         // Don't bother redoing the layout if we have an odd number of points.
@@ -48,7 +48,7 @@ private:
     void buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved, const float blockWidth = 50, const float blockHeight = 100 );
     void buildBlocks();
 
-    std::vector<ci::Vec2f> mPoints;
+    std::vector<ci::vec2> mPoints;
     std::vector<Block> mBlocks;
     std::vector<FlatShape> mShapes;
 };

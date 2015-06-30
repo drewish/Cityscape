@@ -37,7 +37,7 @@ public:
 
     static ci::PolyLine2f triangle() {
         return ci::PolyLine2f( {
-            ci::Vec2f(10, -10), ci::Vec2f(10, 10), ci::Vec2f(-10, 10)
+            ci::vec2(10, -10), ci::vec2(10, 10), ci::vec2(-10, 10)
         } );
     }
 
@@ -49,32 +49,32 @@ public:
         float w = width / 2.0;
         float h = height / 2.0;
         return ci::PolyLine2f( {
-            ci::Vec2f(w, -h), ci::Vec2f(w, h),
-            ci::Vec2f(-w, h), ci::Vec2f(-w, -h)
+            ci::vec2(w, -h), ci::vec2(w, h),
+            ci::vec2(-w, h), ci::vec2(-w, -h)
         } );
     }
 
     static ci::PolyLine2f lshape() {
         return ci::PolyLine2f( {
-            ci::Vec2f(15, 0), ci::Vec2f(15, 10), ci::Vec2f(-15, 10),
-            ci::Vec2f(-15, -10), ci::Vec2f(-5, -10), ci::Vec2f(-5, 0),
+            ci::vec2(15, 0), ci::vec2(15, 10), ci::vec2(-15, 10),
+            ci::vec2(-15, -10), ci::vec2(-5, -10), ci::vec2(-5, 0),
         } );
     }
 
     static ci::PolyLine2f plus() {
         return ci::PolyLine2f( {
-            ci::Vec2f(15,-5), ci::Vec2f(15,5), ci::Vec2f(5,5),
-            ci::Vec2f(5,15), ci::Vec2f(-5,15), ci::Vec2f(-5,5),
-            ci::Vec2f(-15,5), ci::Vec2f(-15,-5), ci::Vec2f(-5,-5),
-            ci::Vec2f(-5,-15), ci::Vec2f(5,-15), ci::Vec2f(5,-5),
+            ci::vec2(15,-5), ci::vec2(15,5), ci::vec2(5,5),
+            ci::vec2(5,15), ci::vec2(-5,15), ci::vec2(-5,5),
+            ci::vec2(-15,5), ci::vec2(-15,-5), ci::vec2(-5,-5),
+            ci::vec2(-5,-15), ci::vec2(5,-15), ci::vec2(5,-5),
         } );
     }
 
     static ci::PolyLine2f tee() {
         return ci::PolyLine2f( {
-            ci::Vec2f(5,10), ci::Vec2f(-5,10), ci::Vec2f(-5,0),
-            ci::Vec2f(-15,0), ci::Vec2f(-15,-10), ci::Vec2f(15,-10),
-            ci::Vec2f(15,0), ci::Vec2f(5,0),
+            ci::vec2(5,10), ci::vec2(-5,10), ci::vec2(-5,0),
+            ci::vec2(-15,0), ci::vec2(-15,-10), ci::vec2(15,-10),
+            ci::vec2(15,0), ci::vec2(5,0),
         } );
     }
 
@@ -121,7 +121,7 @@ public:
 
     const ci::gl::VboMeshRef roofMeshRef() const { return mRoofMeshRef; };
     const ci::gl::VboMeshRef wallMeshRef() const { return mWallMeshRef; };
-    const ci::PolyLine2f outline(const ci::Vec2f offset = ci::Vec2f::zero(), const float rotation = 0.0) const;
+    const ci::PolyLine2f outline(const ci::vec2 offset = ci::vec2::zero(), const float rotation = 0.0) const;
 
     // Needs to become private
     const float mFloorHeight = 10.0;

@@ -41,7 +41,7 @@ class FlatShape {
     const PolyLine2fs holes() { return mHoles; }
     const ci::TriMesh mesh() { return mMesh; }
 
-    const ci::Vec2f centroid();
+    const ci::vec2 centroid();
 
     template<class K>
     inline const CGAL::Polygon_2<K> polygon()

@@ -13,11 +13,11 @@
 
 class Road {
   public:
-    Road( const ci::Vec2f a, const ci::Vec2f b, uint width = 10 )
+    Road( const ci::vec2 a, const ci::vec2 b, uint width = 10 )
     : pointA(a), pointB(b), width(width)
     {
-        ci::Vec2f normal = ci::Vec2f(b.y - a.y, -(b.x - a.x)).normalized();
-        ci::Vec2f offset = normal * width / 2;
+        ci::vec2 normal = glm::normalize( ci::vec2( b.y - a.y, - ( b.x - a.x )) );
+        ci::vec2 offset = ci::vec2(width / 2.0) * normal;
         outline.push_back(b + offset);
         outline.push_back(b - offset);
         outline.push_back(a - offset);
@@ -29,7 +29,7 @@ class Road {
     void draw( const Options &options );
     const ci::Rectf bounds();
 
-    const ci::Vec2f pointA, pointB;
+    const ci::vec2 pointA, pointB;
     ci::PolyLine2f outline;
     const unsigned int width;
 };

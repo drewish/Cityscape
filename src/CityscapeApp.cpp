@@ -154,7 +154,7 @@ void CityscapeApp::mouseDown( MouseEvent event )
     Vec3f point;
     if (r.calcPlaneIntersection(Vec3f::zero(), Vec3f::zAxis(), &result)) {
         point = r.calcPosition(result);
-        mModeRef->addPoint( point.xy() );
+        mModeRef->addPoint( vec2( point.x, point.y ) );
     }
 }
 

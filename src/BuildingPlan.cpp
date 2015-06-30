@@ -21,7 +21,7 @@ using namespace std;
 
 typedef std::map<std::pair<float, float>, Vec3f> OffsetMap;
 
-const ci::PolyLine2f BuildingPlan::outline(const ci::Vec2f offset, const float rotation) const
+const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float rotation) const
 {
     PolyLine2f ret = PolyLine2f();
 
@@ -78,7 +78,7 @@ void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const Offset
     ci::Triangulator triangulator( outline );
     ci::TriMesh roofMesh = triangulator.calcMesh();
 
-    std::vector<Vec2f> roofVerts = roofMesh.getVertices();
+    std::vector<vec2> roofVerts = roofMesh.getVertices();
     for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
         auto it = offsets.find( std::make_pair( i->x, i->y ) );
         Vec3f offset = it == offsets.end() ? Vec3f::zero() : it->second;
@@ -174,10 +174,10 @@ void buildGabledRoof(const PolyLine2f &outline, vector<Vec3f> &verts, vector<uin
             // Find point where skeleton vector intersects contour edge
             Ss::Halfedge_handle contourA = skelEdge->next();
             Ss::Halfedge_handle contourB = contourA->next();
-            Vec2f A = vecFrom( contourA->vertex()->point() );
-            Vec2f B = vecFrom( contourB->vertex()->point() );
-            Vec2f C = vecFrom( skelEdge->vertex()->point() );
-            Vec2f adjustment =  ( (B + A) / 2.0 ) - C;
+            vec2 A = vecFrom( contourA->vertex()->point() );
+            vec2 B = vecFrom( contourB->vertex()->point() );
+            vec2 C = vecFrom( skelEdge->vertex()->point() );
+            vec2 adjustment =  ( (B + A) / vec2(2.0) ) - C;
 
             // Adjust the position
             auto it = offsetMap.find( std::make_pair( skelVert->point().x(), skelVert->point().y() ) );
@@ -234,17 +234,17 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
         width = upWidth;
         slice = {
             PolyLine2f( {
-                Vec2f(x+width, bounds.y1),
-                Vec2f(x+width, bounds.y2),
-                Vec2f(x, bounds.y2),
-                Vec2f(x, bounds.y1),
+                vec2(x+width, bounds.y1),
+                vec2(x+width, bounds.y2),
+                vec2(x, bounds.y2),
+                vec2(x, bounds.y1),
             } ),
         };
         x += width;
 
         intersection = PolyLine2f::calcIntersection( slice, outlines );
         if (intersection.size()) {
-            vector<Vec2f> points = intersection.front().getPoints();
+            vector<vec2> points = intersection.front().getPoints();
 
             // HACKY: Find the points with the x value of the up point and set
             // those to our elevated height.
@@ -261,10 +261,10 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
         width = downWidth;
         slice = {
             PolyLine2f( {
-                Vec2f(x+width, bounds.y1),
-                Vec2f(x+width, bounds.y2),
-                Vec2f(x, bounds.y2),
-                Vec2f(x, bounds.y1),
+                vec2(x+width, bounds.y1),
+                vec2(x+width, bounds.y2),
+                vec2(x, bounds.y2),
+                vec2(x, bounds.y1),
             } ),
         };
         x += width;
@@ -272,7 +272,7 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
         intersection = PolyLine2f::calcIntersection( slice, outlines );
         if (intersection.size()) {
             // TODO Submit Cinder PR for PolyLine reverse.
-            vector<Vec2f> points = intersection.front().getPoints();
+            vector<vec2> points = intersection.front().getPoints();
             reverse(points.begin(), points.end());
             buildRoofFaceFromOutlineAndOffsets( PolyLine2f(points), offsets, verts, indices );
         }

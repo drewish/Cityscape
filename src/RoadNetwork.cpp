@@ -48,10 +48,10 @@ void RoadNetwork::buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved, const fl
         CGAL::Bbox_2 bounds = chunk->bbox();
         std::vector<CGAL::Polygon_2<ExactK>> roads;
         for ( float y = bounds.ymin() + blockHeight; y < bounds.ymax(); y += blockHeight ) {
-            roads.push_back( polygonFrom<ExactK>( Road( Vec2f( bounds.xmin(), y ), Vec2f( bounds.xmax(), y ), roadWidth).outline ) );
+            roads.push_back( polygonFrom<ExactK>( Road( vec2( bounds.xmin(), y ), vec2( bounds.xmax(), y ), roadWidth).outline ) );
         }
         for ( float x = bounds.xmin() + blockWidth; x < bounds.xmax(); x += blockWidth ) {
-            roads.push_back( polygonFrom<ExactK>( Road( Vec2f( x, bounds.ymin() ), Vec2f( x, bounds.ymax() ), roadWidth).outline ) );
+            roads.push_back( polygonFrom<ExactK>( Road( vec2( x, bounds.ymin() ), vec2( x, bounds.ymax() ), roadWidth).outline ) );
         }
 
         CGAL::Polygon_set_2<ExactK> newStreets;

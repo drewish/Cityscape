@@ -34,7 +34,7 @@ class Lot {
     FlatShape mShape;
     ci::ColorA mColor;
     BuildingRef mBuildingRef;
-    ci::Vec2f buildingPosition;
+    ci::vec2 buildingPosition;
     float buildingRotation = 0;
 };
 
