@@ -22,7 +22,7 @@ const ci::Vec2f FlatShape::centroid()
     return vecFrom( centroid );
 }
 
-const ci::TriMesh2d FlatShape::makeMesh() {
+const ci::TriMesh FlatShape::makeMesh() {
     // TODO might be good to lazily create this when they first ask for the mesh.
     ci::Triangulator triangulator( mOutline );
     for( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {

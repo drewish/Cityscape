@@ -76,7 +76,7 @@ void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const Offset
 {
     uint32_t index = verts.size();
     ci::Triangulator triangulator( outline );
-    ci::TriMesh2d roofMesh = triangulator.calcMesh();
+    ci::TriMesh roofMesh = triangulator.calcMesh();
 
     std::vector<Vec2f> roofVerts = roofMesh.getVertices();
     for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {

@@ -39,7 +39,7 @@ class FlatShape {
 
     const ci::PolyLine2f outline() { return mOutline; }
     const PolyLine2fs holes() { return mHoles; }
-    const ci::TriMesh2d mesh() { return mMesh; }
+    const ci::TriMesh mesh() { return mMesh; }
 
     const ci::Vec2f centroid();
 
@@ -61,11 +61,11 @@ class FlatShape {
     
   private:
 
-    const ci::TriMesh2d makeMesh();
+    const ci::TriMesh makeMesh();
 
     ci::PolyLine2f mOutline;
     PolyLine2fs mHoles;
-    ci::TriMesh2d mMesh;
+    ci::TriMesh mMesh;
 };
 
 #endif /* defined(__Cityscape__FlatShape__) */
