@@ -131,7 +131,7 @@ void CityscapeApp::setupModeParams()
 void CityscapeApp::resize()
 {
     mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
-    mCamera.lookAt( vec3( 320, -360, 400 ), vec3(320, 240, 0), vec3::yAxis() );
+    mCamera.lookAt( vec3( 320, -360, 400 ), vec3(320, 240, 0), vec3( 0, 1, 0 ) );
 }
 
 void CityscapeApp::update()
@@ -152,7 +152,7 @@ void CityscapeApp::mouseDown( MouseEvent event )
     Ray r = mCamera.generateRay(u, v, mCamera.getAspectRatio());
     float result = 0.0f;
     vec3 point;
-    if (r.calcPlaneIntersection(glm::zero<ci::vec3>(), vec3::zAxis(), &result)) {
+    if (r.calcPlaneIntersection(glm::zero<ci::vec3>(), vec3( 0, 0, 1 ), &result)) {
         point = r.calcPosition(result);
         mModeRef->addPoint( vec2( point.x, point.y ) );
     }
