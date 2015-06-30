@@ -1,4 +1,6 @@
-#include "cinder/app/AppNative.h"
+#include "cinder/app/App.h"
+#include "cinder/app/RendererGl.h"
+
 #include "cinder/Camera.h"
 #include "cinder/gl/gl.h"
 
@@ -12,7 +14,7 @@ using namespace ci::app;
 using namespace std;
 
 
-class CityscapeApp : public AppNative {
+class CityscapeApp : public App {
   public:
     void prepareSettings( Settings *settings );
 
@@ -181,4 +183,4 @@ void CityscapeApp::draw()
 }
 
 
-CINDER_APP_NATIVE( CityscapeApp, RendererGl )
+CINDER_APP( CityscapeApp, RendererGl( RendererGl::Options().msaa( 16 ) ) )

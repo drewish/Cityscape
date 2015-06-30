@@ -9,7 +9,7 @@
 #include "Block.h"
 #include "Lot.h"
 
-#include "cinder/app/AppNative.h"
+#include "cinder/app/App.h"
 using namespace ci;
 
 #include "CinderCGAL.h"
