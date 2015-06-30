@@ -36,9 +36,9 @@ class CityscapeApp : public App {
     ci::gl::VboMesh mSkyMesh;
 };
 
-void CityscapeApp::prepareSettings( Settings *settings )
+void prepareSettings( App::Settings *settings )
 {
-    settings->enableHighDensityDisplay();
+    settings->setHighDensityDisplayEnabled();
 }
 
 void buildSkyMesh( ci::gl::VboMesh &skyMesh )
@@ -183,4 +183,4 @@ void CityscapeApp::draw()
 }
 
 
-CINDER_APP( CityscapeApp, RendererGl( RendererGl::Options().msaa( 16 ) ) )
+CINDER_APP( CityscapeApp, RendererGl( RendererGl::Options().msaa( 16 ) ), prepareSettings )
