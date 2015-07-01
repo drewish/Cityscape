@@ -18,7 +18,9 @@ void Building::layout()
 void Building::draw( const Options &options ) const
 {
     if ( options.drawBuildings && mPlan.wallMeshRef() ) {
-        options.buildingShader->bind();
+
+        gl::ScopedGlslProg glslScope( options.buildingShader );
+
         gl::enable( GL_CULL_FACE );
         glCullFace( GL_BACK );
 
@@ -48,7 +50,6 @@ void Building::draw( const Options &options ) const
         // * * *
 
         gl::disable( GL_CULL_FACE );
-        options.buildingShader->unbind();
     }
 }
 
