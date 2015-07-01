@@ -25,11 +25,13 @@ const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float ro
 {
     PolyLine2f ret = PolyLine2f();
 
-    MatrixAffine2f matrix;
-    matrix.rotate( rotation );
-    matrix.translate( offset );
+    glm::mat3 matrix;
+
+    rotate( matrix, rotation );
+    translate( matrix, offset );
     for( auto it = mOutline.begin(); it != mOutline.end(); ++it ) {
-        ret.push_back( matrix.transformPoint( *it ) );
+        vec3 transformed = matrix * vec3( *it, 1 );
+        ret.push_back( vec2( transformed ) );
     }
     return ret;
 }
