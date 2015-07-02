@@ -156,7 +156,7 @@ void BuildingMode::layout() {
 
 void BuildingMode::draw() {
     gl::translate( getWindowCenter() );
-    gl::rotate( 360.0 * mMousePos.x / (float) getWindowWidth() );
+    gl::rotate( 2 * M_PI * mMousePos.x / (float) getWindowWidth() );
     gl::scale( 8, 8, 8);
 
     if ( mBuilding ) mBuilding->draw( mOptions );
