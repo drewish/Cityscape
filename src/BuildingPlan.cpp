@@ -17,6 +17,7 @@ typedef CGAL::Straight_skeleton_2<InexactK> Ss;
 typedef boost::shared_ptr<Ss> SsPtr;
 
 using namespace ci;
+using namespace ci::geom;
 using namespace std;
 
 typedef std::map<std::pair<float, float>, vec3> OffsetMap;
@@ -35,6 +36,63 @@ const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float ro
     }
     return ret;
 }
+
+// * * *
+class WallMesh : public Source {
+public:
+    WallMesh( const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight )
+    {
+        uint32_t base = 0;
+        for ( auto i = outline.begin(); i != outline.end(); ++i ) {
+            vec3 bottom = vec3( i->x, i->y, 0.0 );
+            auto it = topOffsets.find( std::make_pair( i->x, i->y ) );
+            vec3 topOffset = ( it == topOffsets.end() ) ? vec3( 0.0, 0.0, defaultTopHeight ) : it->second;
+
+            mPositions.push_back( bottom );
+            mPositions.push_back( bottom + topOffset );
+        }
+        uint16_t totalVerts = mPositions.size();
+
+        uint32_t i;
+        for ( i = base + 2; i < totalVerts; i += 2 ) {
+            mIndices.push_back( i + 0 );
+            mIndices.push_back( i + 1 );
+            mIndices.push_back( i - 1 );
+            mIndices.push_back( i + 0 );
+            mIndices.push_back( i - 1 );
+            mIndices.push_back( i - 2 );
+        }
+        mIndices.push_back( base + 0 );
+        mIndices.push_back( base + 1 );
+        mIndices.push_back( i - 1 );
+        mIndices.push_back( base + 0 );
+        mIndices.push_back( i - 1 );
+        mIndices.push_back( i - 2 );
+    };
+
+    size_t    getNumVertices() const override { return mPositions.size(); }
+    size_t    getNumIndices() const override { return mIndices.size(); }
+    Primitive getPrimitive() const override { return Primitive::TRIANGLES; }
+    uint8_t   getAttribDims( Attrib attr ) const override
+    {
+        switch( attr ) {
+            case Attrib::POSITION: return 3;
+            default: return 0;
+        }
+    }
+
+    AttribSet getAvailableAttribs() const override { return { Attrib::POSITION }; }
+    void    loadInto( Target *target, const AttribSet &requestedAttribs ) const override
+    {
+        target->copyAttrib( Attrib::POSITION, 3, 0, (const float*)mPositions.data(), mPositions.size() );
+        target->copyIndices( Primitive::TRIANGLES, mIndices.data(), mIndices.size(), 4 );
+    }
+
+protected:
+    std::vector<vec3>       mPositions;
+    std::vector<uint32_t>   mIndices;
+};
+// * * *
 
 // Build walls
 //
@@ -80,11 +138,13 @@ void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const Offset
     ci::Triangulator triangulator( outline );
     ci::TriMesh roofMesh = triangulator.calcMesh();
 
-    std::vector<vec2> roofVerts = roofMesh.getVertices();
-    for ( auto i = roofVerts.begin(); i != roofVerts.end(); ++i) {
-        auto it = offsets.find( std::make_pair( i->x, i->y ) );
-        vec3 offset = it == offsets.end() ? glm::zero<ci::vec3>() : it->second;
-        verts.push_back( offset + vec3( *i, 0.0 ) );
+    const vec2 *positions = roofMesh.getPositions<2>();
+    uint32_t numVerts = roofMesh.getNumVertices();
+    for ( uint32_t i = 0; i < numVerts ; i++ ) {
+        vec3 position( positions[i], 0 );
+        auto it = offsets.find( std::make_pair( position.x, position.y ) );
+        vec3 offset = it == offsets.end() ? vec3(0) : it->second;
+        verts.push_back( offset + position );
     }
 
     std::vector<uint32_t> roofIndices = roofMesh.getIndices();
@@ -284,49 +344,62 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
     //    buildWallsFromOutlineAndTopOffsets( outline, offsets, 0.0, verts, indices );
 }
 
+class RoofMesh : public Source {
+public:
+    RoofMesh( const PolyLine2f &outline, BuildingPlan::RoofStyle roof )
+    {
+        switch ( roof ) {
+            case BuildingPlan::FLAT_ROOF:
+                buildFlatRoof( outline, mPositions, mIndices );
+                break;
+            case BuildingPlan::HIPPED_ROOF:
+                buildHippedRoof( outline, mPositions, mIndices );
+                break;
+            case BuildingPlan::GABLED_ROOF:
+                buildGabledRoof( outline, mPositions, mIndices );
+                break;
+            case BuildingPlan::SAWTOOTH_ROOF:
+                buildSawtoothRoof( outline, 2, 3, mPositions, mIndices );
+                break;
+            case BuildingPlan::SHED_ROOF:
+                // Make slope configurable... might be good for other angled roofs.
+                buildShedRoof( outline, 0.2, mPositions, mIndices );
+                break;
+            case BuildingPlan::GAMBREL_ROOF:
+                // probably based off GABLED with an extra division of the faces to give it the barn look
+                break;
+        }
+    };
+
+    size_t    getNumVertices() const override { return mPositions.size(); }
+    size_t    getNumIndices() const override { return mIndices.size(); }
+    Primitive getPrimitive() const override { return Primitive::TRIANGLES; }
+    uint8_t   getAttribDims( Attrib attr ) const override
+    {
+        switch( attr ) {
+            case Attrib::POSITION: return 3;
+            default: return 0;
+        }
+    }
+
+    AttribSet getAvailableAttribs() const override { return { Attrib::POSITION }; }
+    void    loadInto( Target *target, const AttribSet &requestedAttribs ) const override
+    {
+        target->copyAttrib( Attrib::POSITION, 3, 0, (const float*)mPositions.data(), mPositions.size() );
+        target->copyIndices( Primitive::TRIANGLES, mIndices.data(), mIndices.size(), 4 );
+    }
+
+protected:
+    std::vector<vec3>       mPositions;
+    std::vector<uint32_t>   mIndices;
+};
+
 
 void BuildingPlan::makeMesh()
 {
-    vector<vec3> verts;
-    vector<uint32_t> indices;
-
-    gl::VboMesh::Layout layout;
-    layout.setStaticIndices();
-    layout.setStaticPositions();
-
-
     // Build the walls
-    buildWallsFromOutlineAndTopOffsets(mOutline, {}, mFloorHeight, verts, indices);
-    mWallMeshRef = gl::VboMesh::create( verts.size(), indices.size(), layout, GL_TRIANGLES );
-    mWallMeshRef->bufferIndices( indices );
-    mWallMeshRef->bufferPositions( verts );
-
+    mWallMeshRef = gl::VboMesh::create( WallMesh( mOutline, {}, mFloorHeight ) );
 
     // Build roof
-    verts.clear();
-    indices.clear();
-    switch ( mRoof ) {
-        case FLAT_ROOF:
-            buildFlatRoof(mOutline, verts, indices);
-            break;
-        case HIPPED_ROOF:
-            buildHippedRoof(mOutline, verts, indices);
-            break;
-        case GABLED_ROOF:
-            buildGabledRoof(mOutline, verts, indices);
-            break;
-        case SAWTOOTH_ROOF:
-            buildSawtoothRoof( mOutline, 2, 3, verts, indices );
-            break;
-        case SHED_ROOF:
-            // Make slope configurable... might be good for other angled roofs.
-            buildShedRoof(mOutline, 0.2, verts, indices);
-            break;
-        case GAMBREL_ROOF:
-            // probably based off GABLED with an extra division of the faces to give it the barn look
-            break;
-    }
-    mRoofMeshRef = gl::VboMesh::create( verts.size(), indices.size(), layout, GL_TRIANGLES );
-    mRoofMeshRef->bufferIndices( indices );
-    mRoofMeshRef->bufferPositions( verts );
+    mRoofMeshRef = gl::VboMesh::create( RoofMesh( mOutline, mRoof ) );
 }
