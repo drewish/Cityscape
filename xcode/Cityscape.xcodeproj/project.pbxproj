@@ -17,10 +17,13 @@
 		497E4AB31B1EBA6600AF6B17 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 497E4AB21B1EBA6600AF6B17 /* README.md */; };
 		498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */; };
 		49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.md */; };
+		49D8C5D21B4504A700ABDAB6 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D8C5D11B4504A700ABDAB6 /* AVFoundation.framework */; };
+		49D8C5D41B45052E00ABDAB6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D8C5D31B45052E00ABDAB6 /* CoreMedia.framework */; };
+		49D8C5D61B45055B00ABDAB6 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D8C5D51B45055B00ABDAB6 /* IOKit.framework */; };
+		49D8C5D81B45056200ABDAB6 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D8C5D71B45056200ABDAB6 /* IOSurface.framework */; };
 		49E959221B23EC340093E4C8 /* vert.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 49E959211B23EC340093E4C8 /* vert.glsl */; };
 		49E959241B23EC4D0093E4C8 /* frag.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 49E959231B23EC4D0093E4C8 /* frag.glsl */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
-		5323E6B60EAFCA7E003A9687 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B50EAFCA7E003A9687 /* QTKit.framework */; };
 		5F4CBE931B31310800440011 /* Mode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F4CBE911B31310800440011 /* Mode.cpp */; };
 		5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */; };
 		5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */; };
@@ -55,6 +58,10 @@
 		498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RoadNetwork.cpp; path = ../src/RoadNetwork.cpp; sourceTree = "<group>"; };
 		498D89CB1B1C027300A962B5 /* RoadNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoadNetwork.h; sourceTree = "<group>"; };
 		49A6B2DF1ABBFD3E000EA750 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = TODO.md; path = ../TODO.md; sourceTree = "<group>"; };
+		49D8C5D11B4504A700ABDAB6 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		49D8C5D31B45052E00ABDAB6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		49D8C5D51B45055B00ABDAB6 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		49D8C5D71B45056200ABDAB6 /* IOSurface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOSurface.framework; path = System/Library/Frameworks/IOSurface.framework; sourceTree = SDKROOT; };
 		49E8F7C51B0EDB1C006FF1E5 /* Options.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
 		49E959211B23EC340093E4C8 /* vert.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = vert.glsl; path = ../resources/vert.glsl; sourceTree = "<group>"; };
 		49E959231B23EC4D0093E4C8 /* frag.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = frag.glsl; path = ../resources/frag.glsl; sourceTree = "<group>"; };
@@ -96,14 +103,17 @@
 				5FEFD9CB1A92D38B0093F109 /* libboost_thread-mt.dylib in Frameworks */,
 				5FEFD9C51A92CD910093F109 /* libgmp.10.dylib in Frameworks */,
 				5FEFD9C61A92CD910093F109 /* libmpfr.4.dylib in Frameworks */,
+				49D8C5D21B4504A700ABDAB6 /* AVFoundation.framework in Frameworks */,
+				49D8C5D41B45052E00ABDAB6 /* CoreMedia.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				0091D8F90E81B9330029341E /* OpenGL.framework in Frameworks */,
 				5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */,
-				5323E6B60EAFCA7E003A9687 /* QTKit.framework in Frameworks */,
 				00B784B30FF439BC000DE1D7 /* Accelerate.framework in Frameworks */,
 				00B784B40FF439BC000DE1D7 /* AudioToolbox.framework in Frameworks */,
 				00B784B50FF439BC000DE1D7 /* AudioUnit.framework in Frameworks */,
 				00B784B60FF439BC000DE1D7 /* CoreAudio.framework in Frameworks */,
+				49D8C5D61B45055B00ABDAB6 /* IOKit.framework in Frameworks */,
+				49D8C5D81B45056200ABDAB6 /* IOSurface.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,6 +225,10 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				49D8C5D71B45056200ABDAB6 /* IOSurface.framework */,
+				49D8C5D51B45055B00ABDAB6 /* IOKit.framework */,
+				49D8C5D31B45052E00ABDAB6 /* CoreMedia.framework */,
+				49D8C5D11B4504A700ABDAB6 /* AVFoundation.framework */,
 				5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */,
 				5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */,
 				5FEFD9C91A92D3480093F109 /* libboost_timer-mt.dylib */,
