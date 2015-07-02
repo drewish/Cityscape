@@ -18,11 +18,8 @@ void Building::layout()
 void Building::draw( const Options &options ) const
 {
     if ( options.drawBuildings && mPlan.wallMeshRef() ) {
-
         gl::ScopedGlslProg glslScope( options.buildingShader );
-
-        gl::enable( GL_CULL_FACE );
-        glCullFace( GL_BACK );
+        gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
 
         // Walls
         gl::pushModelView();
@@ -46,10 +43,6 @@ void Building::draw( const Options &options ) const
 //        gl::disableWireframe();
 
         gl::popModelView();
-
-        // * * *
-
-        gl::disable( GL_CULL_FACE );
     }
 }
 
