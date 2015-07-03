@@ -116,8 +116,10 @@ void BuildingMode::setup() {
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
-    // TODO: figure out how to get an update callback on the drop down list.
-    params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)(&mBuildingRoof) );
+    params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)(&mBuildingRoof) )
+        .keyDecr( "[" )
+        .keyIncr( "]" )
+        .updateFn( std::bind( &BuildingMode::layout, this ) );
     params->addParam( "Floors", &mFloors).min( 1 ).max( 10 ).updateFn( std::bind( &BuildingMode::layout, this ) );
     params->addSeparator();
     params->addButton( "Square", [&] {
