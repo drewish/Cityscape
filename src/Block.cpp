@@ -13,17 +13,18 @@
 using namespace ci;
 
 #include "CinderCGAL.h"
-#include <CGAL/exceptions.h>
 #include <CGAL/create_straight_skeleton_from_polygon_with_holes_2.h>
 #include <CGAL/Polygon_set_2.h>
 
 typedef CGAL::Straight_skeleton_2<InexactK> Ss;
 typedef boost::shared_ptr<Ss> SsPtr;
 
+typedef std::map<std::pair<float, float>, vec3> OffsetMap;
+
 void Block::layout()
 {
-//    subdivideSkeleton();
-    subdivideNotReally();
+    subdivideSkeleton();
+//    subdivideNotReally();
 
     for( auto it = mLots.begin(); it != mLots.end(); ++it ) {
         it->layout();
@@ -56,33 +57,59 @@ void Block::subdivideSkeleton()
 
     float steps = 0.0;
 
-    try {
-        SsPtr skel = CGAL::create_interior_straight_skeleton_2( mShape.polygon_with_holes<InexactK>() );
+    SsPtr skel = CGAL::create_interior_straight_skeleton_2( mShape.polygon_with_holes<InexactK>() );
 
-        mLots.clear();
-        mLots.reserve(skel->size_of_faces());
+    mLots.clear();
+    mLots.reserve(skel->size_of_faces());
 
-        for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
-            PolyLine2f lotOutline;
-            Ss::Halfedge_handle start = face->halfedge(),
-                edge = start;
-            do {
-                lotOutline.push_back(vecFrom(edge->vertex()->point()));
-                edge = edge->next();
-            } while (edge != start);
+    // Avoid triangular lots on the ends of blocks.
+    OffsetMap offsetMap;
+    for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
+        // Move around the face until we get to an edge with a skeleton
+        // (seems to be the second edge).
+        Ss::Halfedge_handle skelEdge = face->halfedge();
+        do {
+            skelEdge = skelEdge->next();
+        } while ( !skelEdge->vertex()->is_skeleton() );
 
-            Lot l = Lot( lotOutline, ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
-            mLots.push_back(l);
+        // Bail if we don't have two contour verts followed by the skeleton vert.
+        Ss::Halfedge_handle contourA = skelEdge->next();
+        Ss::Halfedge_handle contourB = contourA->next();
+        if (!contourA->vertex()->is_contour()) continue;
+        if (!contourB->vertex()->is_contour()) continue;
+        if (contourB->next() != skelEdge) continue;
 
-            steps += 0.17;
-            if (steps > 1) steps -= 1.0;
-        }
+        // Find point where skeleton vector intersects contour edge
+        vec2 A = vecFrom( contourA->vertex()->point() );
+        vec2 B = vecFrom( contourB->vertex()->point() );
+        vec2 C = vecFrom( skelEdge->vertex()->point() );
+        vec2 adjustment =  ( ( B + A ) / vec2( 2.0 ) ) - C;
+
+        // Record the adjusted postion
+        offsetMap[ std::make_pair( C.x, C.y ) ] = vec3( adjustment, 0 );
     }
-    catch (CGAL::Precondition_exception e) {
-        return; // TODO
+
+
+    for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
+        PolyLine2f lotOutline;
+        Ss::Halfedge_handle start = face->halfedge(),
+            edge = start;
+        do {
+            vec2 position = vecFrom( edge->vertex()->point() );
+            auto it = offsetMap.find( std::make_pair( position.x, position.y ) );
+            vec2 offset = it == offsetMap.end() ? vec2( 0 ) : vec2( it->second.x, it->second.y );
+            lotOutline.push_back( offset + position );
+            edge = edge->next();
+        } while ( edge != start );
+
+        // Skip small lots
+        if (lotOutline.calcArea() < 1) continue;
+
+        Lot l = Lot( lotOutline, ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
+        mLots.push_back(l);
+
+        steps += 0.17;
+        if (steps > 1) steps -= 1.0;
     }
-	catch (...) {
-		return;
-	}
 }
 
