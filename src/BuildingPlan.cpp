@@ -210,42 +210,30 @@ void buildGabledRoof(const PolyLine2f &outline, vector<vec3> &verts, vector<uint
 
     // - find faces with 3 edges: 1 skeleton and 2 contour
     for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
-        uint16_t skeletonVerts = 0;
-        uint16_t contourVerts = 0;
-        uint16_t otherVerts = 0;
-        Ss::Vertex_handle skelVert;
-        Ss::Halfedge_handle skelEdge;
-
-        Ss::Halfedge_handle start = face->halfedge();
-        Ss::Halfedge_handle edge = start;
+        // Move around the face until we get to an edge with a skeleton
+        // (seems to be the second edge).
+        Ss::Halfedge_handle skelEdge = face->halfedge();
         do {
-            Ss::Vertex_handle vert = edge->vertex();
-            if ( vert->is_contour() ) {
-                ++contourVerts;
-            } else if ( vert->is_skeleton() ) {
-                ++skeletonVerts;
-                skelVert = vert;
-                skelEdge = edge;
-            } else {
-                ++otherVerts;
-            }
-            edge = edge->next();
-        } while (edge != start);
+            skelEdge = skelEdge->next();
+        } while ( !skelEdge->vertex()->is_skeleton() );
 
-        if ( skeletonVerts == 1 && contourVerts == 2 && otherVerts == 0) {
-            // Find point where skeleton vector intersects contour edge
-            Ss::Halfedge_handle contourA = skelEdge->next();
-            Ss::Halfedge_handle contourB = contourA->next();
-            vec2 A = vecFrom( contourA->vertex()->point() );
-            vec2 B = vecFrom( contourB->vertex()->point() );
-            vec2 C = vecFrom( skelEdge->vertex()->point() );
-            vec2 adjustment =  ( (B + A) / vec2(2.0) ) - C;
+        // Bail if we don't have two contour verts followed by the skeleton vert.
+        Ss::Halfedge_handle contourA = skelEdge->next();
+        Ss::Halfedge_handle contourB = contourA->next();
+        if (!contourA->vertex()->is_contour()) continue;
+        if (!contourB->vertex()->is_contour()) continue;
+        if (contourB->next() != skelEdge) continue;
 
-            // Adjust the position
-            auto it = offsetMap.find( std::make_pair( skelVert->point().x(), skelVert->point().y() ) );
-            if ( it != offsetMap.end() ) {
-                it->second += vec3( adjustment, 0.0);
-            }
+        // Find point where skeleton vector intersects contour edge
+        vec2 A = vecFrom( contourA->vertex()->point() );
+        vec2 B = vecFrom( contourB->vertex()->point() );
+        vec2 C = vecFrom( skelEdge->vertex()->point() );
+        vec2 adjustment =  ( ( B + A ) / vec2( 2.0 ) ) - C;
+
+        // Adjust the position
+        auto it = offsetMap.find( std::make_pair( C.x, C.y ) );
+        if ( it != offsetMap.end() ) {
+            it->second += vec3( adjustment, 0.0 );
         }
     }
 
