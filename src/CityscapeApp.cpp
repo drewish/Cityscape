@@ -95,7 +95,7 @@ void CityscapeApp::setup()
     resize();
 
     setupModeParams();
-    mModeRef = ModeRef( new BuildingMode() );
+    mModeRef = ModeRef( new BlockMode() );
     mModeRef->setup();
     mModeRef->addParams( mParams );
 
@@ -112,6 +112,14 @@ void CityscapeApp::setupModeParams()
         mModeRef->setup();
         mModeRef->addParams( mParams );
     }, "key=q" );
+    mParams->addButton( "Block Mode", [&] {
+        mParams->clear();
+        setupModeParams();
+
+        mModeRef = ModeRef( new BlockMode() );
+        mModeRef->setup();
+        mModeRef->addParams( mParams );
+    }, "key=w" );
     mParams->addButton( "Building Mode", [&] {
         mParams->clear();
         setupModeParams();
@@ -119,7 +127,7 @@ void CityscapeApp::setupModeParams()
         mModeRef = ModeRef( new BuildingMode() );
         mModeRef->setup();
         mModeRef->addParams( mParams );
-    }, "key=w" );
+    }, "key=e" );
     mParams->addSeparator();
     mParams->minimize();
 }

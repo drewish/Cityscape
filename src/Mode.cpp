@@ -110,6 +110,134 @@ void CityMode::draw() {
 
 // * * *
 
+#include <CGAL/Sweep_line_2_algorithms.h>
+#include <CGAL/Arr_naive_point_location.h>
+
+typedef Traits_2::Point_2                             Point_2;
+typedef Traits_2::X_monotone_curve_2                  Segment_2;
+typedef CGAL::Arr_naive_point_location<Arrangement_2> Naive_pl;
+
+
+void BlockMode::setup() {
+    mOptions.drawBlocks = false;
+    mOptions.drawLots = true;
+    mOptions.drawBuildings = true;
+}
+
+void BlockMode::addParams( ci::params::InterfaceGlRef params) {
+    params->addParam( "Roads", &mOptions.drawRoads, "key=a" );
+    params->addParam( "Block", &mOptions.drawBlocks, "key=s" );
+    params->addParam( "Lot", &mOptions.drawLots, "key=d" );
+    params->addParam( "Building", &mOptions.drawBuildings, "key=f" );
+    params->addParam( "Clip City", &mOptions.clipCityLimit, "key=c" );
+
+    params->addButton( "Clear Points", [&] {
+        mOutline = PolyLine2f();
+        layout();
+    }, "key=0");
+    params->addButton( "Test 1", [&] {
+        mOutline = PolyLine2f({
+            vec2(133,41),
+            vec2(143,451),
+            vec2(495,424),
+            vec2(370,254),
+            vec2(529,131),
+        });
+        layout();
+    }, "key=1" );
+    params->addButton( "Test 2", [&] {
+        mOutline = PolyLine2f({
+            vec2(133,41),
+            vec2(143,451),
+            vec2(495,424),
+            vec2(370,254),
+            vec2(529,131),
+            vec2(133,41),
+        });
+        layout();
+    }, "key=2" );
+}
+
+void BlockMode::addPoint( ci::vec2 point ) {
+    console() << "vec2(" << point.x << "," << point.y << "),\n";
+    mOutline.push_back( point );
+    layout();
+}
+
+void BlockMode::layout() {
+    mArr.clear();
+    if (mOutline.size() == 0) return;
+
+    // Put the outline onto the arrangment.
+    std::list<Segment_2> outlineSegments;
+    for ( auto prev = mOutline.begin(), i = prev + 1; i != mOutline.end(); ++i ) {
+        outlineSegments.push_back( Segment_2 (Point_2( prev->x, prev->y ), Point_2( i->x, i->y ) ) );
+        prev = i;
+    }
+    insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
+
+    // Create a bounding box for the outline...
+    Rectf bounds( mOutline.getPoints() );
+    float x = bounds.x1;
+    float width = 100;
+    // ...and a list of segements to intersect with.
+    std::list<Segment_2> intersect;
+    intersect.insert( intersect.begin(), outlineSegments.begin(), outlineSegments.end() );
+
+    std::list<Segment_2> newEdges;
+    // Then start walking across the outline looking for the intersections...
+    while ( x < bounds.x2 ) {
+        //
+        intersect.push_back( Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
+
+        std::vector<Point_2> pts;
+        CGAL::compute_intersection_points( intersect.begin(), intersect.end(), std::back_inserter(pts) );
+
+        // Handle an odd number of intersections (open path).
+        Naive_pl pl(mArr);
+        if ( pts.size() % 2 == 1 ) insert_point( mArr, pts[0], pl );
+
+        // Handle an even number of interesections.
+        for ( int i = pts.size() - 1; i > 0; i -= 2 ) {
+            newEdges.push_back( Segment_2 ( pts[i - 1], pts[i] ) );
+        }
+
+        intersect.pop_back();
+        x += width;
+    };
+    // Add the new edges all at once for better performance.
+    if (newEdges.size()) insert( mArr, newEdges.begin(), newEdges.end() );
+
+}
+
+void BlockMode::draw() {
+    for ( auto i = mArr.vertices_begin(); i != mArr.vertices_end(); ++i ) {
+        vec3 v = vec3( vecFrom( i->point() ), 0 );
+        gl::drawColorCube( v, vec3( 10 ) );
+    }
+
+    gl::color(1, 0, 0 );
+    for ( auto i = mArr.edges_begin(); i != mArr.edges_end(); ++i ) {
+        PolyLine2f p = PolyLine2f({ vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
+        gl::draw( p );
+    }
+
+    gl::color(1, 1, 1 );
+    for ( auto i = mArr.faces_begin(); i != mArr.faces_end(); ++i ) {
+        for ( auto j = i->holes_begin(); j != i->holes_end(); ++j ) {
+            PolyLine2f faceOutline;
+            Arrangement_2::Ccb_halfedge_circulator cc = *j;
+            do {
+                Arrangement_2::Halfedge_handle he = cc;
+                faceOutline.push_back( vecFrom( he->target()->point() ) );
+            } while ( ++cc != *j );
+            gl::drawSolid( faceOutline );
+        }
+    }
+}
+
+// * * *
+
 void BuildingMode::setup() {
     mOptions.drawBuildings = true;
     mOutline = BuildingPlan::lshape();
