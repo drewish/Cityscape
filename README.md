@@ -27,10 +27,14 @@ fast, but it'll do it accurately.
 
 ## Installation
 
-Install CGAL using homebrew:
+Install CGAL 4.6 using homebrew:
 
 ```
 brew install cgal
 ```
 
-Install cinder...
+
+Install cinder 0.9.0:
+```
+
+```
