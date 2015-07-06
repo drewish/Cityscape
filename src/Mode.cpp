@@ -245,10 +245,12 @@ void BuildingMode::setup() {
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
     params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)(&mBuildingRoof) )
-        .keyDecr( "[" )
-        .keyIncr( "]" )
+        .keyDecr( "[" ).keyIncr( "]" )
         .updateFn( std::bind( &BuildingMode::layout, this ) );
-    params->addParam( "Floors", &mFloors).min( 1 ).max( 10 ).updateFn( std::bind( &BuildingMode::layout, this ) );
+    params->addParam( "Floors", &mFloors)
+        .min( 1 ).max( 5 )
+        .keyDecr( "-" ).keyIncr( "=" )
+        .updateFn( std::bind( &BuildingMode::layout, this ) );
     params->addSeparator();
     params->addButton( "Square", [&] {
         mOutline = BuildingPlan::square();
@@ -273,7 +275,7 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
     params->addButton( "<", [&] {
         mOutline = BuildingPlan::triangle();
         layout();
-    }, "key=7" );
+    }, "key=6" );
 }
 
 void BuildingMode::addPoint( ci::vec2 point ) {

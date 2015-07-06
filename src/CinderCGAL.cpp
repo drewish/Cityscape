@@ -8,6 +8,4 @@
 
 #include "CinderCGAL.h"
 
-#include <CGAL/exceptions.h>
-
 using namespace ci;

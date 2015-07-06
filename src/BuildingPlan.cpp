@@ -7,18 +7,30 @@
 //
 
 #include "BuildingPlan.h"
+#include "CinderCGAL.h"
 
 #include "cinder/Triangulate.h"
-
-#include "CinderCGAL.h"
-#include <CGAL/create_straight_skeleton_2.h>
-
-typedef CGAL::Straight_skeleton_2<InexactK> Ss;
-typedef boost::shared_ptr<Ss> SsPtr;
 
 using namespace ci;
 using namespace ci::geom;
 using namespace std;
+
+// Used by hipped and gabled roofs
+#include <CGAL/create_straight_skeleton_2.h>
+typedef CGAL::Straight_skeleton_2<InexactK> Ss;
+typedef boost::shared_ptr<Ss> SsPtr;
+
+// Used for sawtooth roofs
+#include <CGAL/Arrangement_2.h>
+#include <CGAL/Arr_segment_traits_2.h>
+#include <CGAL/Arr_naive_point_location.h>
+#include <CGAL/Sweep_line_2_algorithms.h>
+typedef CGAL::Arr_segment_traits_2<ExactK>            Traits_2;
+typedef CGAL::Arrangement_2<Traits_2>                 Arrangement_2;
+typedef CGAL::Arr_naive_point_location<Arrangement_2> Naive_pl;
+typedef Traits_2::Point_2                             Point_2;
+typedef Traits_2::X_monotone_curve_2                  Segment_2;
+
 
 typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
@@ -38,6 +50,7 @@ const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float ro
 }
 
 // * * *
+
 class WallMesh : public Source {
 public:
     WallMesh( const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight )
@@ -92,6 +105,7 @@ protected:
     std::vector<vec3>       mPositions;
     std::vector<uint32_t>   mIndices;
 };
+
 // * * *
 
 // Build walls
@@ -268,68 +282,94 @@ void buildShedRoof(const PolyLine2f &outline, const float slope, vector<vec3> &v
     buildWallsFromOutlineAndTopOffsets( outline, offsetMap, 0.0, verts, indices );
 }
 
-void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const float downWidth, vector<vec3> &verts, vector<uint32_t> &indices)
+PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circulator )
 {
-    vector<PolyLine2f> outlines({ outline });
-    OffsetMap offsets;
+    PolyLine2f result;
+    Arrangement_2::Ccb_halfedge_circulator cc = circulator;
+    do {
+        result.push_back( vecFrom( cc->target()->point() ) );
+    } while ( ++cc != circulator );
+    return result;
+}
 
-    // TODO Submit Cinder PR for PolyLine bounds
-    Rectf bounds( outline.getPoints() );
+void findIntersections(const std::list<Segment_2> &input, const float height, std::list<Segment_2> &newEdges, std::list<Point_2> &newPoints, OffsetMap &offsets
+)
+{
+    std::vector<Point_2> pts;
+    CGAL::compute_intersection_points( input.begin(), input.end(), std::back_inserter(pts) );
 
-    float x = bounds.x1;
-    while ( x < bounds.x2 ) {
-        vector<PolyLine2f> slice, intersection;
-        float width;
-
-        width = upWidth;
-        slice = {
-            PolyLine2f( {
-                vec2(x+width, bounds.y1),
-                vec2(x+width, bounds.y2),
-                vec2(x, bounds.y2),
-                vec2(x, bounds.y1),
-            } ),
-        };
-        x += width;
-
-        intersection = PolyLine2f::calcIntersection( slice, outlines );
-        if (intersection.size()) {
-            vector<vec2> points = intersection.front().getPoints();
-
-            // HACKY: Find the points with the x value of the up point and set
-            // those to our elevated height.
-            for ( auto i = points.begin(); i != points.end(); ++i ) {
-                if ( i->x == x ) {
-                    offsets[ std::make_pair( i->x, i->y ) ] = vec3( 0, 0, 3 );
-                }
-            }
-
-            reverse(points.begin(), points.end());
-            buildRoofFaceFromOutlineAndOffsets( PolyLine2f(points), offsets, verts, indices );
-        }
-
-        width = downWidth;
-        slice = {
-            PolyLine2f( {
-                vec2(x+width, bounds.y1),
-                vec2(x+width, bounds.y2),
-                vec2(x, bounds.y2),
-                vec2(x, bounds.y1),
-            } ),
-        };
-        x += width;
-
-        intersection = PolyLine2f::calcIntersection( slice, outlines );
-        if (intersection.size()) {
-            // TODO Submit Cinder PR for PolyLine reverse.
-            vector<vec2> points = intersection.front().getPoints();
-            reverse(points.begin(), points.end());
-            buildRoofFaceFromOutlineAndOffsets( PolyLine2f(points), offsets, verts, indices );
-        }
+    // Create a height offset for each intersection
+    for ( auto i = pts.begin(); i != pts.end(); ++i ) {
+        vec2 v = vecFrom( *i );
+        offsets[ std::make_pair( v.x, v.y ) ] = vec3( 0, 0, height );
     }
 
-    // TODO can't use this yet because our outline doesn't have all the new points in it
-    //    buildWallsFromOutlineAndTopOffsets( outline, offsets, 0.0, verts, indices );
+    // Even numbers of intersections become segments
+    for ( int i = pts.size() - 1; i > 0; i -= 2 ) {
+        newEdges.push_back( Segment_2( pts[i - 1], pts[i] ) );
+    }
+
+    // The remaining odd intersection becomes a point
+    if ( pts.size() % 2 == 1 ) newPoints.push_back( pts[0] );
+}
+
+void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const float height, const float downWidth, vector<vec3> &verts, vector<uint32_t> &indices)
+{
+    Arrangement_2 mArr;
+    OffsetMap offsets;
+
+    mArr.clear();
+    if (outline.size() == 0) return;
+
+    // Put the outline onto the arrangment.
+    std::list<Segment_2> outlineSegments;
+    for ( auto prev = outline.begin(), i = prev + 1; i != outline.end(); ++i ) {
+        outlineSegments.push_back( Segment_2( Point_2( prev->x, prev->y ), Point_2( i->x, i->y ) ) );
+        prev = i;
+    }
+    // TODO: see if we can close the loop upstream.
+    outlineSegments.push_back( Segment_2( outlineSegments.back().target(), outlineSegments.front().source() ) );
+
+    insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
+
+    // Create a list of segements to intersect with.
+    std::list<Segment_2> intersect;
+    intersect.insert( intersect.begin(), outlineSegments.begin(), outlineSegments.end() );
+
+    // Then start walking across the outline looking for intersections.
+    std::list<Segment_2> newEdges;
+    std::list<Point_2> newPoints;
+    u_int16_t step = 0;
+    Rectf bounds = Rectf( outline.getPoints() );
+    float x = bounds.x1;
+    while ( x < bounds.x2 ) {
+        float h = (step % 2) ? height : 0;
+
+        intersect.push_back( Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
+        findIntersections( intersect, h, newEdges, newPoints, offsets );
+        intersect.pop_back();
+
+        x += (step % 2) ? downWidth : upWidth;
+        ++step;
+    };
+
+    // Add all the new points and edges.
+    Naive_pl pl(mArr);
+    for ( auto p = newPoints.begin(); p != newPoints.end(); ++p ) {
+        insert_point( mArr, *p, pl );
+    }
+    if (newEdges.size())
+        insert( mArr, newEdges.begin(), newEdges.end() );
+
+    // Now turn the arrangment into a mesh.
+    for ( auto i = mArr.faces_begin(); i != mArr.faces_end(); ++i ) {
+        for ( auto j = i->holes_begin(); j != i->holes_end(); ++j ) {
+            PolyLine2f faceOutline( polyLineFrom( *j ).reversed() );
+
+            buildRoofFaceFromOutlineAndOffsets( faceOutline, offsets, verts, indices );
+            buildWallsFromOutlineAndTopOffsets( faceOutline, offsets, 0.0, verts, indices );
+        }
+    }
 }
 
 class RoofMesh : public Source {
@@ -347,7 +387,7 @@ public:
                 buildGabledRoof( outline, mPositions, mIndices );
                 break;
             case BuildingPlan::SAWTOOTH_ROOF:
-                buildSawtoothRoof( outline, 2, 3, mPositions, mIndices );
+                buildSawtoothRoof( outline, 8, 3, 2, mPositions, mIndices );
                 break;
             case BuildingPlan::SHED_ROOF:
                 // Make slope configurable... might be good for other angled roofs.

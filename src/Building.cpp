@@ -20,29 +20,22 @@ void Building::draw( const Options &options ) const
     if ( options.drawBuildings && mPlan.wallMeshRef() ) {
         gl::ScopedGlslProg glslScope( options.buildingShader );
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
+        gl::ScopedLineWidth(5);
+//        gl::enableWireframe();
 
         // Walls
-        gl::pushModelView();
+        gl::pushModelMatrix();
         gl::scale( 1.0, 1.0, 1.0 * mFloors );
-
         gl::draw( mPlan.wallMeshRef() );
-//        gl::enableWireframe();
-//        gl::draw( mPlan.wallMeshRef() );
-//        gl::disableWireframe();
-
-        gl::popModelView();
-
+        gl::popModelMatrix();
 
         // Roof
-        gl::pushModelView();
+        gl::pushModelMatrix();
         gl::translate( 0.0, 0.0, mFloors * mPlan.mFloorHeight );
-
         gl::draw( mPlan.roofMeshRef() );
-//        gl::enableWireframe();
-//        gl::draw( mPlan.roofMeshRef() );
-//        gl::disableWireframe();
+        gl::popModelMatrix();
 
-        gl::popModelView();
+//        gl::disableWireframe();
     }
 }
 
