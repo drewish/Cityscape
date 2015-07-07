@@ -8,6 +8,8 @@
 
 #include "BuildingPlan.h"
 #include "CinderCGAL.h"
+#include "CgalArrangement.h"
+#include "CgalStraightSkeleton.h"
 
 #include "cinder/Triangulate.h"
 
@@ -15,24 +17,75 @@ using namespace ci;
 using namespace ci::geom;
 using namespace std;
 
-// Used by hipped and gabled roofs
-#include <CGAL/create_straight_skeleton_2.h>
-typedef CGAL::Straight_skeleton_2<InexactK> Ss;
-typedef boost::shared_ptr<Ss> SsPtr;
-
-// Used for sawtooth roofs
-#include <CGAL/Arrangement_2.h>
-#include <CGAL/Arr_segment_traits_2.h>
-#include <CGAL/Arr_naive_point_location.h>
-#include <CGAL/Sweep_line_2_algorithms.h>
-typedef CGAL::Arr_segment_traits_2<ExactK>            Traits_2;
-typedef CGAL::Arrangement_2<Traits_2>                 Arrangement_2;
-typedef CGAL::Arr_naive_point_location<Arrangement_2> Naive_pl;
-typedef Traits_2::Point_2                             Point_2;
-typedef Traits_2::X_monotone_curve_2                  Segment_2;
-
 
 typedef std::map<std::pair<float, float>, vec3> OffsetMap;
+
+
+ci::PolyLine2f BuildingPlan::triangle()
+{
+    return ci::PolyLine2f( {
+        ci::vec2(10, -10), ci::vec2(10, 10), ci::vec2(-10, 10)
+    } );
+}
+
+ci::PolyLine2f BuildingPlan::square()
+{
+    return rectangle( 20, 20 );
+}
+
+ci::PolyLine2f BuildingPlan::rectangle( const uint16_t width, const uint16_t height )
+{
+    float w = width / 2.0;
+    float h = height / 2.0;
+    return ci::PolyLine2f( {
+        ci::vec2(w, -h), ci::vec2(w, h),
+        ci::vec2(-w, h), ci::vec2(-w, -h)
+    } );
+}
+
+ci::PolyLine2f BuildingPlan::lshape()
+{
+    return ci::PolyLine2f( {
+        ci::vec2(15, 0), ci::vec2(15, 10), ci::vec2(-15, 10),
+        ci::vec2(-15, -10), ci::vec2(-5, -10), ci::vec2(-5, 0),
+    } );
+}
+
+ci::PolyLine2f BuildingPlan::plus()
+{
+    return ci::PolyLine2f( {
+        ci::vec2(15,-5), ci::vec2(15,5), ci::vec2(5,5),
+        ci::vec2(5,15), ci::vec2(-5,15), ci::vec2(-5,5),
+        ci::vec2(-15,5), ci::vec2(-15,-5), ci::vec2(-5,-5),
+        ci::vec2(-5,-15), ci::vec2(5,-15), ci::vec2(5,-5),
+    } );
+}
+
+ci::PolyLine2f BuildingPlan::tee()
+{
+    return ci::PolyLine2f( {
+        ci::vec2(5,10), ci::vec2(-5,10), ci::vec2(-5,0),
+        ci::vec2(-15,0), ci::vec2(-15,-10), ci::vec2(15,-10),
+        ci::vec2(15,0), ci::vec2(5,0),
+    } );
+}
+
+ci::PolyLine2f BuildingPlan::randomOutline()
+{
+    switch (ci::randInt(5)) {
+        case 0:
+            return triangle();
+        case 1:
+            return square();
+        case 2:
+            return lshape();
+        case 3:
+            return plus();
+        default:
+            return tee();
+
+    }
+}
 
 const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float rotation) const
 {
@@ -47,6 +100,21 @@ const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float ro
         ret.push_back( vec2( transformed ) );
     }
     return ret;
+}
+
+BuildingPlan BuildingPlan::random( const RoofStyle roof )
+{
+    return BuildingPlan( randomOutline(), roof );
+}
+
+BuildingPlanRef BuildingPlan::create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof )
+{
+    return BuildingPlanRef( new BuildingPlan( outline, roof ) );
+}
+
+BuildingPlanRef BuildingPlan::createRandom( const BuildingPlan::RoofStyle roof )
+{
+    return BuildingPlanRef( new BuildingPlan( BuildingPlan::random( roof ) ) );
 }
 
 // * * *
@@ -280,16 +348,6 @@ void buildShedRoof(const PolyLine2f &outline, const float slope, vector<vec3> &v
     // - triangulate roof faces and add to mesh
     buildRoofFaceFromOutlineAndOffsets( outline, offsetMap, verts, indices );
     buildWallsFromOutlineAndTopOffsets( outline, offsetMap, 0.0, verts, indices );
-}
-
-PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circulator )
-{
-    PolyLine2f result;
-    Arrangement_2::Ccb_halfedge_circulator cc = circulator;
-    do {
-        result.push_back( vecFrom( cc->target()->point() ) );
-    } while ( ++cc != circulator );
-    return result;
 }
 
 void findIntersections(const std::list<Segment_2> &input, const float height, std::list<Segment_2> &newEdges, std::list<Point_2> &newPoints, OffsetMap &offsets

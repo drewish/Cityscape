@@ -11,6 +11,16 @@
 using namespace ci;
 using namespace ci::app;
 
+BaseMode::BaseMode()
+{
+    mOptions.buildingShader = ci::gl::GlslProg::create(
+        ci::app::loadResource( RES_VERT ),
+        ci::app::loadResource( RES_FRAG )
+    );
+}
+
+// * * *
+
 void CityMode::setup() {
     mOptions.drawBlocks = false;
     mOptions.drawLots = true;
@@ -109,13 +119,8 @@ void CityMode::draw() {
 
 // * * *
 
-#include <CGAL/Sweep_line_2_algorithms.h>
-#include <CGAL/Arr_naive_point_location.h>
-
-typedef Traits_2::Point_2                             Point_2;
-typedef Traits_2::X_monotone_curve_2                  Segment_2;
-typedef CGAL::Arr_naive_point_location<Arrangement_2> Naive_pl;
-
+#include "CgalArrangement.h"
+Arrangement_2 mArr;
 
 void BlockMode::setup() {
     mOptions.drawBlocks = false;

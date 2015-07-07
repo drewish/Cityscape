@@ -29,82 +29,22 @@ public:
     };
 
     static const std::vector<std::string> roofStyleNames() {
-        std::vector<std::string> roofStyles = { "Flat", "Hipped",
-            "Gabled", "Sawtooth", "Shed", "Gambrel" };
-        return roofStyles;
+        return std::vector<std::string>({ "Flat", "Hipped",
+            "Gabled", "Sawtooth", "Shed", "Gambrel" });
     }
 
+    static ci::PolyLine2f triangle();
+    static ci::PolyLine2f square();
+    static ci::PolyLine2f rectangle( const uint16_t width, const uint16_t height );
+    static ci::PolyLine2f lshape();
+    static ci::PolyLine2f plus();
+    static ci::PolyLine2f tee();
+    static ci::PolyLine2f randomOutline();
 
-    static ci::PolyLine2f triangle() {
-        return ci::PolyLine2f( {
-            ci::vec2(10, -10), ci::vec2(10, 10), ci::vec2(-10, 10)
-        } );
-    }
+    static BuildingPlan random( const RoofStyle roof = FLAT_ROOF );
 
-    static ci::PolyLine2f square() {
-        return rectangle( 20, 20 );
-    }
-
-    static ci::PolyLine2f rectangle( const uint16_t width, const uint16_t height ) {
-        float w = width / 2.0;
-        float h = height / 2.0;
-        return ci::PolyLine2f( {
-            ci::vec2(w, -h), ci::vec2(w, h),
-            ci::vec2(-w, h), ci::vec2(-w, -h)
-        } );
-    }
-
-    static ci::PolyLine2f lshape() {
-        return ci::PolyLine2f( {
-            ci::vec2(15, 0), ci::vec2(15, 10), ci::vec2(-15, 10),
-            ci::vec2(-15, -10), ci::vec2(-5, -10), ci::vec2(-5, 0),
-        } );
-    }
-
-    static ci::PolyLine2f plus() {
-        return ci::PolyLine2f( {
-            ci::vec2(15,-5), ci::vec2(15,5), ci::vec2(5,5),
-            ci::vec2(5,15), ci::vec2(-5,15), ci::vec2(-5,5),
-            ci::vec2(-15,5), ci::vec2(-15,-5), ci::vec2(-5,-5),
-            ci::vec2(-5,-15), ci::vec2(5,-15), ci::vec2(5,-5),
-        } );
-    }
-
-    static ci::PolyLine2f tee() {
-        return ci::PolyLine2f( {
-            ci::vec2(5,10), ci::vec2(-5,10), ci::vec2(-5,0),
-            ci::vec2(-15,0), ci::vec2(-15,-10), ci::vec2(15,-10),
-            ci::vec2(15,0), ci::vec2(5,0),
-        } );
-    }
-
-    static ci::PolyLine2f randomOutline() {
-        switch (ci::randInt(5)) {
-            case 0:
-                return triangle();
-            case 1:
-                return square();
-            case 2:
-                return lshape();
-            case 3:
-                return plus();
-            default:
-                return tee();
-
-        }
-    }
-
-    static BuildingPlan random( const RoofStyle roof = FLAT_ROOF ) {
-        return BuildingPlan( randomOutline(), roof );
-    }
-
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof ) {
-        return BuildingPlanRef( new BuildingPlan( outline, roof ) );
-    }
-
-    static BuildingPlanRef createRandom( const BuildingPlan::RoofStyle roof ) {
-        return BuildingPlanRef( new BuildingPlan( BuildingPlan::random( roof ) ) );
-    }
+    static BuildingPlanRef create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof );
+    static BuildingPlanRef createRandom( const BuildingPlan::RoofStyle roof );
 
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.

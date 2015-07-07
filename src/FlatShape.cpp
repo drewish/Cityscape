@@ -8,7 +8,6 @@
 
 #include "FlatShape.h"
 
-#include "CinderCGAL.h"
 #include <CGAL/linear_least_squares_fitting_2.h>
 
 const ci::vec2 FlatShape::centroid()

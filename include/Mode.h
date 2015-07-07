@@ -16,27 +16,13 @@
 #include "Resources.h"
 #include "RoadNetwork.h"
 
-//using namespace ci;
-using namespace ci::app;
-
 class BaseMode;
 typedef std::shared_ptr<BaseMode> ModeRef;
 
 class BaseMode
 {
 public:
-    BaseMode() {
-        //    try {
-        mOptions.buildingShader = ci::gl::GlslProg::create( loadResource( RES_VERT ), loadResource( RES_FRAG ) );
-        //    }
-        //    catch( gl::GlslProgCompileExc &exc ) {
-        //        console() << "Shader compile error: " << std::endl;
-        //        console() << exc.what();
-        //    }
-        //    catch( ... ) {
-        //        console() << "Unable to load shader" << std::endl;
-        //    }
-    }
+    BaseMode();
     virtual void setup() {}
     virtual void addParams( ci::params::InterfaceGlRef params) {}
     virtual void addPoint( ci::vec2 point ) {}
@@ -59,12 +45,6 @@ public:
     RoadNetwork mRoads;
 };
 
-#include "CinderCGAL.h"
-#include <CGAL/Arr_segment_traits_2.h>
-#include <CGAL/Arrangement_2.h>
-typedef CGAL::Arr_segment_traits_2<ExactK>            Traits_2;
-typedef CGAL::Arrangement_2<Traits_2>                 Arrangement_2;
-
 class BlockMode : public BaseMode
 {
 public:
@@ -74,7 +54,6 @@ public:
     void layout();
     void draw();
 
-    Arrangement_2 mArr;
     BuildingRef mBlock;
     ci::PolyLine2f mOutline;
 };

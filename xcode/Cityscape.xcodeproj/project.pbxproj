@@ -13,7 +13,6 @@
 		00B784B50FF439BC000DE1D7 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B10FF439BC000DE1D7 /* AudioUnit.framework */; };
 		00B784B60FF439BC000DE1D7 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B20FF439BC000DE1D7 /* CoreAudio.framework */; };
 		35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */; };
-		493D46E01A9D734600618E33 /* CinderCGAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 493D46DE1A9D734600618E33 /* CinderCGAL.cpp */; };
 		497E4AB31B1EBA6600AF6B17 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 497E4AB21B1EBA6600AF6B17 /* README.md */; };
 		498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */; };
 		49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.md */; };
@@ -52,7 +51,6 @@
 		25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = CityscapeApp.cpp; path = ../src/CityscapeApp.cpp; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		493D46DE1A9D734600618E33 /* CinderCGAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CinderCGAL.cpp; path = ../src/CinderCGAL.cpp; sourceTree = "<group>"; };
 		493D46DF1A9D734600618E33 /* CinderCGAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CinderCGAL.h; path = ../include/CinderCGAL.h; sourceTree = "<group>"; };
 		497E4AB21B1EBA6600AF6B17 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RoadNetwork.cpp; path = ../src/RoadNetwork.cpp; sourceTree = "<group>"; };
@@ -62,6 +60,9 @@
 		49D8C5D31B45052E00ABDAB6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		49D8C5D51B45055B00ABDAB6 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		49D8C5D71B45056200ABDAB6 /* IOSurface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOSurface.framework; path = System/Library/Frameworks/IOSurface.framework; sourceTree = SDKROOT; };
+		49DC254B1B4C65B1003AD4B2 /* CgalArrangement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CgalArrangement.h; sourceTree = "<group>"; };
+		49DC254C1B4C65D3003AD4B2 /* CgalStraightSkeleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CgalStraightSkeleton.h; sourceTree = "<group>"; };
+		49DC254D1B4C69E4003AD4B2 /* CgalKernel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CgalKernel.h; sourceTree = "<group>"; };
 		49E8F7C51B0EDB1C006FF1E5 /* Options.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
 		49E959211B23EC340093E4C8 /* direction_colored.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = direction_colored.vert; path = ../resources/direction_colored.vert; sourceTree = "<group>"; };
 		49E959231B23EC4D0093E4C8 /* direction_colored.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = direction_colored.frag; path = ../resources/direction_colored.frag; sourceTree = "<group>"; };
@@ -131,7 +132,6 @@
 			isa = PBXGroup;
 			children = (
 				25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */,
-				493D46DE1A9D734600618E33 /* CinderCGAL.cpp */,
 				5F4CBE911B31310800440011 /* Mode.cpp */,
 				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
 				5FEFD9CC1A92F8F00093F109 /* Road.cpp */,
@@ -196,6 +196,9 @@
 			children = (
 				87F1E1C66EC543B1852B8B39 /* Cityscape_Prefix.pch */,
 				01D5293596684B61AD4041D5 /* Resources.h */,
+				49DC254D1B4C69E4003AD4B2 /* CgalKernel.h */,
+				49DC254B1B4C65B1003AD4B2 /* CgalArrangement.h */,
+				49DC254C1B4C65D3003AD4B2 /* CgalStraightSkeleton.h */,
 				493D46DF1A9D734600618E33 /* CinderCGAL.h */,
 				49E8F7C51B0EDB1C006FF1E5 /* Options.h */,
 				5F4CBE921B31310800440011 /* Mode.h */,
@@ -314,7 +317,6 @@
 				5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */,
 				35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */,
 				5FEFD9D71A92F9FF0093F109 /* Block.cpp in Sources */,
-				493D46E01A9D734600618E33 /* CinderCGAL.cpp in Sources */,
 				497E4AB31B1EBA6600AF6B17 /* README.md in Sources */,
 				5F4CBE931B31310800440011 /* Mode.cpp in Sources */,
 				5FEFD9D41A92F9B30093F109 /* Lot.cpp in Sources */,

@@ -9,13 +9,10 @@
 #ifndef __Cityscape__CinderCGAL__
 #define __Cityscape__CinderCGAL__
 
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Exact_predicates_exact_constructions_kernel_with_sqrt.h>
+#include "CgalKernel.h"
+
 #include <CGAL/Polygon_2.h>
 #include <CGAL/Polygon_with_holes_2.h>
-
-typedef CGAL::Exact_predicates_inexact_constructions_kernel InexactK;
-typedef CGAL::Exact_predicates_exact_constructions_kernel_with_sqrt ExactK;
 
 inline ci::vec2 vecFrom(const InexactK::Point_2 &p)
 {
@@ -82,7 +79,5 @@ ci::PolyLine2f polyLineFrom(const CGAL::Polygon_2<K> &p)
 
     return poly;
 }
-
-
 
 #endif /* defined(__Cityscape__CinderCGAL__) */
