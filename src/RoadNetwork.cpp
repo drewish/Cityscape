@@ -76,19 +76,7 @@ void RoadNetwork::buildBlocks()
     buildHighways( paved );
     // TODO: Expose these configuration items
     // TODO: Make this step optional
-    buildSideStreets( paved, 100, 150 );
-
-
-//    if (mOptions.clipCityLimit) {
-//        ivec2 windowSize = getWindowSize();
-//        CGAL::Polygon_2<ExactK> window;
-//        window.push_back( ExactK::Point_2( 0, 0 ) );
-//        window.push_back( ExactK::Point_2( windowSize.x, 0 ) );
-//        window.push_back( ExactK::Point_2( windowSize.x, windowSize.y ) );
-//        window.push_back( ExactK::Point_2( 0, windowSize.y ) );
-//
-//        paved.intersection(window); // Intersect with the clipping rectangle.
-//    }
+    buildSideStreets( paved, 200, 300 );
 
     // Get the expanded street network
     paved.polygons_with_holes( std::back_inserter( pavedShapes ) );

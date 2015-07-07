@@ -16,8 +16,6 @@ struct Options {
     bool drawBlocks = false;
     bool drawLots = true;
     bool drawBuildings = true;
-    bool clipCityLimit = false;
-
     cinder::gl::GlslProgRef	buildingShader;
 };
 

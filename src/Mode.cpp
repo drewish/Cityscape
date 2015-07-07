@@ -22,7 +22,6 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
     params->addParam( "Block", &mOptions.drawBlocks, "key=s" );
     params->addParam( "Lot", &mOptions.drawLots, "key=d" );
     params->addParam( "Building", &mOptions.drawBuildings, "key=f" );
-    params->addParam( "Clip City", &mOptions.clipCityLimit, "key=c" );
 
     params->addButton( "Clear Points", [&] { mRoads.clear(); }, "key=0" );
     params->addButton( "Test 1", [&] {
@@ -129,7 +128,6 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
     params->addParam( "Block", &mOptions.drawBlocks, "key=s" );
     params->addParam( "Lot", &mOptions.drawLots, "key=d" );
     params->addParam( "Building", &mOptions.drawBuildings, "key=f" );
-    params->addParam( "Clip City", &mOptions.clipCityLimit, "key=c" );
 
     params->addButton( "Clear Points", [&] {
         mOutline = PolyLine2f();
