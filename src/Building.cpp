@@ -10,14 +10,14 @@
 
 using namespace ci;
 
-void Building::layout()
+void Building::layout( const Options &options )
 {
 //    mMeshRef = makeMesh(mRoof, mOutline, mFloors);
 }
 
 void Building::draw( const Options &options ) const
 {
-    if ( options.drawBuildings && mPlan.wallMeshRef() ) {
+    if ( options.drawBuildings ) {
         gl::ScopedGlslProg glslScope( options.buildingShader );
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
         gl::ScopedLineWidth(5);

@@ -46,6 +46,7 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
             vec2(377,262),
             vec2(529,131),
         });
+        mRoads.layout( mOptions );
     }, "key=1" );
     params->addButton( "Test 2", [&] {
         mRoads.clear();
@@ -61,6 +62,7 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
             vec2(131,47),
             vec2(523,132),
         });
+        mRoads.layout( mOptions );
     }, "key=2" );
     params->addButton( "Test 3", [&] {
         mRoads.clear();
@@ -74,6 +76,7 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
             vec2(103.206,-48.1886),
             vec2(-391.031,1191.03),
         });
+        mRoads.layout( mOptions );
     }, "key=3" );
     params->addButton( "Test 4", [&] {
         mRoads.addPoints({
@@ -84,6 +87,7 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
             vec2(490.026,113.687),
             vec2(163.104,60.2898),
         });
+        mRoads.layout( mOptions );
     }, "key=4" );
     params->addButton( "Test 5", [&] {
         mRoads.clear();
@@ -101,16 +105,18 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
             vec2(313.635,1054.66),
             vec2(0.1429,1069.64),
         });
+        mRoads.layout( mOptions );
     }, "key=5" );
 }
 
 void CityMode::addPoint( ci::vec2 point ) {
     console() << "vec2(" << point.x << "," << point.y << "),\n";
     mRoads.addPoint( point );
+    mRoads.layout( mOptions );
 }
 
 void CityMode::layout() {
-    mRoads.layout();
+    mRoads.layout( mOptions );
 }
 
 void CityMode::draw() {
@@ -126,6 +132,7 @@ void BlockMode::setup() {
     mOptions.drawBlocks = false;
     mOptions.drawLots = true;
     mOptions.drawBuildings = true;
+layout();
 }
 
 void BlockMode::addParams( ci::params::InterfaceGlRef params) {
@@ -286,7 +293,7 @@ void BuildingMode::addPoint( ci::vec2 point ) {
 
 void BuildingMode::layout() {
     mBuilding = Building::create( BuildingPlan( mOutline, mBuildingRoof ), mFloors );
-    mBuilding->layout();
+    mBuilding->layout( mOptions );
 }
 
 void BuildingMode::draw() {

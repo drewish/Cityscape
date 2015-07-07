@@ -16,6 +16,8 @@ struct Options {
     bool drawBlocks = false;
     bool drawLots = true;
     bool drawBuildings = true;
+    u_int16_t blockDivision;
+    u_int16_t buildingPlacement;
     cinder::gl::GlslProgRef	buildingShader;
 };
 

@@ -27,7 +27,7 @@ class Lot {
     void buildInCenter();
     void buildFullLot();
 
-    void layout();
+    void layout( const Options &options );
     void draw( const Options &options );
     void drawBuilding( const Options &options );
 

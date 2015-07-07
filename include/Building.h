@@ -34,7 +34,7 @@ class Building {
     Building( const BuildingPlan plan, const uint32_t floors = 1.0 ) : mPlan(plan), mFloors(floors) { };
     Building( const Building &s ) : mPlan(s.mPlan), mFloors(s.mFloors) { };
 
-    void layout();
+    void layout( const Options &options );
     void draw( const Options &options ) const;
 
     const BuildingPlan plan() { return mPlan; };

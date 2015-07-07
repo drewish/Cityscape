@@ -21,13 +21,17 @@ typedef boost::shared_ptr<Ss> SsPtr;
 
 typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
-void Block::layout()
+void Block::layout( const Options &options )
 {
-    subdivideSkeleton();
-//    subdivideNotReally();
+    if (options.blockDivision == 1) {
+        subdivideSkeleton();
+    }
+    else {
+        subdivideNotReally();
+    }
 
     for( auto it = mLots.begin(); it != mLots.end(); ++it ) {
-        it->layout();
+        it->layout( options );
     }
 }
 

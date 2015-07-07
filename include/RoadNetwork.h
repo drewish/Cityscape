@@ -22,25 +22,19 @@ public:
     void clear()
     {
         mPoints.clear();
-        layout();
     }
 
     // Insert multiple points and avoid a layout for each.
     void addPoints( const std::vector<ci::vec2> &points )
     {
         mPoints.insert( mPoints.end(), points.begin(), points.end() );
-        layout();
     }
 
     void addPoint( const ci::vec2 &pos )
     {
         mPoints.push_back( pos );
-        // Don't bother redoing the layout if we have an odd number of points.
-        if ( mPoints.size() % 2 == 0 ) {
-            layout();
-        }
     }
-    void layout();
+    void layout( const Options &options );
     void draw( const Options &options );
 
 private:

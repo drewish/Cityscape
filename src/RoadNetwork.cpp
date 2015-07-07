@@ -95,15 +95,18 @@ void RoadNetwork::buildBlocks()
     }
 }
 
-void RoadNetwork::layout()
+void RoadNetwork::layout( const Options &options )
 {
+    // Don't bother redoing the layout if we have an odd number of points.
+    if ( mPoints.size() % 2 == 1 ) return;
+
     mBlocks.clear();
     mShapes.clear();
 
     buildBlocks();
 
     for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
-        it->layout();
+        it->layout( options );
     }
 }
 

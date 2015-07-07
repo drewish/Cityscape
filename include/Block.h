@@ -24,7 +24,7 @@ public:
     Block( const FlatShape &fs, const ci::Color &c )
     : mShape(fs)
     {}
-    void layout();
+    void layout( const Options &options );
     void draw( const Options &options );
     void subdivideNotReally();
     void subdivideSkeleton();

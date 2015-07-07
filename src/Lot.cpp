@@ -52,12 +52,16 @@ void Lot::buildFullLot()
     }
 }
 
-void Lot::layout()
+void Lot::layout( const Options &options )
 {
-    buildFullLot();
-//    buildInCenter();
+    // TODO: Make this an option
+    if ( options.buildingPlacement == 1 ) {
+        buildFullLot();
+    } else {
+        buildInCenter();
+    }
 
-    if ( mBuildingRef ) mBuildingRef->layout();
+    if ( mBuildingRef ) mBuildingRef->layout( options );
 }
 
 void Lot::draw( const Options &options )
