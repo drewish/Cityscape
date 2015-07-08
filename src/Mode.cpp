@@ -126,6 +126,7 @@ void CityMode::draw() {
 // * * *
 
 #include "CgalArrangement.h"
+// This is hacky but we only use one instance of it at a time.
 Arrangement_2 mArr;
 
 void BlockMode::setup() {

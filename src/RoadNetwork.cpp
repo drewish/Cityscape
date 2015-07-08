@@ -74,9 +74,9 @@ void RoadNetwork::buildBlocks()
     std::list<CGAL::Polygon_with_holes_2<ExactK>> pavedShapes, unpavedShapes;
 
     buildHighways( paved );
-    // TODO: Expose these configuration items
-    // TODO: Make this step optional
-    buildSideStreets( paved, 200, 300 );
+// TODO: Make this step optional
+// TODO: Expose these configuration items
+    buildSideStreets( paved, 100, 200 );
 
     // Get the expanded street network
     paved.polygons_with_holes( std::back_inserter( pavedShapes ) );

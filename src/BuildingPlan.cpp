@@ -11,6 +11,7 @@
 #include "CgalArrangement.h"
 #include "CgalStraightSkeleton.h"
 
+#include "cinder/Rand.h"
 #include "cinder/Triangulate.h"
 
 using namespace ci;
@@ -21,10 +22,17 @@ using namespace std;
 typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
 
+
+BuildingPlan::RoofStyle BuildingPlan::randomRoof()
+{
+    return static_cast<RoofStyle>(ci::randInt(5));
+}
+
 ci::PolyLine2f BuildingPlan::triangle()
 {
     return ci::PolyLine2f( {
-        ci::vec2(10, -10), ci::vec2(10, 10), ci::vec2(-10, 10)
+        ci::vec2(10, -10), ci::vec2(10, 10), ci::vec2(-10, 10),
+        ci::vec2(10, -10) // closure
     } );
 }
 
@@ -39,7 +47,8 @@ ci::PolyLine2f BuildingPlan::rectangle( const uint16_t width, const uint16_t hei
     float h = height / 2.0;
     return ci::PolyLine2f( {
         ci::vec2(w, -h), ci::vec2(w, h),
-        ci::vec2(-w, h), ci::vec2(-w, -h)
+        ci::vec2(-w, h), ci::vec2(-w, -h),
+        ci::vec2(w, -h) // closure
     } );
 }
 
@@ -48,6 +57,7 @@ ci::PolyLine2f BuildingPlan::lshape()
     return ci::PolyLine2f( {
         ci::vec2(15, 0), ci::vec2(15, 10), ci::vec2(-15, 10),
         ci::vec2(-15, -10), ci::vec2(-5, -10), ci::vec2(-5, 0),
+        ci::vec2(15, 0) // closure
     } );
 }
 
@@ -58,6 +68,7 @@ ci::PolyLine2f BuildingPlan::plus()
         ci::vec2(5,15), ci::vec2(-5,15), ci::vec2(-5,5),
         ci::vec2(-15,5), ci::vec2(-15,-5), ci::vec2(-5,-5),
         ci::vec2(-5,-15), ci::vec2(5,-15), ci::vec2(5,-5),
+        ci::vec2(15,-5) // closure
     } );
 }
 
@@ -67,6 +78,7 @@ ci::PolyLine2f BuildingPlan::tee()
         ci::vec2(5,10), ci::vec2(-5,10), ci::vec2(-5,0),
         ci::vec2(-15,0), ci::vec2(-15,-10), ci::vec2(15,-10),
         ci::vec2(15,0), ci::vec2(5,0),
+        ci::vec2(5,10) // closure
     } );
 }
 
@@ -102,19 +114,14 @@ const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float ro
     return ret;
 }
 
-BuildingPlan BuildingPlan::random( const RoofStyle roof )
-{
-    return BuildingPlan( randomOutline(), roof );
-}
-
 BuildingPlanRef BuildingPlan::create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof )
 {
     return BuildingPlanRef( new BuildingPlan( outline, roof ) );
 }
 
-BuildingPlanRef BuildingPlan::createRandom( const BuildingPlan::RoofStyle roof )
+BuildingPlanRef BuildingPlan::createRandom()
 {
-    return BuildingPlanRef( new BuildingPlan( BuildingPlan::random( roof ) ) );
+    return BuildingPlanRef( new BuildingPlan( randomOutline(), randomRoof() ) );
 }
 
 // * * *
@@ -385,9 +392,6 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
         outlineSegments.push_back( Segment_2( Point_2( prev->x, prev->y ), Point_2( i->x, i->y ) ) );
         prev = i;
     }
-    // TODO: see if we can close the loop upstream.
-    outlineSegments.push_back( Segment_2( outlineSegments.back().target(), outlineSegments.front().source() ) );
-
     insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
 
     // Create a list of segements to intersect with.

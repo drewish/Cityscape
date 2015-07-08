@@ -17,16 +17,14 @@ void Lot::buildInCenter()
     // TODO: just placing it in the center for now. would be good to take
     // the street into consideration.
     buildingPosition = mShape.centroid();
-    buildingRotation = 90 * randInt(4);
+    buildingRotation = M_PI * randInt(4) / 2;
 
-    // Vary the floors based on the area...
-    // TODO: would be interesting to make taller buildings on smaller lots
-    float area = mShape.polygon<InexactK>().area();
-    int floors = (int) sqrt(area) / 20;
+    int floors = 1 + randInt(2);
 
-    mBuildingRef = Building::createRandom( floors, BuildingPlan::HIPPED_ROOF );
-    if (!mBuildingRef) { return;     }
+    mBuildingRef = Building::create( BuildingPlan( BuildingPlan::randomOutline(), BuildingPlan::randomRoof() ), floors );
+    if (!mBuildingRef) { return; }
 
+// TODO: figure out why this stopped working after the cinder upgrade
     std::vector<PolyLine2f> a = { mShape.outline() },
         b = { mBuildingRef->plan().outline(buildingPosition) },
         diff = PolyLine2f::calcDifference( b,a );
@@ -45,7 +43,7 @@ void Lot::buildFullLot()
     int floors = (int) (sqrt(area) / 20)  + ci::randInt(5);
 
     if ( area > 100 ) {
-        mBuildingRef = Building::create( BuildingPlan( mShape.outline(), BuildingPlan::FLAT_ROOF ), floors );
+        mBuildingRef = Building::create( BuildingPlan( mShape.outline(), BuildingPlan::randomRoof() ), floors );
     }
     else {
         mBuildingRef = NULL;
@@ -54,11 +52,13 @@ void Lot::buildFullLot()
 
 void Lot::layout( const Options &options )
 {
-    // TODO: Make this an option
-    if ( options.buildingPlacement == 1 ) {
-        buildFullLot();
-    } else {
+    switch ( options.buildingPlacement ) {
+    case Options::BUILDING_IN_CENTER:
         buildInCenter();
+        break;
+    case Options::BUILDING_FILL_LOT:
+        buildFullLot();
+        break;
     }
 
     if ( mBuildingRef ) mBuildingRef->layout( options );

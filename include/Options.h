@@ -12,12 +12,21 @@
 #include "cinder/gl/GlslProg.h"
 
 struct Options {
+    enum BlockDivision {
+        NO_BLOCK_DIVISION = 0,
+        BLOCK_DIVIDED = 1,
+    };
+    enum BuildingPlacement {
+        BUILDING_IN_CENTER = 0,
+        BUILDING_FILL_LOT = 1,
+    };
+
     bool drawRoads = true;
     bool drawBlocks = false;
     bool drawLots = true;
     bool drawBuildings = true;
-    u_int16_t blockDivision;
-    u_int16_t buildingPlacement;
+    BlockDivision blockDivision = BLOCK_DIVIDED;
+    BuildingPlacement buildingPlacement = BUILDING_FILL_LOT;
     cinder::gl::GlslProgRef	buildingShader;
 };
 

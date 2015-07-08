@@ -31,7 +31,7 @@ void Building::draw( const Options &options ) const
 
         // Roof
         gl::pushModelMatrix();
-        gl::translate( 0.0, 0.0, mFloors * mPlan.mFloorHeight );
+        gl::translate( 0.0, 0.0, mFloors * mPlan.floorHeight() );
         gl::draw( mPlan.roofMeshRef() );
         gl::popModelMatrix();
 
