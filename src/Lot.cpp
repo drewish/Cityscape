@@ -40,7 +40,7 @@ void Lot::buildFullLot()
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots
     float area = mShape.polygon<InexactK>().area();
-    int floors = (int) (sqrt(area) / 20)  + ci::randInt(5);
+    int floors = (int) (sqrt(area) / 20) + ci::randInt(7);
 
     if ( area > 100 ) {
         mBuildingRef = Building::create( BuildingPlan( mShape.outline(), BuildingPlan::randomRoof() ), floors );
