@@ -357,17 +357,10 @@ void buildShedRoof(const PolyLine2f &outline, const float slope, vector<vec3> &v
     buildWallsFromOutlineAndTopOffsets( outline, offsetMap, 0.0, verts, indices );
 }
 
-void findIntersections(const std::list<Segment_2> &input, const float height, std::list<Segment_2> &newEdges, std::list<Point_2> &newPoints, OffsetMap &offsets
-)
+void findIntersections(const std::list<Segment_2> &input, std::list<Segment_2> &newEdges, std::list<Point_2> &newPoints)
 {
     std::vector<Point_2> pts;
     CGAL::compute_intersection_points( input.begin(), input.end(), std::back_inserter(pts) );
-
-    // Create a height offset for each intersection
-    for ( auto i = pts.begin(); i != pts.end(); ++i ) {
-        vec2 v = vecFrom( *i );
-        offsets[ std::make_pair( v.x, v.y ) ] = vec3( 0, 0, height );
-    }
 
     // Even numbers of intersections become segments
     for ( int i = pts.size() - 1; i > 0; i -= 2 ) {
@@ -378,13 +371,22 @@ void findIntersections(const std::list<Segment_2> &input, const float height, st
     if ( pts.size() % 2 == 1 ) newPoints.push_back( pts[0] );
 }
 
+float sawtoothHeight( const float x, const float upWidth, const float height, const float downWidth )
+{
+    float p = fmod(x, upWidth + downWidth);
+    if ( p < upWidth ) {
+        return ( height / upWidth ) * p;
+    } else {
+        return ( -height / downWidth ) * ( p - upWidth ) + height;
+    }
+}
+
 void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const float height, const float downWidth, vector<vec3> &verts, vector<uint32_t> &indices)
 {
-    Arrangement_2 mArr;
-    OffsetMap offsets;
-
-    mArr.clear();
     if (outline.size() == 0) return;
+
+    Arrangement_2 arr;
+    OffsetMap offsets;
 
     // Put the outline onto the arrangment.
     std::list<Segment_2> outlineSegments;
@@ -392,7 +394,7 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
         outlineSegments.push_back( Segment_2( Point_2( prev->x, prev->y ), Point_2( i->x, i->y ) ) );
         prev = i;
     }
-    insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
+    insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
 
     // Create a list of segements to intersect with.
     std::list<Segment_2> intersect;
@@ -405,10 +407,8 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
     Rectf bounds = Rectf( outline.getPoints() );
     float x = bounds.x1;
     while ( x < bounds.x2 ) {
-        float h = (step % 2) ? height : 0;
-
         intersect.push_back( Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
-        findIntersections( intersect, h, newEdges, newPoints, offsets );
+        findIntersections( intersect, newEdges, newPoints );
         intersect.pop_back();
 
         x += (step % 2) ? downWidth : upWidth;
@@ -416,15 +416,21 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
     };
 
     // Add all the new points and edges.
-    Naive_pl pl(mArr);
-    for ( auto p = newPoints.begin(); p != newPoints.end(); ++p ) {
-        insert_point( mArr, *p, pl );
-    }
+    Naive_pl pl(arr);
+    for ( auto p = newPoints.begin(); p != newPoints.end(); ++p )
+        insert_point( arr, *p, pl );
     if (newEdges.size())
-        insert( mArr, newEdges.begin(), newEdges.end() );
+        insert( arr, newEdges.begin(), newEdges.end() );
+
+    // Compute a height for each vertex.
+    for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
+        vec2 v = vecFrom( i->point() );
+        float h = sawtoothHeight( v.x - bounds.x1, upWidth, height, downWidth );
+        offsets[ std::make_pair( v.x, v.y ) ] = vec3( 0, 0, h );
+    }
 
     // Now turn the arrangment into a mesh.
-    for ( auto i = mArr.faces_begin(); i != mArr.faces_end(); ++i ) {
+    for ( auto i = arr.faces_begin(); i != arr.faces_end(); ++i ) {
         for ( auto j = i->holes_begin(); j != i->holes_end(); ++j ) {
             PolyLine2f faceOutline( polyLineFrom( *j ).reversed() );
 

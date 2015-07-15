@@ -10,10 +10,7 @@
 
 using namespace ci;
 
-void Building::layout( const Options &options )
-{
-//    mMeshRef = makeMesh(mRoof, mOutline, mFloors);
-}
+void Building::layout( const Options &options ) {}
 
 void Building::draw( const Options &options ) const
 {
