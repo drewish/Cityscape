@@ -1,10 +1,10 @@
+## Bugs
+- fix missing segments in sawtooth roof
+
 ## World
 
-- Add options to toggle lot subdivision and building styles
-- Draw a yellowish ground color (or just use that as the background color if we need no fade)
-- Add Lot mode
-- Create object specific options. Perhaps as static variables on the object 
-  class? Otherwise class specific structs.
+- Draw a yellowish ground color (or just use that as the background color if we 
+  need no fade)
 
 ## Building
 
@@ -19,9 +19,9 @@
   - Cache plans by outline so they're not rebuilt every time the layout changes.
 - Expand roof outline to overlap house (soffit)
 - More roof styles:
-  - sawtooth (warehouses)
   - saltbox
   - gabled
+  - round
 
 ## Lot
 

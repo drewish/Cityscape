@@ -23,11 +23,11 @@ typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
 void Block::layout( const Options &options )
 {
-    switch (options.blockDivision) {
-    case Options::BLOCK_DIVIDED:
+    switch (options.block.division) {
+    case BlockOptions::BLOCK_DIVIDED:
         subdivideSkeleton();
         break;
-    case Options::NO_BLOCK_DIVISION:
+    case BlockOptions::NO_BLOCK_DIVISION:
         subdivideNotReally();
         break;
     }

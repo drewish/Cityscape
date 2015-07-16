@@ -101,12 +101,10 @@ ci::PolyLine2f BuildingPlan::randomOutline()
 
 const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float rotation) const
 {
-    PolyLine2f ret = PolyLine2f();
-
     glm::mat3 matrix;
+    matrix = rotate( translate( matrix, offset ), rotation );
 
-    rotate( matrix, rotation );
-    translate( matrix, offset );
+    PolyLine2f ret = PolyLine2f();
     for( auto it = mOutline.begin(); it != mOutline.end(); ++it ) {
         vec3 transformed = matrix * vec3( *it, 1 );
         ret.push_back( vec2( transformed ) );

@@ -28,10 +28,33 @@ void CityMode::setup() {
 }
 
 void CityMode::addParams( ci::params::InterfaceGlRef params) {
+
+    // TODO: Don't redo layout on every change, set a timer to update every half
+    // second or so.
+//    params->addParam( "highwayWidth", &mOptions.road.highwayWidth )
+//        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
+//    params->addParam( "sidestreetWidth", &mOptions.road.sidestreetWidth )
+//        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "blockWidth", &mOptions.road.blockWidth )
+        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "blockHeight", &mOptions.road.blockHeight )
+        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+
+    params->addSeparator();
+    
+    params->addParam( "Division", {"None", "Divided"}, (int*)&mOptions.block.division )
+        .updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
+        .updateFn( std::bind( &CityMode::layout, this ) );
+
+    params->addSeparator();
+
     params->addParam( "Roads", &mOptions.drawRoads, "key=a" );
     params->addParam( "Block", &mOptions.drawBlocks, "key=s" );
     params->addParam( "Lot", &mOptions.drawLots, "key=d" );
     params->addParam( "Building", &mOptions.drawBuildings, "key=f" );
+
+    params->addSeparator();
 
     params->addButton( "Clear Points", [&] { mRoads.clear(); }, "key=0" );
     params->addButton( "Test 1", [&] {
@@ -65,6 +88,17 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
         mRoads.layout( mOptions );
     }, "key=2" );
     params->addButton( "Test 3", [&] {
+        mRoads.addPoints({
+            vec2(163.104,60.2898),
+            vec2(306.353,918.302),
+            vec2(306.353,918.302),
+            vec2(490.026,113.687),
+            vec2(490.026,113.687),
+            vec2(163.104,60.2898),
+        });
+        mRoads.layout( mOptions );
+    }, "key=3" );
+    params->addButton( "Test 4", [&] {
         mRoads.clear();
         mRoads.addPoints({
             vec2(-391.031,1191.03),
@@ -75,17 +109,6 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
             vec2(103.206,-48.1886),
             vec2(103.206,-48.1886),
             vec2(-391.031,1191.03),
-        });
-        mRoads.layout( mOptions );
-    }, "key=3" );
-    params->addButton( "Test 4", [&] {
-        mRoads.addPoints({
-            vec2(163.104,60.2898),
-            vec2(306.353,918.302),
-            vec2(306.353,918.302),
-            vec2(490.026,113.687),
-            vec2(490.026,113.687),
-            vec2(163.104,60.2898),
         });
         mRoads.layout( mOptions );
     }, "key=4" );

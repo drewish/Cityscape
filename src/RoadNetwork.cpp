@@ -14,7 +14,7 @@
 
 using namespace ci;
 
-void RoadNetwork::buildHighways( CGAL::Polygon_set_2<ExactK> &paved )
+void RoadNetwork::buildHighways( const Options &options, CGAL::Polygon_set_2<ExactK> &paved )
 {
     float roadWidth = 20.0;
 
@@ -27,7 +27,7 @@ void RoadNetwork::buildHighways( CGAL::Polygon_set_2<ExactK> &paved )
 }
 
 // Add some secondary streets
-void RoadNetwork::buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved, const float blockWidth, const float blockHeight )
+void RoadNetwork::buildSideStreets( const Options &options, CGAL::Polygon_set_2<ExactK> &paved )
 {
 // TODO:
 //  - make roadway orientation configurable
@@ -43,15 +43,14 @@ void RoadNetwork::buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved, const fl
 
 // TODO: this is begging to be moved into a function:
         // Create narrow roads to cover the bounding box
-        float roadWidth = 10.0;
 
         CGAL::Bbox_2 bounds = chunk->bbox();
         std::vector<CGAL::Polygon_2<ExactK>> roads;
-        for ( float y = bounds.ymin() + blockHeight; y < bounds.ymax(); y += blockHeight ) {
-            roads.push_back( polygonFrom<ExactK>( Road( vec2( bounds.xmin(), y ), vec2( bounds.xmax(), y ), roadWidth).outline ) );
+        for ( float y = bounds.ymin() + options.road.blockHeight; y < bounds.ymax(); y += options.road.blockHeight ) {
+            roads.push_back( polygonFrom<ExactK>( Road( vec2( bounds.xmin(), y ), vec2( bounds.xmax(), y ), options.road.sidestreetWidth).outline ) );
         }
-        for ( float x = bounds.xmin() + blockWidth; x < bounds.xmax(); x += blockWidth ) {
-            roads.push_back( polygonFrom<ExactK>( Road( vec2( x, bounds.ymin() ), vec2( x, bounds.ymax() ), roadWidth).outline ) );
+        for ( float x = bounds.xmin() + options.road.blockWidth; x < bounds.xmax(); x += options.road.blockWidth ) {
+            roads.push_back( polygonFrom<ExactK>( Road( vec2( x, bounds.ymin() ), vec2( x, bounds.ymax() ), options.road.sidestreetWidth).outline ) );
         }
 
         CGAL::Polygon_set_2<ExactK> newStreets;
@@ -68,15 +67,14 @@ void RoadNetwork::buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved, const fl
 }
 
 // Should probably be called build the rest... a bit of a code smell here.
-void RoadNetwork::buildBlocks()
+void RoadNetwork::buildBlocks( const Options &options )
 {
     CGAL::Polygon_set_2<ExactK> paved, unpaved;
     std::list<CGAL::Polygon_with_holes_2<ExactK>> pavedShapes, unpavedShapes;
 
-    buildHighways( paved );
-// TODO: Make this step optional
-// TODO: Expose these configuration items
-    buildSideStreets( paved, 100, 200 );
+    buildHighways( options, paved );
+    // TODO: Make this step optional
+    buildSideStreets( options, paved );
 
     // Get the expanded street network
     paved.polygons_with_holes( std::back_inserter( pavedShapes ) );
@@ -103,7 +101,7 @@ void RoadNetwork::layout( const Options &options )
     mBlocks.clear();
     mShapes.clear();
 
-    buildBlocks();
+    buildBlocks( options );
 
     for( auto it = mBlocks.begin(); it != mBlocks.end(); ++it ) {
         it->layout( options );

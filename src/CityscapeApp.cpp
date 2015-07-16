@@ -97,7 +97,7 @@ void CityscapeApp::setup()
     setupModeParams();
     mParams->minimize();
 
-    mModeRef = ModeRef( new BuildingMode() );
+    mModeRef = ModeRef( new CityMode() );
     mModeRef->setup();
     mModeRef->addParams( mParams );
 

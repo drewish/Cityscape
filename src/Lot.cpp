@@ -26,11 +26,9 @@ void Lot::buildInCenter()
     );
     if (!mBuildingRef) { return; }
 
-
-// TODO: figure out why this stopped working after the cinder upgrade
     std::vector<PolyLine2f> a = { mShape.outline() },
         b = { mBuildingRef->outline() },
-        diff = PolyLine2f::calcDifference( b,a );
+        diff = PolyLine2f::calcDifference( b, a );
     if ( diff.size() != 0 ) {
         mBuildingRef = NULL;
     }
@@ -53,11 +51,11 @@ void Lot::buildFullLot()
 
 void Lot::layout( const Options &options )
 {
-    switch ( options.buildingPlacement ) {
-    case Options::BUILDING_IN_CENTER:
+    switch ( options.lot.buildingPlacement ) {
+    case LotOptions::BUILDING_IN_CENTER:
         buildInCenter();
         break;
-    case Options::BUILDING_FILL_LOT:
+    case LotOptions::BUILDING_FILL_LOT:
         buildFullLot();
         break;
     }

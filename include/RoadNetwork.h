@@ -38,9 +38,9 @@ public:
     void draw( const Options &options );
 
 private:
-    void buildHighways( CGAL::Polygon_set_2<ExactK> &paved );
-    void buildSideStreets( CGAL::Polygon_set_2<ExactK> &paved, const float blockWidth = 50, const float blockHeight = 100 );
-    void buildBlocks();
+    void buildHighways( const Options &options, CGAL::Polygon_set_2<ExactK> &paved );
+    void buildSideStreets( const Options &options, CGAL::Polygon_set_2<ExactK> &paved );
+    void buildBlocks( const Options &options );
 
     std::vector<ci::vec2> mPoints;
     std::vector<Block> mBlocks;
