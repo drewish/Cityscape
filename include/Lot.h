@@ -18,9 +18,7 @@ class Lot {
     Lot( const Lot &src ) :
         mShape(src.mShape),
         mColor(src.mColor),
-        mBuildingRef(src.mBuildingRef),
-        buildingPosition(src.buildingPosition),
-        buildingRotation(src.buildingRotation)
+        mBuildingRef(src.mBuildingRef)
     { };
     Lot( const FlatShape &fs, const ci::Color &c ) : mShape(fs), mColor(c) { };
 
@@ -29,13 +27,10 @@ class Lot {
 
     void layout( const Options &options );
     void draw( const Options &options );
-    void drawBuilding( const Options &options );
 
     FlatShape mShape;
     ci::ColorA mColor;
     BuildingRef mBuildingRef;
-    ci::vec2 buildingPosition;
-    float buildingRotation = 0;
 };
 
 #endif /* defined(__Cityscape__Lot__) */

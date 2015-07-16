@@ -14,19 +14,22 @@ using namespace ci;
 
 void Lot::buildInCenter()
 {
-    // TODO: just placing it in the center for now. would be good to take
-    // the street into consideration.
-    buildingPosition = mShape.centroid();
-    buildingRotation = M_PI * randInt(4) / 2;
-
     int floors = 1 + randInt(2);
 
-    mBuildingRef = Building::create( BuildingPlan( BuildingPlan::randomOutline(), BuildingPlan::randomRoof() ), floors );
+    mBuildingRef = Building::create(
+        BuildingPlan( BuildingPlan::randomOutline(), BuildingPlan::randomRoof() ),
+        floors,
+        // TODO: just placing it in the center for now. would be good to take
+        // the street into consideration.
+        mShape.centroid(),
+        M_PI * randInt(4) / 2
+    );
     if (!mBuildingRef) { return; }
+
 
 // TODO: figure out why this stopped working after the cinder upgrade
     std::vector<PolyLine2f> a = { mShape.outline() },
-        b = { mBuildingRef->plan().outline(buildingPosition) },
+        b = { mBuildingRef->outline() },
         diff = PolyLine2f::calcDifference( b,a );
     if ( diff.size() != 0 ) {
         mBuildingRef = NULL;
@@ -35,8 +38,6 @@ void Lot::buildInCenter()
 
 void Lot::buildFullLot()
 {
-    buildingPosition = glm::zero<ci::vec2>();
-
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots
     float area = mShape.polygon<InexactK>().area();
@@ -71,15 +72,4 @@ void Lot::draw( const Options &options )
         gl::color( ColorA( mColor, 0.4 ) );
         gl::draw( mShape.mesh() );
     }
-}
-
-void Lot::drawBuilding( const Options &options )
-{
-    if ( !mBuildingRef ) return;
-
-    gl::pushModelView();
-    gl::translate(buildingPosition);
-    gl::rotate(buildingRotation);
-    mBuildingRef->draw( options );
-    gl::popModelView();
 }

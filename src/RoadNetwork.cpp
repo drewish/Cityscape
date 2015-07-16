@@ -133,7 +133,7 @@ void RoadNetwork::draw( const Options &options )
         // Sort of tacky to go in like this but the hope is that all the lots
         // draw atop the blocks.
         for( auto lot = block->mLots.begin(); lot != block->mLots.end(); ++lot ) {
-            lot->drawBuilding( options );
+            if (lot->mBuildingRef) lot->mBuildingRef->draw( options );
         }
     }
 

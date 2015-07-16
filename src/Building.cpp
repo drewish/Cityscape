@@ -20,6 +20,10 @@ void Building::draw( const Options &options ) const
         gl::ScopedLineWidth(5);
 //        gl::enableWireframe();
 
+        gl::pushModelMatrix();
+        gl::translate(mPosition);
+        gl::rotate(mRotation);
+
         // Walls
         gl::pushModelMatrix();
         gl::scale( 1.0, 1.0, 1.0 * mFloors );
@@ -33,6 +37,7 @@ void Building::draw( const Options &options ) const
         gl::popModelMatrix();
 
 //        gl::disableWireframe();
+        gl::popModelMatrix();
     }
 }
 
