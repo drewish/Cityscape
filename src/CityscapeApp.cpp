@@ -95,6 +95,8 @@ void CityscapeApp::setup()
     resize();
 
     setupModeParams();
+    mParams->minimize();
+
     mModeRef = ModeRef( new BuildingMode() );
     mModeRef->setup();
     mModeRef->addParams( mParams );
@@ -129,7 +131,6 @@ void CityscapeApp::setupModeParams()
         mModeRef->addParams( mParams );
     }, "key=e" );
     mParams->addSeparator();
-    mParams->minimize();
 }
 
 void CityscapeApp::resize()
