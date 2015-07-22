@@ -56,7 +56,10 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addSeparator();
 
-    params->addButton( "Clear Points", [&] { mRoads.clear(); }, "key=0" );
+    params->addButton( "Clear Points", [&] {
+        mRoads.clear();
+        mRoads.layout( mOptions );
+    }, "key=0" );
     params->addButton( "Test 1", [&] {
         mRoads.clear();
         mRoads.addPoints({
@@ -151,6 +154,7 @@ void CityMode::draw() {
 #include "CgalArrangement.h"
 // This is hacky but we only use one instance of it at a time.
 Arrangement_2 mArr;
+std::vector<vec2> mDividers;
 
 void BlockMode::setup() {
     mOptions.drawBlocks = false;
@@ -198,53 +202,74 @@ void BlockMode::addPoint( ci::vec2 point ) {
     layout();
 }
 
+// Gives back pairs of points to divide the shape with lines of a given angle.
+std::vector<vec2> computeDividers( const std::vector<vec2> &outline, const float angle = 0, const float width = 100 )
+{
+    // Rotate the shape to the desired angle...
+    Rectf outlineBounds( outline );
+    vec2 center = vec2( outlineBounds.getWidth() / 2.0, outlineBounds.getHeight() / 2.0 );
+    glm::mat3 matrix;
+    matrix = translate( rotate( translate( matrix, -center ), angle ), center );
+
+    // ...then find the bounding box...
+    std::vector<vec2> rotated;
+    for( auto it = outline.begin(); it != outline.end(); ++it ) {
+        rotated.push_back( vec2( matrix * vec3( *it, 1 ) ) );
+    }
+    Rectf bounds( rotated );
+
+    // ...now figure out where the left edge of that box would be in the
+    // unrotated space...
+    mat3 reverse = inverse( matrix );
+    vec2 topLeft =    vec2( reverse * vec3( bounds.getUpperLeft(), 1 ) );
+    vec2 bottomLeft = vec2( reverse * vec3( bounds.getLowerLeft(), 1 ) );
+    vec2 direction = normalize( vec2( reverse * ( vec3( 1, 0, 0 ) ) ) );
+
+    // ...and work across from those points finding dividers
+    std::vector<vec2> result;
+    for ( float distance = width; distance < bounds.getWidth(); distance += width ) {
+        vec2 thing = direction * distance;
+        result.push_back( thing + topLeft );
+        result.push_back( thing + bottomLeft );
+    }
+
+    return result;
+}
+
 void BlockMode::layout() {
     mArr.clear();
     if (mOutline.size() == 0) return;
 
     // Put the outline onto the arrangment.
-    std::list<Segment_2> outlineSegments;
-    for ( auto prev = mOutline.begin(), i = prev + 1; i != mOutline.end(); ++i ) {
-        outlineSegments.push_back( Segment_2 (Point_2( prev->x, prev->y ), Point_2( i->x, i->y ) ) );
-        prev = i;
-    }
+    std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( mOutline.getPoints() );
     insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
 
-    // Create a bounding box for the outline...
-    Rectf bounds( mOutline.getPoints() );
-    float x = bounds.x1;
-    float width = 100;
     // ...and a list of segements to intersect with.
     std::list<Segment_2> intersect;
     intersect.insert( intersect.begin(), outlineSegments.begin(), outlineSegments.end() );
 
+    mDividers = computeDividers( mOutline.getPoints(), 2 * M_PI * mMousePos.x / (float) getWindowWidth() );
+
     std::list<Segment_2> newEdges;
+    std::list<Point_2> newPoints;
     // Then start walking across the outline looking for the intersections...
-    while ( x < bounds.x2 ) {
-        //
-        intersect.push_back( Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
-
-        std::vector<Point_2> pts;
-        CGAL::compute_intersection_points( intersect.begin(), intersect.end(), std::back_inserter(pts) );
-
-        // Handle an odd number of intersections (open path).
-        Naive_pl pl(mArr);
-        if ( pts.size() % 2 == 1 ) insert_point( mArr, pts[0], pl );
-
-        // Handle an even number of interesections.
-        for ( int i = pts.size() - 1; i > 0; i -= 2 ) {
-            newEdges.push_back( Segment_2 ( pts[i - 1], pts[i] ) );
-        }
-
+    auto segs = segmentsFrom( mDividers );
+    for ( auto i = segs.begin(); i != segs.end(); ++i ) {
+        intersect.push_back( *i );
+        findIntersections( intersect, newEdges, newPoints );
         intersect.pop_back();
-        x += width;
-    };
+    }
+
     // Add the new edges all at once for better performance.
     if (newEdges.size()) insert( mArr, newEdges.begin(), newEdges.end() );
-
 }
 
 void BlockMode::draw() {
+    gl::color(1, 0, 1);
+    assert( mDividers.size() % 2 == 0 );
+    for ( auto i = mDividers.begin(); i != mDividers.end(); ++i) gl::drawLine( *i, *++i );
+
+
     for ( auto i = mArr.vertices_begin(); i != mArr.vertices_end(); ++i ) {
         vec3 v = vec3( vecFrom( i->point() ), 0 );
         gl::drawColorCube( v, vec3( 10 ) );

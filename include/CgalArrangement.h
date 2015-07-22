@@ -22,14 +22,18 @@ typedef CGAL::Arr_naive_point_location<Arrangement_2> Naive_pl;
 typedef Traits_2::Point_2                             Point_2;
 typedef Traits_2::X_monotone_curve_2                  Segment_2;
 
-inline ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circulator )
+ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circulator );
+
+inline Point_2 pointFrom( const ci::vec2 &p )
 {
-    ci::PolyLine2f result;
-    Arrangement_2::Ccb_halfedge_circulator cc = circulator;
-    do {
-        result.push_back( vecFrom( cc->target()->point() ) );
-    } while ( ++cc != circulator );
-    return result;
+    return Point_2( p.x, p.y );
 }
+
+void findIntersections(const std::list<Segment_2> &input, std::list<Segment_2> &newEdges, std::list<Point_2> &newPoints);
+
+// Segments will be created from a->b, b->c, c->d
+std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points );
+// Segments will be created from a-b>, c->d
+std::list<Segment_2> segmentsFrom( const std::vector<ci::vec2> &points );
 
 #endif

@@ -22,6 +22,7 @@
 		49D8C5D81B45056200ABDAB6 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D8C5D71B45056200ABDAB6 /* IOSurface.framework */; };
 		49E959221B23EC340093E4C8 /* direction_colored.vert in Resources */ = {isa = PBXBuildFile; fileRef = 49E959211B23EC340093E4C8 /* direction_colored.vert */; };
 		49E959241B23EC4D0093E4C8 /* direction_colored.frag in Resources */ = {isa = PBXBuildFile; fileRef = 49E959231B23EC4D0093E4C8 /* direction_colored.frag */; };
+		49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5F4CBE931B31310800440011 /* Mode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F4CBE911B31310800440011 /* Mode.cpp */; };
 		5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */; };
@@ -66,6 +67,7 @@
 		49E8F7C51B0EDB1C006FF1E5 /* Options.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
 		49E959211B23EC340093E4C8 /* direction_colored.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = direction_colored.vert; path = ../resources/direction_colored.vert; sourceTree = "<group>"; };
 		49E959231B23EC4D0093E4C8 /* direction_colored.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = direction_colored.frag; path = ../resources/direction_colored.frag; sourceTree = "<group>"; };
+		49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CgalArrangement.cpp; path = ../src/CgalArrangement.cpp; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
 		5F4CBE911B31310800440011 /* Mode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mode.cpp; path = ../src/Mode.cpp; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */,
+				49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */,
 				5F4CBE911B31310800440011 /* Mode.cpp */,
 				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
 				5FEFD9CC1A92F8F00093F109 /* Road.cpp */,
@@ -315,6 +318,7 @@
 				498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */,
 				5FEFD9CE1A92F8F00093F109 /* Road.cpp in Sources */,
 				5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */,
+				49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */,
 				35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */,
 				5FEFD9D71A92F9FF0093F109 /* Block.cpp in Sources */,
 				497E4AB31B1EBA6600AF6B17 /* README.md in Sources */,

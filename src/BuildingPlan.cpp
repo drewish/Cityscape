@@ -355,20 +355,6 @@ void buildShedRoof(const PolyLine2f &outline, const float slope, vector<vec3> &v
     buildWallsFromOutlineAndTopOffsets( outline, offsetMap, 0.0, verts, indices );
 }
 
-void findIntersections(const std::list<Segment_2> &input, std::list<Segment_2> &newEdges, std::list<Point_2> &newPoints)
-{
-    std::vector<Point_2> pts;
-    CGAL::compute_intersection_points( input.begin(), input.end(), std::back_inserter(pts) );
-
-    // Even numbers of intersections become segments
-    for ( int i = pts.size() - 1; i > 0; i -= 2 ) {
-        newEdges.push_back( Segment_2( pts[i - 1], pts[i] ) );
-    }
-
-    // The remaining odd intersection becomes a point
-    if ( pts.size() % 2 == 1 ) newPoints.push_back( pts[0] );
-}
-
 float sawtoothHeight( const float x, const float upWidth, const float height, const float downWidth )
 {
     float p = fmod(x, upWidth + downWidth);
@@ -387,11 +373,7 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
     OffsetMap offsets;
 
     // Put the outline onto the arrangment.
-    std::list<Segment_2> outlineSegments;
-    for ( auto prev = outline.begin(), i = prev + 1; i != outline.end(); ++i ) {
-        outlineSegments.push_back( Segment_2( Point_2( prev->x, prev->y ), Point_2( i->x, i->y ) ) );
-        prev = i;
-    }
+    std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( outline.getPoints() );
     insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
 
     // Create a list of segements to intersect with.
