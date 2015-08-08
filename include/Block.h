@@ -28,6 +28,7 @@ public:
     void draw( const Options &options );
     void subdivideNotReally();
     void subdivideSkeleton();
+    void subdivideForReal();
     void placeBuildings();
 
     FlatShape mShape;

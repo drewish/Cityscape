@@ -84,7 +84,7 @@ ci::PolyLine2f BuildingPlan::tee()
 
 ci::PolyLine2f BuildingPlan::randomOutline()
 {
-    switch (ci::randInt(5)) {
+    switch (randInt(5)) {
         case 0:
             return triangle();
         case 1:
@@ -93,9 +93,10 @@ ci::PolyLine2f BuildingPlan::randomOutline()
             return lshape();
         case 3:
             return plus();
-        default:
+        case 4:
             return tee();
-
+        default:
+            return rectangle( 10 * randInt( 3 ), 10 * randInt( 4 ) );
     }
 }
 
@@ -435,7 +436,7 @@ public:
                 buildGabledRoof( outline, mPositions, mIndices );
                 break;
             case BuildingPlan::SAWTOOTH_ROOF:
-                buildSawtoothRoof( outline, 8, 3, 2, mPositions, mIndices );
+                buildSawtoothRoof( outline, 10, 3, 5, mPositions, mIndices );
                 break;
             case BuildingPlan::SHED_ROOF:
                 // Make slope configurable... might be good for other angled roofs.
