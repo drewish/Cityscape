@@ -174,6 +174,8 @@ public:
         target->copyAttrib( Attrib::POSITION, 3, 0, (const float*)mPositions.data(), mPositions.size() );
         target->copyIndices( Primitive::TRIANGLES, mIndices.data(), mIndices.size(), 4 );
     }
+    WallMesh* clone() const override { return new WallMesh( *this ); }
+
 
 protected:
     std::vector<vec3>       mPositions;
@@ -465,6 +467,7 @@ public:
         target->copyAttrib( Attrib::POSITION, 3, 0, (const float*)mPositions.data(), mPositions.size() );
         target->copyIndices( Primitive::TRIANGLES, mIndices.data(), mIndices.size(), 4 );
     }
+    RoofMesh* clone() const override { return new RoofMesh( *this ); }
 
 protected:
     std::vector<vec3>       mPositions;
