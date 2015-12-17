@@ -24,14 +24,14 @@
 		49E959241B23EC4D0093E4C8 /* direction_colored.frag in Resources */ = {isa = PBXBuildFile; fileRef = 49E959231B23EC4D0093E4C8 /* direction_colored.frag */; };
 		49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
+		5F39B9FF1C228A6B0006F986 /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39B9FE1C228A6B0006F986 /* libboost_thread-mt.dylib */; };
+		5F39BA011C228A850006F986 /* libCGAL_Core.11.0.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA001C228A850006F986 /* libCGAL_Core.11.0.1.dylib */; };
+		5F39BA031C228AA10006F986 /* libCGAL.11.0.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA021C228AA10006F986 /* libCGAL.11.0.1.dylib */; };
+		5F39BA061C228ACE0006F986 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA041C228ACE0006F986 /* libgmp.10.dylib */; };
+		5F39BA071C228ACE0006F986 /* libmpfr.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA051C228ACE0006F986 /* libmpfr.4.dylib */; };
 		5F4CBE931B31310800440011 /* Mode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F4CBE911B31310800440011 /* Mode.cpp */; };
 		5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */; };
 		5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */; };
-		5FBB83481B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */; };
-		5FBB83491B00580B0095ADB6 /* libCGAL.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */; };
-		5FEFD9C51A92CD910093F109 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */; };
-		5FEFD9C61A92CD910093F109 /* libmpfr.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEFD9B91A928CF60093F109 /* libmpfr.4.dylib */; };
-		5FEFD9CB1A92D38B0093F109 /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FEFD9BD1A928DB90093F109 /* libboost_thread-mt.dylib */; };
 		5FEFD9CE1A92F8F00093F109 /* Road.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9CC1A92F8F00093F109 /* Road.cpp */; };
 		5FEFD9D11A92F9550093F109 /* Building.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9CF1A92F9550093F109 /* Building.cpp */; };
 		5FEFD9D41A92F9B30093F109 /* Lot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9D21A92F9B30093F109 /* Lot.cpp */; };
@@ -70,6 +70,11 @@
 		49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CgalArrangement.cpp; path = ../src/CgalArrangement.cpp; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
+		5F39B9FE1C228A6B0006F986 /* libboost_thread-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_thread-mt.dylib"; sourceTree = "<group>"; };
+		5F39BA001C228A850006F986 /* libCGAL_Core.11.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.11.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.7/lib/libCGAL_Core.11.0.1.dylib; sourceTree = "<group>"; };
+		5F39BA021C228AA10006F986 /* libCGAL.11.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.7/lib/libCGAL.11.0.1.dylib; sourceTree = "<group>"; };
+		5F39BA041C228ACE0006F986 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../usr/local/Cellar/gmp/6.1.0/lib/libgmp.10.dylib; sourceTree = "<group>"; };
+		5F39BA051C228ACE0006F986 /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpfr.4.dylib; path = ../../../../../usr/local/Cellar/mpfr/3.1.3/lib/libmpfr.4.dylib; sourceTree = "<group>"; };
 		5F4CBE911B31310800440011 /* Mode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mode.cpp; path = ../src/Mode.cpp; sourceTree = "<group>"; };
 		5F4CBE921B31310800440011 /* Mode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mode.h; sourceTree = "<group>"; };
 		5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatShape.cpp; path = ../src/FlatShape.cpp; sourceTree = "<group>"; };
@@ -101,11 +106,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5FBB83481B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib in Frameworks */,
-				5FBB83491B00580B0095ADB6 /* libCGAL.11.0.0.dylib in Frameworks */,
-				5FEFD9CB1A92D38B0093F109 /* libboost_thread-mt.dylib in Frameworks */,
-				5FEFD9C51A92CD910093F109 /* libgmp.10.dylib in Frameworks */,
-				5FEFD9C61A92CD910093F109 /* libmpfr.4.dylib in Frameworks */,
+				5F39BA061C228ACE0006F986 /* libgmp.10.dylib in Frameworks */,
+				5F39BA071C228ACE0006F986 /* libmpfr.4.dylib in Frameworks */,
+				5F39BA031C228AA10006F986 /* libCGAL.11.0.1.dylib in Frameworks */,
+				5F39BA011C228A850006F986 /* libCGAL_Core.11.0.1.dylib in Frameworks */,
+				5F39B9FF1C228A6B0006F986 /* libboost_thread-mt.dylib in Frameworks */,
 				49D8C5D21B4504A700ABDAB6 /* AVFoundation.framework in Frameworks */,
 				49D8C5D41B45052E00ABDAB6 /* CoreMedia.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
@@ -231,6 +236,11 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5F39BA041C228ACE0006F986 /* libgmp.10.dylib */,
+				5F39BA051C228ACE0006F986 /* libmpfr.4.dylib */,
+				5F39BA021C228AA10006F986 /* libCGAL.11.0.1.dylib */,
+				5F39BA001C228A850006F986 /* libCGAL_Core.11.0.1.dylib */,
+				5F39B9FE1C228A6B0006F986 /* libboost_thread-mt.dylib */,
 				49D8C5D71B45056200ABDAB6 /* IOSurface.framework */,
 				49D8C5D51B45055B00ABDAB6 /* IOKit.framework */,
 				49D8C5D31B45052E00ABDAB6 /* CoreMedia.framework */,
@@ -275,7 +285,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0720;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Cityscape" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -352,12 +362,13 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/gmp/6.0.0a/lib,
-					"/usr/local/Cellar/mpfr/3.1.2-p10/lib",
-					/usr/local/Cellar/boost/1.57.0/lib,
-					/usr/local/Cellar/cgal/4.6/lib,
+					/usr/local/Cellar/boost/1.59.0/lib,
+					/usr/local/Cellar/cgal/4.7/lib,
+					/usr/local/Cellar/gmp/6.1.0/lib,
+					/usr/local/Cellar/mpfr/3.1.3/lib,
 				);
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder_d.a\"";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Cityscape;
 				SYMROOT = ./build;
 				WRAPPER_EXTENSION = app;
@@ -385,12 +396,13 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/gmp/6.0.0a/lib,
-					"/usr/local/Cellar/mpfr/3.1.2-p10/lib",
-					/usr/local/Cellar/boost/1.57.0/lib,
-					/usr/local/Cellar/cgal/4.6/lib,
+					/usr/local/Cellar/boost/1.59.0/lib,
+					/usr/local/Cellar/cgal/4.7/lib,
+					/usr/local/Cellar/gmp/6.1.0/lib,
+					/usr/local/Cellar/mpfr/3.1.3/lib,
 				);
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder.a\"";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Cityscape;
 				STRIP_INSTALLED_PRODUCT = YES;
 				SYMROOT = ./build;
@@ -405,6 +417,7 @@
 				CINDER_PATH = ../../Cinder;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				ENABLE_TESTABILITY = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (

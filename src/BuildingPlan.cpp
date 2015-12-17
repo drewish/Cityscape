@@ -176,7 +176,6 @@ public:
     }
     WallMesh* clone() const override { return new WallMesh( *this ); }
 
-
 protected:
     std::vector<vec3>       mPositions;
     std::vector<uint32_t>   mIndices;
