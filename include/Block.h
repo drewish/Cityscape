@@ -6,9 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__Block__
-#define __Cityscape__Block__
-
+#pragma once
 
 #include "FlatShape.h"
 #include "Lot.h"
@@ -34,5 +32,3 @@ public:
     FlatShape mShape;
     std::vector<Lot> mLots;
 };
-
-#endif /* defined(__Cityscape__Block__) */

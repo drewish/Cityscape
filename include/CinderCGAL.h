@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__CinderCGAL__
-#define __Cityscape__CinderCGAL__
+#pragma once
 
 #include "CgalKernel.h"
 
@@ -79,5 +78,3 @@ ci::PolyLine2f polyLineFrom(const CGAL::Polygon_2<K> &p)
 
     return poly;
 }
-
-#endif /* defined(__Cityscape__CinderCGAL__) */

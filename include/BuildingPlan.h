@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__BuildingPlan__
-#define __Cityscape__BuildingPlan__
+#pragma once
 
 #include "cinder/gl/Vbo.h"
 
@@ -71,5 +70,3 @@ private:
     ci::gl::VboMeshRef mRoofMeshRef;
     ci::gl::VboMeshRef mWallMeshRef;
 };
-
-#endif /* defined(__Cityscape__BuildingPlan__) */

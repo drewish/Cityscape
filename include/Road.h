@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__Road__
-#define __Cityscape__Road__
+#pragma once
 
 #include "Options.h"
 
@@ -33,5 +32,3 @@ class Road {
     ci::PolyLine2f outline;
     const unsigned int width;
 };
-
-#endif /* defined(__Cityscape__Road__) */

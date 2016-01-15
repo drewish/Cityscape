@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__RoadNetwork__
-#define __Cityscape__RoadNetwork__
+#pragma once
 
 #include "Options.h"
 #include "Block.h"
@@ -46,5 +45,3 @@ private:
     std::vector<Block> mBlocks;
     std::vector<FlatShape> mShapes;
 };
-
-#endif /* defined(__Cityscape__RoadNetwork__) */

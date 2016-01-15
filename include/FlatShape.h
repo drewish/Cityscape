@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__FlatShape__
-#define __Cityscape__FlatShape__
+#pragma once
 
 #include "cinder/TriMesh.h"
 #include "cinder/Triangulate.h"
@@ -67,5 +66,3 @@ class FlatShape {
     PolyLine2fs mHoles;
     ci::TriMesh mMesh;
 };
-
-#endif /* defined(__Cityscape__FlatShape__) */

@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__Building__
-#define __Cityscape__Building__
+#pragma once
 
 //#include <boost/flyweight.hpp>
 //#include <boost/flyweight/key_value.hpp>
@@ -52,5 +51,3 @@ private:
     ci::vec2 mPosition;
     float mRotation; // radians
 };
-
-#endif /* defined(__Cityscape__Building__) */

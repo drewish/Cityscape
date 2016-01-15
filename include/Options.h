@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef Cityscape_Options_h
-#define Cityscape_Options_h
+#pragma once
 
 #include "cinder/gl/GlslProg.h"
 
@@ -47,5 +46,3 @@ struct Options {
     BlockOptions block;
     LotOptions lot;
 };
-
-#endif

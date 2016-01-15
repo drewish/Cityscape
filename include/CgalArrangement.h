@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef Cityscape_CgalArrangment_h
-#define Cityscape_CgalArrangment_h
+#pragma once
 
 #include "CgalKernel.h"
 
@@ -35,5 +34,3 @@ void findIntersections(const std::list<Segment_2> &input, std::list<Segment_2> &
 std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points );
 // Segments will be created from a-b>, c->d
 std::list<Segment_2> segmentsFrom( const std::vector<ci::vec2> &points );
-
-#endif
