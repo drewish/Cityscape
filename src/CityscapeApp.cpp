@@ -5,6 +5,10 @@
 #include "cinder/gl/gl.h"
 
 #include "Mode.h"
+#include "CityMode.h"
+#include "BlockMode.h"
+#include "BuildingMode.h"
+
 #include "RoadNetwork.h"
 #include "Block.h"
 #include "BuildingPlan.h"

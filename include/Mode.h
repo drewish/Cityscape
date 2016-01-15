@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__Mode__
-#define __Cityscape__Mode__
+#pragma once
 
 #include "cinder/gl/GlslProg.h"
 #include "cinder/params/Params.h"
@@ -21,8 +20,13 @@ typedef std::shared_ptr<BaseMode> ModeRef;
 
 class BaseMode
 {
-public:
-    BaseMode();
+  public:
+    BaseMode() {
+        mOptions.buildingShader = ci::gl::GlslProg::create(
+           ci::app::loadResource( RES_VERT ),
+           ci::app::loadResource( RES_FRAG )
+       );
+    }
     virtual void setup() {}
     virtual void addParams( ci::params::InterfaceGlRef params) {}
     virtual void addPoint( ci::vec2 point ) {}
@@ -32,46 +36,3 @@ public:
     Options   mOptions;
     ci::ivec2 mMousePos;
 };
-
-class CityMode : public BaseMode
-{
-public:
-    void setup();
-    void addParams( ci::params::InterfaceGlRef params );
-    void addPoint( ci::vec2 point );
-    void layout();
-    void draw();
-
-    RoadNetwork mRoads;
-};
-
-class BlockMode : public BaseMode
-{
-public:
-    void setup();
-    void addParams( ci::params::InterfaceGlRef params );
-    void addPoint( ci::vec2 point );
-    void layout();
-    void draw();
-
-    BuildingRef mBlock;
-    ci::PolyLine2f mOutline;
-};
-
-class BuildingMode : public BaseMode
-{
-public:
-    void setup();
-    void addParams( ci::params::InterfaceGlRef params );
-    void addPoint( ci::vec2 point );
-    void layout();
-    void draw();
-
-    BuildingRef mBuilding;
-    ci::PolyLine2f mOutline;
-    BuildingPlan::RoofStyle mBuildingRoof = BuildingPlan::SAWTOOTH_ROOF;
-    int32_t mFloors = 1;
-    
-};
-
-#endif /* defined(__Cityscape__Mode__) */

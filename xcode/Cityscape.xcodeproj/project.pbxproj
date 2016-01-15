@@ -29,9 +29,11 @@
 		5F39BA031C228AA10006F986 /* libCGAL.11.0.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA021C228AA10006F986 /* libCGAL.11.0.1.dylib */; };
 		5F39BA061C228ACE0006F986 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA041C228ACE0006F986 /* libgmp.10.dylib */; };
 		5F39BA071C228ACE0006F986 /* libmpfr.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA051C228ACE0006F986 /* libmpfr.4.dylib */; };
-		5F4CBE931B31310800440011 /* Mode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F4CBE911B31310800440011 /* Mode.cpp */; };
 		5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */; };
 		5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */; };
+		5FA88B2D1C48B871008C1A4A /* CityMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B2C1C48B871008C1A4A /* CityMode.cpp */; };
+		5FA88B311C48B9CA008C1A4A /* BlockMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */; };
+		5FA88B331C48B9D6008C1A4A /* BuildingMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */; };
 		5FEFD9CE1A92F8F00093F109 /* Road.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9CC1A92F8F00093F109 /* Road.cpp */; };
 		5FEFD9D11A92F9550093F109 /* Building.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9CF1A92F9550093F109 /* Building.cpp */; };
 		5FEFD9D41A92F9B30093F109 /* Lot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9D21A92F9B30093F109 /* Lot.cpp */; };
@@ -75,12 +77,17 @@
 		5F39BA021C228AA10006F986 /* libCGAL.11.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.7/lib/libCGAL.11.0.1.dylib; sourceTree = "<group>"; };
 		5F39BA041C228ACE0006F986 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../usr/local/Cellar/gmp/6.1.0/lib/libgmp.10.dylib; sourceTree = "<group>"; };
 		5F39BA051C228ACE0006F986 /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpfr.4.dylib; path = ../../../../../usr/local/Cellar/mpfr/3.1.3/lib/libmpfr.4.dylib; sourceTree = "<group>"; };
-		5F4CBE911B31310800440011 /* Mode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mode.cpp; path = ../src/Mode.cpp; sourceTree = "<group>"; };
 		5F4CBE921B31310800440011 /* Mode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mode.h; sourceTree = "<group>"; };
 		5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatShape.cpp; path = ../src/FlatShape.cpp; sourceTree = "<group>"; };
 		5F5C2D831B0D9FF200541E95 /* FlatShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlatShape.h; sourceTree = "<group>"; };
 		5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuildingPlan.cpp; path = ../src/BuildingPlan.cpp; sourceTree = "<group>"; };
 		5FA1B5331B26ADC6006047DE /* BuildingPlan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildingPlan.h; sourceTree = "<group>"; };
+		5FA88B2B1C48B866008C1A4A /* CityMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityMode.h; sourceTree = "<group>"; };
+		5FA88B2C1C48B871008C1A4A /* CityMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CityMode.cpp; sourceTree = "<group>"; };
+		5FA88B2E1C48B95F008C1A4A /* BlockMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockMode.h; sourceTree = "<group>"; };
+		5FA88B2F1C48B9A6008C1A4A /* BuildingMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildingMode.h; sourceTree = "<group>"; };
+		5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockMode.cpp; sourceTree = "<group>"; };
+		5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BuildingMode.cpp; sourceTree = "<group>"; };
 		5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL_Core.11.0.0.dylib; sourceTree = "<group>"; };
 		5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL.11.0.0.dylib; sourceTree = "<group>"; };
 		5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../usr/local/Cellar/gmp/6.0.0a/lib/libgmp.10.dylib; sourceTree = "<group>"; };
@@ -140,9 +147,11 @@
 			children = (
 				25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */,
 				49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */,
-				5F4CBE911B31310800440011 /* Mode.cpp */,
-				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
+				5FA88B2C1C48B871008C1A4A /* CityMode.cpp */,
+				5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */,
+				5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */,
 				5FEFD9CC1A92F8F00093F109 /* Road.cpp */,
+				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
 				5FEFD9D51A92F9FF0093F109 /* Block.cpp */,
 				5FEFD9D21A92F9B30093F109 /* Lot.cpp */,
 				5FEFD9CF1A92F9550093F109 /* Building.cpp */,
@@ -210,6 +219,9 @@
 				493D46DF1A9D734600618E33 /* CinderCGAL.h */,
 				49E8F7C51B0EDB1C006FF1E5 /* Options.h */,
 				5F4CBE921B31310800440011 /* Mode.h */,
+				5FA88B2B1C48B866008C1A4A /* CityMode.h */,
+				5FA88B2E1C48B95F008C1A4A /* BlockMode.h */,
+				5FA88B2F1C48B9A6008C1A4A /* BuildingMode.h */,
 				5FEFD9DB1A92FB450093F109 /* Road.h */,
 				498D89CB1B1C027300A962B5 /* RoadNetwork.h */,
 				5FEFD9D81A92FB450093F109 /* Block.h */,
@@ -327,12 +339,14 @@
 			files = (
 				498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */,
 				5FEFD9CE1A92F8F00093F109 /* Road.cpp in Sources */,
+				5FA88B331C48B9D6008C1A4A /* BuildingMode.cpp in Sources */,
 				5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */,
+				5FA88B2D1C48B871008C1A4A /* CityMode.cpp in Sources */,
 				49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */,
 				35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */,
+				5FA88B311C48B9CA008C1A4A /* BlockMode.cpp in Sources */,
 				5FEFD9D71A92F9FF0093F109 /* Block.cpp in Sources */,
 				497E4AB31B1EBA6600AF6B17 /* README.md in Sources */,
-				5F4CBE931B31310800440011 /* Mode.cpp in Sources */,
 				5FEFD9D41A92F9B30093F109 /* Lot.cpp in Sources */,
 				5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */,
 				5FEFD9D11A92F9550093F109 /* Building.cpp in Sources */,
