@@ -24,6 +24,7 @@ struct BlockOptions {
     };
 
     BlockDivision division = BLOCK_DIVIDED;
+    int16_t lotWidth = 40;
 };
 
 struct LotOptions {
@@ -32,7 +33,7 @@ struct LotOptions {
         BUILDING_FILL_LOT = 1,
     };
 
-   BuildingPlacement buildingPlacement = BUILDING_IN_CENTER;
+   BuildingPlacement buildingPlacement = BUILDING_FILL_LOT;
 };
 
 struct Options {

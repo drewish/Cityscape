@@ -14,7 +14,7 @@ void Road::layout()
 {
 }
 
-void Road::draw( const Options &options )
+void Road::draw( const Options &options ) const
 {
     if ( options.drawRoads ) {
         gl::color( ColorA( 0.3f, 0.3f, 0.3f, 1.0f ) );
@@ -22,7 +22,7 @@ void Road::draw( const Options &options )
     }
 }
 
-const Rectf Road::bounds()
+const Rectf Road::bounds() const
 {
     auto p = outline.begin();
     Rectf bounds( *p, *p );

@@ -32,5 +32,8 @@ void findIntersections(const std::list<Segment_2> &input, std::list<Segment_2> &
 
 // Segments will be created from a->b, b->c, c->d
 std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points );
-// Segments will be created from a-b>, c->d
+std::list<Segment_2> contiguousSegmentsFrom( const std::vector<Point_2> &points );
+
+// Segments will be created from a->b, c->d
 std::list<Segment_2> segmentsFrom( const std::vector<ci::vec2> &points );
+std::list<Segment_2> segmentsFrom( const std::vector<Point_2> &points );

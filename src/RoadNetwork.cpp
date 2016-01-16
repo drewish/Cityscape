@@ -112,26 +112,26 @@ void RoadNetwork::draw( const Options &options )
 {
     if ( options.drawRoads ) {
         gl::color( ColorA( 0.3f, 0.3f, 0.3f, 0.4f ) );
-        for ( auto it = mShapes.begin(); it != mShapes.end(); ++it ) {
-            gl::draw( it->mesh() );
+        for ( auto &shape : mShapes ) {
+            gl::draw( shape.mesh() );
         }
     }
 
-    for( auto block = mBlocks.begin(); block != mBlocks.end(); ++block ) {
-        block->draw( options );
+    for( const Block &block : mBlocks ) {
+        block.draw( options );
         // Sort of tacky to go in like this but the hope is that all the lots
         // draw atop the blocks.
-        for( auto lot = block->mLots.begin(); lot != block->mLots.end(); ++lot ) {
-            lot->draw( options );
+        for( const Lot &lot : block.mLots ) {
+            lot.draw( options );
         }
     }
 
     // Draw buildings on top of lots and blocks
-    for( auto block = mBlocks.begin(); block != mBlocks.end(); ++block ) {
+    for( const Block &block : mBlocks ) {
         // Sort of tacky to go in like this but the hope is that all the lots
         // draw atop the blocks.
-        for( auto lot = block->mLots.begin(); lot != block->mLots.end(); ++lot ) {
-            if (lot->mBuildingRef) lot->mBuildingRef->draw( options );
+        for( const Lot &lot : block.mLots ) {
+            if (lot.mBuildingRef) lot.mBuildingRef->draw( options );
         }
     }
 

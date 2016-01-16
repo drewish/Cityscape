@@ -64,7 +64,7 @@ void Lot::layout( const Options &options )
     if ( mBuildingRef ) mBuildingRef->layout( options );
 }
 
-void Lot::draw( const Options &options )
+void Lot::draw( const Options &options ) const
 {
     if ( options.drawLots ) {
         gl::lineWidth( 1 );

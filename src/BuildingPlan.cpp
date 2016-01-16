@@ -399,6 +399,7 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
 
     // Add all the new points and edges.
     Naive_pl pl(arr);
+// TODO: I don't think we need these points
     for ( auto p = newPoints.begin(); p != newPoints.end(); ++p )
         insert_point( arr, *p, pl );
     if (newEdges.size())

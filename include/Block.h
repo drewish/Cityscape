@@ -23,10 +23,9 @@ public:
     : mShape(fs)
     {}
     void layout( const Options &options );
-    void draw( const Options &options );
+    void draw( const Options &options ) const;
     void subdivideNotReally();
-    void subdivideSkeleton();
-    void subdivideForReal();
+    void subdivideSkeleton( int16_t lotWidth );
     void placeBuildings();
 
     FlatShape mShape;

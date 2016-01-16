@@ -17,17 +17,19 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
     //        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
     //    params->addParam( "sidestreetWidth", &mOptions.road.sidestreetWidth )
     //        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "blockWidth", &mOptions.road.blockWidth )
-    .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "blockHeight", &mOptions.road.blockHeight )
-    .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "blockWidth", &mOptions.road.blockWidth ).step( 5 )
+        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "blockHeight", &mOptions.road.blockHeight ).step( 5 )
+        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
 
     params->addSeparator();
 
     params->addParam( "Division", {"None", "Divided"}, (int*)&mOptions.block.division )
-    .updateFn( std::bind( &CityMode::layout, this ) );
+        .updateFn( std::bind( &CityMode::layout, this ) );
     params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
-    .updateFn( std::bind( &CityMode::layout, this ) );
+        .updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "lotWidth", &mOptions.block.lotWidth ).step( 5 )
+        .min( 10 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
 
     params->addSeparator();
 

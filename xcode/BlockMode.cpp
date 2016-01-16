@@ -1,4 +1,5 @@
 #include "BlockMode.h"
+#include "GeometryHelpers.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -71,50 +72,9 @@ void BlockMode::addPoint( ci::vec2 point ) {
     layout();
 }
 
-// Gives back pairs of points to divide the shape with lines of a given angle.
-std::vector<vec2> computeDividers( const std::vector<vec2> &outline, const float angle = 0, const float width = 100 )
-{
-    // Rotate the shape to the desired angle...
-    Rectf outlineBounds( outline );
-    vec2 center = vec2( outlineBounds.getWidth() / 2.0, outlineBounds.getHeight() / 2.0 );
-    glm::mat3 matrix;
-    matrix = translate( rotate( translate( matrix, -center ), angle ), center );
-
-    // ...then find the bounding box...
-    std::vector<vec2> rotated;
-    for( auto it = outline.begin(); it != outline.end(); ++it ) {
-        rotated.push_back( vec2( matrix * vec3( *it, 1 ) ) );
-    }
-    Rectf bounds = Rectf( rotated ).scaledCentered(1.1);
-
-    // ...now figure out where the left edge of that box would be in the
-    // unrotated space...
-    mat3 reverse = inverse( matrix );
-    vec2 topLeft =    vec2( reverse * vec3( bounds.getUpperLeft(), 1 ) );
-    vec2 bottomLeft = vec2( reverse * vec3( bounds.getLowerLeft(), 1 ) );
-    vec2 direction = normalize( vec2( reverse * ( vec3( 1, 0, 0 ) ) ) );
-
-    // ...and work across from those points finding dividers
-    std::vector<vec2> result;
-    for ( float distance = width; distance < bounds.getWidth(); distance += width ) {
-        vec2 thing = direction * distance;
-        result.push_back( thing + topLeft );
-        result.push_back( thing + bottomLeft );
-    }
-
-    return result;
-}
-
 void BlockMode::layout() {
     mArr.clear();
     if (mOutline.size() < 4) return;
-
-    // Put the outline onto the arrangment.
-    std::list<Segment_2> outlineSegments;// = contiguousSegmentsFrom( mOutline.getPoints() );
-                                         //    insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
-
-    std::list<Segment_2> newEdges;
-    std::list<Point_2> newPoints;
 
     float angle = 0;
 
@@ -126,44 +86,47 @@ void BlockMode::layout() {
     }
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( poly, InexactK() );
 
-    // Put all the skeleton lines in
+    std::list<Segment_2> outlineSegments;
+    std::list<Segment_2> skeletonSegments;
+
     Ss::Halfedge longest = *skel->halfedges_begin();
     float len = 0;
 
     for( auto edge = skel->halfedges_begin(); edge != skel->halfedges_end(); ++edge ) {
-        auto curr = edge->vertex(),          next = edge->next()->vertex();
-        // We need different point formats for different stuff.
-        auto a1 = curr->point(),             b1 = next->point();
-        auto a2 = Point_2( a1.x(), a1.y() ), b2 = Point_2( b1.x(), b1.y() );
+        const auto &curr = edge->vertex(), &next = edge->next()->vertex();
+        const auto &a1 = curr->point(),    &b1 = next->point();
+        Segment_2 seg( Point_2( a1.x(), a1.y() ), Point_2( b1.x(), b1.y() ) );
 
-        // TODO Figure out how to only one half of an edge into the arrangement
-        // (a->b rather than a->b and b->a)
-        //        if ( curr->is_skeleton() && next->is_skeleton() ) {
+        // Find the angle of the longest outter edge
+        // TODO see if we use the longest edge in the skeleton instead.
+        if ( edge->is_border() ) {
+            // Use the skeleton's outline since, unlike mOutline, will always
+            // be a closed polygon.
+            outlineSegments.push_back( seg );
 
-        // TODO: there ought to be a better way to do this than searching
-        // through the list
-        bool foundInverse = false;
-        for ( const auto existingSegment : outlineSegments ) {
-            if ( existingSegment.source() == b2 && existingSegment.target() == a2 ) {
-                foundInverse = true;
+            vec2 v = vecFrom(b1) - vecFrom(a1);
+            if (glm::length(v) > len) {
+                len = glm::length(v);
+                angle = atan2( v.y, v.x );
+                longest = *edge;
             }
         }
 
-        if ( !foundInverse ) outlineSegments.push_back( Segment_2( a2, b2 ) );
-        //        }
-        //
-        //        if ( edge->is_border() ) {
-        //            outlineSegments.push_back( Segment_2( a2, Point_2( b.x(), b.y() ) ) );
-
-        // Find the angle of the longest outter edge
-        vec2 v = vecFrom(b1) - vecFrom(a1);
-        if (glm::length(v) > len) {
-            len = glm::length(v);
-            angle = atan2(v.y, v.x);
-            longest = *edge;
+        // The skeleton has half edges going both directions for each segment in
+        // the skeleton. We only need one so before putting a->b in check that
+        // b->a isn't already in there.
+        auto predicate = [seg](const Segment_2 &other){
+            return other.source() == seg.target() && other.target() == seg.source();
+        };
+        if ( curr->is_skeleton() && next->is_skeleton() ) {
+            if ( none_of( skeletonSegments.begin(), skeletonSegments.end(), predicate ) ) {
+                skeletonSegments.push_back( seg );
+            }
         }
-        //        }
     }
+
+    // Adjust the skeleton so it intersects with the outline rather than doing
+    // it's normal split thing.
 
     // Find faces with 3 edges: 1 skeleton and 2 contour
     for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
@@ -181,57 +144,62 @@ void BlockMode::layout() {
         if (!contourB->vertex()->is_contour()) continue;
         if (contourB->next() != skelEdge) continue;
 
-        // Find point where skeleton vector intersects contour edge
-        vec2 A = vecFrom( contourA->vertex()->point() );
-        vec2 B = vecFrom( contourB->vertex()->point() );
-        vec2 C = vecFrom( skelEdge->vertex()->point() );
-        vec2 adjustment =  ( ( B + A ) / vec2( 2.0 ) );
+        // Find point where skeleton vector intersects contour edge.
+        auto a = contourA->vertex()->point();
+        auto b = contourB->vertex()->point();
+        auto c = skelEdge->vertex()->point();
+        // TODO: figure out how to do the math on the points directly rather
+        // than upacking
+        Point_2 adj( ( b.x() + a.x() ) / 2.0, ( b.y() + a.y() ) / 2.0 );
 
         // Create a segment for the adjusted edge
-        outlineSegments.push_back( Segment_2( Point_2( C.x, C.y ), Point_2( adjustment.x, adjustment.y ) ) );
+        skeletonSegments.push_back( Segment_2( Point_2( c.x(), c.y() ), adj ) );
     }
-    insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
-
-    // ...and a list of segements to intersect with.
-    std::list<Segment_2> intersect;
-    intersect.insert( intersect.begin(), outlineSegments.begin(), outlineSegments.end() );
-
-    mDividers = computeDividers( mOutline.getPoints(), angle );
 
     // Then start walking across the outline looking for the intersections...
-    auto segs = segmentsFrom( mDividers );
-    for ( auto i = segs.begin(); i != segs.end(); ++i ) {
-        intersect.push_back( *i );
-        findIntersections( intersect, newEdges, newPoints );
-        intersect.pop_back();
+    std::list<Segment_2> dividerSegments;
+    mDividers = computeDividers( mOutline.getPoints(), angle );
+    for ( const Segment_2 &divider : segmentsFrom( mDividers ) ) {
+        outlineSegments.push_back( divider );
+
+        std::vector<Point_2> dividerPoints;
+        CGAL::compute_intersection_points( outlineSegments.begin(), outlineSegments.end(), std::back_inserter(dividerPoints) );
+        for ( const Segment_2 &dividerChunk : segmentsFrom( dividerPoints ) ) {
+            dividerSegments.push_back( dividerChunk );
+        }
+
+        outlineSegments.pop_back();
     }
 
-    // Add the new edges all at once for better performance.
-    if (newEdges.size()) insert( mArr, newEdges.begin(), newEdges.end() );
+    // Put the outline and adjusted skeleton into the arrangment followed
+    insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
+    insert( mArr, skeletonSegments.begin(), skeletonSegments.end() );
+    insert( mArr, dividerSegments.begin(), dividerSegments.end() );
 }
 
 void BlockMode::draw() {
-    gl::color(1, 0, 1);
+    gl::color( 1, 0, 1 );
     assert( mDividers.size() % 2 == 0 );
-    for ( auto i = mDividers.begin(); i != mDividers.end(); ++i) gl::drawLine( *i, *++i );
-
-
-    for ( auto i = mArr.vertices_begin(); i != mArr.vertices_end(); ++i ) {
-        vec3 v = vec3( vecFrom( i->point() ), 0 );
-        gl::drawColorCube( v, vec3( 10 ) );
+    for ( auto i = mDividers.begin(); i != mDividers.end(); ++i) {
+        gl::drawLine( *i, *++i );
     }
 
-    gl::color(1, 0, 0 );
+    gl::color( 1, 1, 0 );
+    for ( auto i = mArr.vertices_begin(); i != mArr.vertices_end(); ++i ) {
+        gl::drawSolidCircle( vecFrom( i->point() ), 5 );
+    }
+
+    gl::color(0, 0, 0 );
     for ( auto i = mArr.edges_begin(); i != mArr.edges_end(); ++i ) {
         PolyLine2f p = PolyLine2f({ vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
         gl::draw( p );
     }
 
     float steps = 0;
-    //std::cout << "\n\n------\nfaces: " << mArr.number_of_faces() << std::endl;
+//    std::cout << "\n\n------\nfaces: " << mArr.number_of_faces() << std::endl;
     for ( auto i = mArr.faces_begin(); i != mArr.faces_end(); ++i ) {
-        //std::cout << "\tunbounded: " << i->is_unbounded() << " fictitious: " << i->is_fictitious() << std::endl;
-        //std::cout << "\touter_ccbs:" << i->number_of_outer_ccbs() << " holes: " << i->number_of_holes() << std::endl;
+//        std::cout << "\tunbounded: " << i->is_unbounded() << " fictitious: " << i->is_fictitious() << std::endl;
+//        std::cout << "\touter_ccbs:" << i->number_of_outer_ccbs() << " holes: " << i->number_of_holes() << std::endl;
         int num = 0;
         /*
          for ( auto j = i->holes_begin(); j != i->holes_end(); ++j ) {
@@ -262,37 +230,8 @@ void BlockMode::draw() {
             gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
             steps += 0.27;
             if (steps > 1) steps -= 1.0;
-            //std::cout << "\t\t" << num << ": " << faceOutline << "\n";
+//            std::cout << "\t\t" << num << ": " << faceOutline << "\n";
             gl::drawSolid( faceOutline );
         }
-        /*
-         if ( i->number_of_outer_ccbs() ) {
-         PolyLine2f outline;
-
-         Arrangement_2::Ccb_halfedge_const_circulator first, curr;
-         curr = first = i->outer_ccb();
-         if (!curr->source()->is_at_open_boundary())
-         std::cout << "(" << curr->source()->point() << ")";
-         do {
-         Arrangement_2::Halfedge_const_handle he = curr;
-         //                if (! he−>is_fictitious())
-         //                    std::cout << "␣␣␣[" << he−>curve() << "]␣␣␣";
-         //                else
-         //                    std::cout << "␣␣␣[␣...␣]␣␣␣";
-         //
-         if ( ! he->target()->is_at_open_boundary() ) {
-         outline.push_back( vecFrom( he->target()->point() ) );
-         }
-
-         } while (++curr != first);
-
-         gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
-         steps += 0.17;
-         if (steps > 1) steps -= 1.0;
-         std::cout << "\t\t" << num << outline << "\n";
-         gl::drawSolid( outline );
-         
-         }
-         */
     }
 }

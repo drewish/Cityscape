@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __Cityscape__Lot__
-#define __Cityscape__Lot__
+#pragma once
 
 #include "FlatShape.h"
 #include "Building.h"
@@ -26,11 +25,9 @@ class Lot {
     void buildFullLot();
 
     void layout( const Options &options );
-    void draw( const Options &options );
+    void draw( const Options &options ) const;
 
     FlatShape mShape;
     ci::ColorA mColor;
     BuildingRef mBuildingRef;
 };
-
-#endif /* defined(__Cityscape__Lot__) */

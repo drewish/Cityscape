@@ -36,20 +36,20 @@ class FlatShape {
         mMesh = makeMesh();
     };
 
-    const ci::PolyLine2f outline() { return mOutline; }
-    const PolyLine2fs holes() { return mHoles; }
-    const ci::TriMesh mesh() { return mMesh; }
+    const ci::PolyLine2f outline() const { return mOutline; }
+    const PolyLine2fs holes() const { return mHoles; }
+    const ci::TriMesh mesh() const { return mMesh; }
 
     const ci::vec2 centroid();
 
     template<class K>
-    inline const CGAL::Polygon_2<K> polygon()
+    const CGAL::Polygon_2<K> polygon() const
     {
         return polygonFrom<K>( mOutline );
     }
 
     template<class K>
-    inline const CGAL::Polygon_with_holes_2<K> polygon_with_holes()
+    const CGAL::Polygon_with_holes_2<K> polygon_with_holes() const
     {
         CGAL::Polygon_with_holes_2<K> poly( polygon<K>() );
         for ( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {
