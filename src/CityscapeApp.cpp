@@ -24,6 +24,7 @@ class CityscapeApp : public App {
 
     void setup();
     void setupModeParams();
+    void buildSky();
 
     void mouseMove( MouseEvent event );
     void mouseDown( MouseEvent event );
@@ -37,59 +38,52 @@ class CityscapeApp : public App {
     CameraPersp mCamera;
     ModeRef mModeRef;
     ci::params::InterfaceGlRef mParams;
+    ci::gl::BatchRef mSkyBatch;
 };
 
-void prepareSettings( App::Settings *settings )
+void CityscapeApp::buildSky()
 {
-    settings->setHighDensityDisplayEnabled();
-}
+    vector<vec3> positions;
+    float y = 1500;
+    float minX = -200, maxX = 800;
+    float minZ = 0, midZ = 50, maxZ = 200;
 
-//void buildSkyMesh( ci::gl::VboMeshRef &skyMesh )
-//{
-//    // Sky
-//    vector<vec3> positions;
-//    float y = 1500;
-//    float minX = -200, maxX = 800;
-//    float minZ = 0, midZ = 50, maxZ = 200;
-//
-//    vector<Color> colors;
-//    Color darkBlue = Color8u(108, 184, 251);
-//    Color medBlue = Color8u(160, 212, 250);
-//    Color lightBlue = Color8u(174, 214, 246);
-//
-//    positions.push_back( vec3( maxX, y, maxZ ) );
-//    positions.push_back( vec3( minX, y, maxZ ) );
-//    colors.push_back( darkBlue );
-//    colors.push_back( darkBlue );
-//
-//    positions.push_back( vec3( minX, y, midZ ) );
-//    positions.push_back( vec3( maxX, y, midZ ) );
-//    positions.push_back( vec3( maxX, y, midZ ) );
-//    positions.push_back( vec3( minX, y, midZ ) );
-//    colors.push_back( medBlue );
-//    colors.push_back( medBlue );
-//    colors.push_back( medBlue );
-//    colors.push_back( medBlue );
-//
-//    positions.push_back( vec3( minX, y, minZ ) );
-//    positions.push_back( vec3( maxX, y, minZ ) );
-//    colors.push_back( lightBlue );
-//    colors.push_back( lightBlue );
-//
-//    vector<uint32_t> indices;
-//    for (int i=0; i < 8; i++) {
-//        indices.push_back(i);
-//    }
-//
-//    gl::VboMesh::Layout layout;
-//    layout.setStaticIndices();
-//    layout.setStaticPositions();
-//    layout.setStaticColorsRGB();
-//    skyMesh = gl::VboMesh::create(indices.size(), positions.size(), layout, GL_QUADS);
-//    skyMesh->bufferIndices(indices);
-//    skyMesh->bufferPositions(positions);
-//    skyMesh->bufferColorsRGB(colors);
-//}
+    vector<Color> colors;
+    Color darkBlue = Color8u(108, 184, 251);
+    Color medBlue = Color8u(160, 212, 250);
+    Color lightBlue = Color8u(174, 214, 246);
+
+    positions.push_back( vec3( maxX, y, maxZ ) );
+    positions.push_back( vec3( minX, y, maxZ ) );
+    colors.push_back( darkBlue );
+    colors.push_back( darkBlue );
+
+    positions.push_back( vec3( minX, y, midZ ) );
+    positions.push_back( vec3( maxX, y, midZ ) );
+    positions.push_back( vec3( maxX, y, midZ ) );
+    positions.push_back( vec3( minX, y, midZ ) );
+    colors.push_back( medBlue );
+    colors.push_back( medBlue );
+    colors.push_back( medBlue );
+    colors.push_back( medBlue );
+
+    positions.push_back( vec3( minX, y, minZ ) );
+    positions.push_back( vec3( maxX, y, minZ ) );
+    colors.push_back( lightBlue );
+    colors.push_back( lightBlue );
+
+    vector<gl::VboMesh::Layout> bufferLayout = {
+        gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::Attrib::POSITION, 3 ),
+        gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::Attrib::COLOR, 3 ),
+    };
+    gl::VboMeshRef mesh = gl::VboMesh::create( positions.size(), GL_QUADS, bufferLayout );
+    mesh->bufferAttrib( geom::Attrib::POSITION, positions );
+    mesh->bufferAttrib( geom::Attrib::COLOR, colors );
+
+    gl::GlslProgRef shader = gl::getStockShader( gl::ShaderDef().color() );
+
+    mSkyBatch = gl::Batch::create( mesh, shader );
+}
 
 void CityscapeApp::setup()
 {
@@ -100,6 +94,8 @@ void CityscapeApp::setup()
 
     setupModeParams();
     mParams->minimize();
+
+    buildSky();
 
     mModeRef = ModeRef( new CityMode() );
     mModeRef->setup();
@@ -181,6 +177,7 @@ void CityscapeApp::draw()
 
     gl::setMatrices( mCamera );
 
+    mSkyBatch->draw();
     if (mModeRef) mModeRef->draw();
 
     gl::disableDepthWrite();
@@ -189,5 +186,9 @@ void CityscapeApp::draw()
 	mParams->draw();
 }
 
+void prepareSettings( App::Settings *settings )
+{
+    settings->setHighDensityDisplayEnabled();
+}
 
 CINDER_APP( CityscapeApp, RendererGl( RendererGl::Options().msaa( 16 ) ), prepareSettings )
