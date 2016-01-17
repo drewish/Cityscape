@@ -15,7 +15,7 @@ void Building::layout( const Options &options ) {}
 void Building::draw( const Options &options ) const
 {
     if ( options.drawBuildings ) {
-        float hue = 0.34;
+        float hue = 0.1;
         options.buildingShader->uniform( "darkColor",   Color( CM_HSV, hue, 0.60, 0.25 ) );
         options.buildingShader->uniform( "mediumColor", Color( CM_HSV, hue, 0.55, 0.66 ) );
         options.buildingShader->uniform( "lightColor",  Color( CM_HSV, hue, 0.24, 1.00 ) );

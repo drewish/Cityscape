@@ -200,7 +200,6 @@ void BlockMode::draw() {
     for ( auto i = mArr.faces_begin(); i != mArr.faces_end(); ++i ) {
 //        std::cout << "\tunbounded: " << i->is_unbounded() << " fictitious: " << i->is_fictitious() << std::endl;
 //        std::cout << "\touter_ccbs:" << i->number_of_outer_ccbs() << " holes: " << i->number_of_holes() << std::endl;
-        int num = 0;
         /*
          for ( auto j = i->holes_begin(); j != i->holes_end(); ++j ) {
          PolyLine2f faceOutline;

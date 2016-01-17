@@ -39,36 +39,32 @@ class CityscapeApp : public App {
     ModeRef mModeRef;
     ci::params::InterfaceGlRef mParams;
     ci::gl::BatchRef mSkyBatch;
+    ci::vec3 mCenter = vec3(320, 240, 0);
 };
 
+// TODO: Consider making this a general purpose gradient generator.
 void CityscapeApp::buildSky()
 {
     vector<vec3> positions;
-    float y = 1500;
-    float minX = -200, maxX = 800;
-    float minZ = 0, midZ = 50, maxZ = 200;
-
     vector<Color> colors;
     Color darkBlue = Color8u(108, 184, 251);
     Color medBlue = Color8u(160, 212, 250);
     Color lightBlue = Color8u(174, 214, 246);
 
-    positions.push_back( vec3( maxX, y, maxZ ) );
-    positions.push_back( vec3( minX, y, maxZ ) );
+    positions.push_back( vec3( +0.5, -0.5, +0.0 ) );
+    positions.push_back( vec3( -0.5, -0.5, +0.0 ) );
     colors.push_back( darkBlue );
     colors.push_back( darkBlue );
-
-    positions.push_back( vec3( minX, y, midZ ) );
-    positions.push_back( vec3( maxX, y, midZ ) );
-    positions.push_back( vec3( maxX, y, midZ ) );
-    positions.push_back( vec3( minX, y, midZ ) );
+    positions.push_back( vec3( +0.5, -0.2, +0.0 ) );
+    positions.push_back( vec3( -0.5, -0.2, +0.0 ) );
     colors.push_back( medBlue );
     colors.push_back( medBlue );
+    positions.push_back( vec3( +0.5, +0.1, +0.0 ) );
+    positions.push_back( vec3( -0.5, +0.1, +0.0 ) );
     colors.push_back( medBlue );
     colors.push_back( medBlue );
-
-    positions.push_back( vec3( minX, y, minZ ) );
-    positions.push_back( vec3( maxX, y, minZ ) );
+    positions.push_back( vec3( +0.5, +0.5, +0.0 ) );
+    positions.push_back( vec3( -0.5, +0.5, +0.0 ) );
     colors.push_back( lightBlue );
     colors.push_back( lightBlue );
 
@@ -76,7 +72,7 @@ void CityscapeApp::buildSky()
         gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::Attrib::POSITION, 3 ),
         gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::Attrib::COLOR, 3 ),
     };
-    gl::VboMeshRef mesh = gl::VboMesh::create( positions.size(), GL_QUADS, bufferLayout );
+    gl::VboMeshRef mesh = gl::VboMesh::create( positions.size(), GL_TRIANGLE_STRIP, bufferLayout );
     mesh->bufferAttrib( geom::Attrib::POSITION, positions );
     mesh->bufferAttrib( geom::Attrib::COLOR, colors );
 
@@ -136,7 +132,7 @@ void CityscapeApp::setupModeParams()
 void CityscapeApp::resize()
 {
     mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
-    mCamera.lookAt( vec3( 320, -360, 400 ), vec3(320, 240, 0), vec3( 0, 1, 0 ) );
+    mCamera.lookAt( vec3( 320, -360, 400 ), mCenter, vec3( 0, 1, 0 ) );
 }
 
 void CityscapeApp::update()
@@ -170,18 +166,26 @@ void CityscapeApp::mouseMove( MouseEvent event )
 
 void CityscapeApp::draw()
 {
-	gl::clear( Color( 0.9, 0.9, 0.9 ) );
-	gl::enableAlphaBlending();
-    gl::enableDepthRead();
-    gl::enableDepthWrite();
+    // Clear with our ground color...
+    gl::clear( Color8u(233, 203, 151) );
+    {
+        // ...then draw our sky up top.
+        gl::ScopedMatrices matrixScope;
+        vec2 window = getWindowSize();
+        gl::setMatricesWindow( window );
 
+        gl::translate( window.x / 2.0, 0.125 * window.y );
+        gl::scale( window.x, 0.25 * window.y, 1 );
+        mSkyBatch->draw();
+    }
+
+    gl::enableAlphaBlending();
+    gl::ScopedDepth depthScope(true);
+    gl::ScopedMatrices matrixScope;
     gl::setMatrices( mCamera );
 
-    mSkyBatch->draw();
-    if (mModeRef) mModeRef->draw();
 
-    gl::disableDepthWrite();
-    gl::disableDepthRead();
+    if (mModeRef) mModeRef->draw();
 
 	mParams->draw();
 }
