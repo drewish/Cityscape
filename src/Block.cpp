@@ -175,14 +175,13 @@ void Block::subdivideSkeleton( int16_t lotWidth )
         for ( auto j = face->outer_ccbs_begin(); j != face->outer_ccbs_end(); ++j ) {
             PolyLine2f lotOutline;
             Arrangement_2::Ccb_halfedge_circulator cc = *j;
-//            lotOutline.push_back( vecFrom( cc->source()->point() ) );
             do {
                 Arrangement_2::Halfedge_handle he = cc;
                 lotOutline.push_back( vecFrom( he->target()->point() ) );
             } while ( ++cc != *j );
 
             // Skip small lots
-            if (lotOutline.calcArea() < 1) continue;
+            if (lotOutline.calcArea() < 10) continue;
 
             Lot l = Lot( lotOutline, ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
             mLots.push_back(l);

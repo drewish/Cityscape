@@ -5,7 +5,7 @@ using namespace ci::app;
 
 void CityMode::setup() {
     mOptions.drawBlocks = false;
-    mOptions.drawLots = true;
+    mOptions.drawLots = false;
     mOptions.drawBuildings = true;
 }
 
@@ -30,6 +30,12 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
         .updateFn( std::bind( &CityMode::layout, this ) );
     params->addParam( "lotWidth", &mOptions.block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+
+    params->addSeparator();
+
+    params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mOptions.building.roofStyle )
+        .keyDecr( "[" ).keyIncr( "]" )
+        .updateFn( std::bind( &CityMode::layout, this ) );
 
     params->addSeparator();
 

@@ -21,8 +21,8 @@ class Lot {
     { };
     Lot( const FlatShape &fs, const ci::Color &c ) : mShape(fs), mColor(c) { };
 
-    void buildInCenter();
-    void buildFullLot();
+    void buildInCenter( const Options &options );
+    void buildFullLot( const Options &options );
 
     void layout( const Options &options );
     void draw( const Options &options ) const;

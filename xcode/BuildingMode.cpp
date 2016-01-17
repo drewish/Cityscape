@@ -11,12 +11,12 @@ void BuildingMode::setup() {
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
     params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)(&mBuildingRoof) )
-    .keyDecr( "[" ).keyIncr( "]" )
-    .updateFn( std::bind( &BuildingMode::layout, this ) );
+        .keyDecr( "[" ).keyIncr( "]" )
+        .updateFn( std::bind( &BuildingMode::layout, this ) );
     params->addParam( "Floors", &mFloors)
-    .min( 1 ).max( 5 )
-    .keyDecr( "-" ).keyIncr( "=" )
-    .updateFn( std::bind( &BuildingMode::layout, this ) );
+        .min( 1 ).max( 5 )
+        .keyDecr( "-" ).keyIncr( "=" )
+        .updateFn( std::bind( &BuildingMode::layout, this ) );
     params->addSeparator();
     params->addButton( "Square", [&] {
         mOutline = BuildingPlan::square();

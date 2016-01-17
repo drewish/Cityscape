@@ -16,22 +16,20 @@ typedef std::shared_ptr<BuildingPlan> BuildingPlanRef;
 class BuildingPlan {
 public:
     // http://www.johnriebli.com/roof-types--house-styles.html
-    // If you change this update BuildingPlan::randomRoof().
     enum RoofStyle {
-        FLAT_ROOF = 0,
-        HIPPED_ROOF = 1,
-        GABLED_ROOF = 2,
-        SAWTOOTH_ROOF = 3,
-        SHED_ROOF = 4,
-        GAMBREL_ROOF = 5,
+        RANDOM_ROOF = 0,
+        FLAT_ROOF,
+        HIPPED_ROOF,
+        GABLED_ROOF,
+        SAWTOOTH_ROOF,
+        SHED_ROOF,
+        GAMBREL_ROOF,
     };
 
     static const std::vector<std::string> roofStyleNames()
     {
-        return std::vector<std::string>({ "Flat", "Hipped", "Gabled", "Sawtooth", "Shed", "Gambrel" });
+        return std::vector<std::string>({ "Random", "Flat", "Hipped", "Gabled", "Sawtooth", "Shed", "Gambrel" });
     }
-
-    static RoofStyle randomRoof();
 
     static ci::PolyLine2f triangle();
     static ci::PolyLine2f square();

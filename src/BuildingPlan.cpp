@@ -22,12 +22,6 @@ using namespace std;
 typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
 
-
-BuildingPlan::RoofStyle BuildingPlan::randomRoof()
-{
-    return static_cast<RoofStyle>(ci::randInt(5));
-}
-
 ci::PolyLine2f BuildingPlan::triangle()
 {
     return ci::PolyLine2f( {
@@ -120,7 +114,7 @@ BuildingPlanRef BuildingPlan::create( const ci::PolyLine2f &outline, const Build
 
 BuildingPlanRef BuildingPlan::createRandom()
 {
-    return BuildingPlanRef( new BuildingPlan( randomOutline(), randomRoof() ) );
+    return BuildingPlanRef( new BuildingPlan( randomOutline(), RANDOM_ROOF ) );
 }
 
 // * * *
@@ -427,7 +421,14 @@ class RoofMesh : public Source {
 public:
     RoofMesh( const PolyLine2f &outline, BuildingPlan::RoofStyle roof )
     {
+
+        if ( roof == BuildingPlan::RANDOM_ROOF ) {
+            roof = static_cast<BuildingPlan::RoofStyle>(ci::randInt(5));
+        };
+
         switch ( roof ) {
+            case BuildingPlan::RANDOM_ROOF:
+                break;
             case BuildingPlan::FLAT_ROOF:
                 buildFlatRoof( outline, mPositions, mIndices );
                 break;
@@ -446,6 +447,8 @@ public:
                 break;
             case BuildingPlan::GAMBREL_ROOF:
                 // probably based off GABLED with an extra division of the faces to give it the barn look
+                break;
+            default:
                 break;
         }
     };

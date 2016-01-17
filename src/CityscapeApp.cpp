@@ -132,7 +132,7 @@ void CityscapeApp::setupModeParams()
 void CityscapeApp::resize()
 {
     mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
-    mCamera.lookAt( vec3( 320, -360, 400 ), mCenter, vec3( 0, 1, 0 ) );
+    mCamera.lookAt( vec3( 320, -360, 180 ), mCenter, vec3( 0, 1, 0 ) );
 }
 
 void CityscapeApp::update()

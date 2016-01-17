@@ -33,17 +33,22 @@ struct LotOptions {
         BUILDING_FILL_LOT = 1,
     };
 
-   BuildingPlacement buildingPlacement = BUILDING_FILL_LOT;
+    BuildingPlacement buildingPlacement = BUILDING_FILL_LOT;
+};
+
+struct BuildingOptions {
+    int roofStyle = 0;
 };
 
 struct Options {
     bool drawRoads = true;
     bool drawBlocks = false;
-    bool drawLots = true;
+    bool drawLots = false;
     bool drawBuildings = true;
     cinder::gl::GlslProgRef	buildingShader;
 
     RoadOptions road;
     BlockOptions block;
     LotOptions lot;
+    BuildingOptions building;
 };
