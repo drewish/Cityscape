@@ -13,8 +13,8 @@ std::vector<vec2> computeDividers( const std::vector<vec2> &outline, const float
 
     // ...then find the bounding box...
     std::vector<vec2> rotated;
-    for( auto it = outline.begin(); it != outline.end(); ++it ) {
-        rotated.push_back( vec2( matrix * vec3( *it, 1 ) ) );
+    for( const auto &point : outline ) {
+        rotated.push_back( vec2( matrix * vec3( point, 1 ) ) );
     }
     Rectf bounds = Rectf( rotated ).scaledCentered(1.1);
 

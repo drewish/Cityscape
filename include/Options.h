@@ -13,6 +13,7 @@
 struct RoadOptions {
     float highwayWidth = 20;
     float sidestreetWidth = 10;
+    float sidestreetAngle = 0;
     float blockHeight = 200;
     float blockWidth = 100;
 };
@@ -37,7 +38,7 @@ struct LotOptions {
 };
 
 struct BuildingOptions {
-    int roofStyle = 0;
+    int roofStyle = 1;
 };
 
 struct Options {

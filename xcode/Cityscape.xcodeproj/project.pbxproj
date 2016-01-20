@@ -35,7 +35,6 @@
 		5FA88B2D1C48B871008C1A4A /* CityMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B2C1C48B871008C1A4A /* CityMode.cpp */; };
 		5FA88B311C48B9CA008C1A4A /* BlockMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */; };
 		5FA88B331C48B9D6008C1A4A /* BuildingMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */; };
-		5FEFD9CE1A92F8F00093F109 /* Road.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9CC1A92F8F00093F109 /* Road.cpp */; };
 		5FEFD9D11A92F9550093F109 /* Building.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9CF1A92F9550093F109 /* Building.cpp */; };
 		5FEFD9D41A92F9B30093F109 /* Lot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9D21A92F9B30093F109 /* Lot.cpp */; };
 		5FEFD9D71A92F9FF0093F109 /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FEFD9D51A92F9FF0093F109 /* Block.cpp */; };
@@ -98,7 +97,6 @@
 		5FEFD9BD1A928DB90093F109 /* libboost_thread-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.57.0/lib/libboost_thread-mt.dylib"; sourceTree = "<group>"; };
 		5FEFD9C71A92CD920093F109 /* libboost_context-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_context-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.57.0/lib/libboost_context-mt.dylib"; sourceTree = "<group>"; };
 		5FEFD9C91A92D3480093F109 /* libboost_timer-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_timer-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.57.0/lib/libboost_timer-mt.dylib"; sourceTree = "<group>"; };
-		5FEFD9CC1A92F8F00093F109 /* Road.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Road.cpp; path = ../src/Road.cpp; sourceTree = "<group>"; };
 		5FEFD9CF1A92F9550093F109 /* Building.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Building.cpp; path = ../src/Building.cpp; sourceTree = "<group>"; };
 		5FEFD9D21A92F9B30093F109 /* Lot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Lot.cpp; path = ../src/Lot.cpp; sourceTree = "<group>"; };
 		5FEFD9D51A92F9FF0093F109 /* Block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Block.cpp; path = ../src/Block.cpp; sourceTree = "<group>"; };
@@ -153,7 +151,6 @@
 				5FA88B2C1C48B871008C1A4A /* CityMode.cpp */,
 				5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */,
 				5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */,
-				5FEFD9CC1A92F8F00093F109 /* Road.cpp */,
 				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
 				5FEFD9D51A92F9FF0093F109 /* Block.cpp */,
 				5FEFD9D21A92F9B30093F109 /* Lot.cpp */,
@@ -343,7 +340,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */,
-				5FEFD9CE1A92F8F00093F109 /* Road.cpp in Sources */,
 				5FA88B331C48B9D6008C1A4A /* BuildingMode.cpp in Sources */,
 				5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */,
 				5FA88B2D1C48B871008C1A4A /* CityMode.cpp in Sources */,

@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "Options.h"
 
 class Road {
   public:
@@ -24,9 +23,6 @@ class Road {
         outline.setClosed();
     };
 
-    void layout();
-    void draw( const Options &options ) const;
-    const ci::Rectf bounds() const;
 
     const ci::vec2 pointA, pointB;
     ci::PolyLine2f outline;

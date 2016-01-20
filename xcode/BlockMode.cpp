@@ -1,12 +1,11 @@
 #include "BlockMode.h"
+#include "CgalArrangement.h"
+#include "CgalStraightSkeleton.h"
 #include "GeometryHelpers.h"
 
 using namespace ci;
 using namespace ci::app;
 
-
-#include "CgalArrangement.h"
-#include "CgalStraightSkeleton.h"
 // This is hacky but we only use one instance of it at a time.
 Arrangement_2 mArr;
 std::vector<vec2> mDividers;
