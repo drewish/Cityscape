@@ -13,10 +13,16 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 
     // TODO: Don't redo layout on every change, set a timer to update every half
     // second or so.
-    //    params->addParam( "highwayWidth", &mOptions.road.highwayWidth )
-    //        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
-    //    params->addParam( "sidestreetWidth", &mOptions.road.sidestreetWidth )
-    //        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "highwayWidth", &mOptions.road.highwayWidth )
+        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "sidestreetWidth", &mOptions.road.sidestreetWidth )
+        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "highwayWidth", &mOptions.road.highwayWidth )
+        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "sidestreetAngle1", &mOptions.road.sidestreetAngle1 )
+        .min( -180 ).max( 180 ).step( 5 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "sidestreetAngle2", &mOptions.road.sidestreetAngle2 )
+        .min( -90 ).max( 90 ).step( 15 ).updateFn( std::bind( &CityMode::layout, this ) );
     params->addParam( "blockWidth", &mOptions.road.blockWidth ).step( 5 )
         .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
     params->addParam( "blockHeight", &mOptions.road.blockHeight ).step( 5 )

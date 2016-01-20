@@ -11,11 +11,12 @@
 #include "cinder/gl/GlslProg.h"
 
 struct RoadOptions {
-    float highwayWidth = 20;
-    float sidestreetWidth = 10;
-    float sidestreetAngle = 0;
-    float blockHeight = 200;
-    float blockWidth = 100;
+    uint8_t highwayWidth = 20;
+    uint8_t sidestreetWidth = 10;
+    int16_t sidestreetAngle1 = 0; // -180 - +180 degrees
+    int16_t sidestreetAngle2 = 90; // -90 - +90 degrees
+    uint16_t blockHeight = 200;
+    uint16_t blockWidth = 100;
 };
 
 struct BlockOptions {

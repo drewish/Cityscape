@@ -83,8 +83,7 @@ void CityscapeApp::buildSky()
 
 void CityscapeApp::setup()
 {
-    mParams = params::InterfaceGl::create( "App parameters", ivec2( 180, 300 ) );
-//    mParams->maximize( false );
+    mParams = params::InterfaceGl::create( "App parameters", ivec2( 350, 700 ) );
 
     resize();
 
