@@ -2,7 +2,10 @@
 #include "cinder/app/RendererGl.h"
 
 #include "cinder/Camera.h"
+#include "cinder/CameraUi.h"
+#include "cinder/GeomIo.h"
 #include "cinder/gl/gl.h"
+
 
 #include "Mode.h"
 #include "CityMode.h"
@@ -20,11 +23,9 @@ using namespace std;
 
 class CityscapeApp : public App {
   public:
-    void prepareSettings( Settings *settings );
-
     void setup();
     void setupModeParams();
-    void buildSky();
+    void buildBackground();
 
     void mouseMove( MouseEvent event );
     void mouseDown( MouseEvent event );
@@ -35,15 +36,19 @@ class CityscapeApp : public App {
 
     void layout();
 
-    CameraPersp mCamera;
-    ModeRef mModeRef;
+  protected:
+    CameraPersp         mCamera;
+    CameraUi            mCamUi;
+
+    ModeRef             mModeRef;
     ci::params::InterfaceGlRef mParams;
-    ci::gl::BatchRef mSkyBatch;
-    ci::vec3 mCenter = vec3(320, 240, 0);
+    ci::gl::BatchRef    mSkyBatch;
+    ci::gl::BatchRef    mGroundBatch;
+    ci::vec3            mCenter = vec3( 320, 240, 0 );
 };
 
 // TODO: Consider making this a general purpose gradient generator.
-void CityscapeApp::buildSky()
+void CityscapeApp::buildBackground()
 {
     vector<vec3> positions;
     vector<Color> colors;
@@ -79,18 +84,28 @@ void CityscapeApp::buildSky()
     gl::GlslProgRef shader = gl::getStockShader( gl::ShaderDef().color() );
 
     mSkyBatch = gl::Batch::create( mesh, shader );
+
+    geom::Plane plane = geom::Plane()
+        .size( vec2( 1200 ) )
+        .origin( mCenter - vec3( 0, 0, 0.01 ) )
+        .axes( vec3( 1, 0, 0 ), vec3( 0, 1, 0 ) );
+
+    mGroundBatch = gl::Batch::create( plane, shader );
 }
 
 void CityscapeApp::setup()
 {
-    mParams = params::InterfaceGl::create( "App parameters", ivec2( 350, 700 ) );
-
-    resize();
-
-    setupModeParams();
+    // Create params ahead of CameraUI so it gets first crack at the signals
+    mParams = params::InterfaceGl::create( "Cityscape", ivec2( 350, 700 ) );
     mParams->minimize();
+    setupModeParams();
 
-    buildSky();
+    mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 100.0f, 2000.0f );
+    mCamera.lookAt( vec3( 320, -360, 180 ), mCenter, vec3( 0, 1, 0 ) );
+    mCamera.setWorldUp( vec3( 0, 0, 1 ) );
+    mCamUi = CameraUi( &mCamera, getWindow() );
+
+    buildBackground();
 
     mModeRef = ModeRef( new CityMode() );
     mModeRef->setup();
@@ -130,8 +145,7 @@ void CityscapeApp::setupModeParams()
 
 void CityscapeApp::resize()
 {
-    mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 300.0f, 2000.0f );
-    mCamera.lookAt( vec3( 320, -360, 180 ), mCenter, vec3( 0, 1, 0 ) );
+    mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
 void CityscapeApp::update()
@@ -145,6 +159,8 @@ void CityscapeApp::layout()
 
 void CityscapeApp::mouseDown( MouseEvent event )
 {
+// Disabling until I figure out how to toggle between view and edit mode
+return;
     if (!mModeRef) return;
 
     float u = ((float) event.getX()) / getWindowWidth();
@@ -160,31 +176,40 @@ void CityscapeApp::mouseDown( MouseEvent event )
 
 void CityscapeApp::mouseMove( MouseEvent event )
 {
+// Disabling until I figure out how to toggle between view and edit mode
+return;
     if (mModeRef) mModeRef->mMousePos = event.getPos();
 }
 
 void CityscapeApp::draw()
 {
-    // Clear with our ground color...
-    gl::clear( Color8u(233, 203, 151) );
+    gl::clear( Color::white() );
     {
-        // ...then draw our sky up top.
-        gl::ScopedMatrices matrixScope;
+        // Fill the screen with our sky... at some point it should probably
+        // become a skybox since the gradient moves witht the camera right now.
         vec2 window = getWindowSize();
-        gl::setMatricesWindow( window );
+        gl::ScopedMatrices matrixScope;
 
-        gl::translate( window.x / 2.0, 0.125 * window.y );
-        gl::scale( window.x, 0.25 * window.y, 1 );
+        gl::setMatricesWindow( window );
+        gl::translate( window.x / 2.0, 0.5 * window.y );
+        gl::scale( window.x, window.y, 1 );
+
         mSkyBatch->draw();
     }
 
-    gl::enableAlphaBlending();
-    gl::ScopedDepth depthScope(true);
-    gl::ScopedMatrices matrixScope;
-    gl::setMatrices( mCamera );
+    {
+        gl::ScopedBlendAlpha scopedAlpha;
+        gl::ScopedDepth depthScope(true);
+        gl::ScopedMatrices matrixScope;
+        gl::setMatrices( mCamera );
 
+        {
+            gl::ScopedColor scopedColor( Color8u(233, 203, 151) );
+            mGroundBatch->draw();
+        }
 
-    if (mModeRef) mModeRef->draw();
+        if (mModeRef) mModeRef->draw();
+    }
 
 	mParams->draw();
 }
