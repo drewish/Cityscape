@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Mode.h"
+#include "Block.h"
 
 class BlockMode : public BaseMode
 {
@@ -11,7 +12,9 @@ public:
     void layout();
     void draw();
 
-    BuildingRef mBlock;
-    ci::PolyLine2f mOutline;
+    BlockRef        mBlock;
+    ci::PolyLine2f  mOutline;
+    float           mAngle = 0.0;
+    int16_t         mLotWidth = 100;
 };
 

@@ -23,7 +23,6 @@ public:
         mPoints.clear();
     }
 
-    // Insert multiple points and avoid a layout for each.
     void addPoints( const std::vector<ci::vec2> &points )
     {
         mPoints.insert( mPoints.end(), points.begin(), points.end() );
@@ -46,4 +45,6 @@ private:
     std::vector<ci::vec2> mPoints;
     std::vector<Block> mBlocks;
     std::vector<FlatShape> mRoadShapes;
+
+    ci::ColorA mRoadColor = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
 };

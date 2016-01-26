@@ -123,25 +123,23 @@ void RoadNetwork::layout( const Options &options )
 void RoadNetwork::draw( const Options &options )
 {
     if ( options.drawRoads ) {
-        gl::color( ColorA( 0.3f, 0.3f, 0.3f, 0.4f ) );
-        for ( auto &shape : mRoadShapes ) {
+        gl::ScopedColor scopedColor( mRoadColor );
+        for ( const auto &shape : mRoadShapes ) {
             gl::draw( shape.mesh() );
         }
     }
 
+    // Sort of tacky to go into the hierarchy like this but the goal is to stack
+    // the drawing such that lots are atop blocks...
     for( const Block &block : mBlocks ) {
         block.draw( options );
-        // Sort of tacky to go in like this but the hope is that all the lots
-        // draw atop the blocks.
         for( const Lot &lot : block.mLots ) {
             lot.draw( options );
         }
     }
 
-    // Draw buildings on top of lots and blocks
+    // ...and buildings are on top of everything else.
     for( const Block &block : mBlocks ) {
-        // Sort of tacky to go in like this but the hope is that all the lots
-        // draw atop the blocks.
         for( const Lot &lot : block.mLots ) {
             if (lot.mBuildingRef) lot.mBuildingRef->draw( options );
         }

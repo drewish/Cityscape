@@ -11,8 +11,8 @@
 #include "cinder/gl/GlslProg.h"
 
 struct RoadOptions {
-    uint8_t highwayWidth = 20;
-    uint8_t sidestreetWidth = 10;
+    uint8_t highwayWidth = 40;
+    uint8_t sidestreetWidth = 20;
     int16_t sidestreetAngle1 = 0; // -180 - +180 degrees
     int16_t sidestreetAngle2 = 90; // -90 - +90 degrees
     uint16_t blockHeight = 200;

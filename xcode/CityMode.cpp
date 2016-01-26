@@ -17,8 +17,6 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
         .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
     params->addParam( "sidestreetWidth", &mOptions.road.sidestreetWidth )
         .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "highwayWidth", &mOptions.road.highwayWidth )
-        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
     params->addParam( "sidestreetAngle1", &mOptions.road.sidestreetAngle1 )
         .min( -180 ).max( 180 ).step( 5 ).updateFn( std::bind( &CityMode::layout, this ) );
     params->addParam( "sidestreetAngle2", &mOptions.road.sidestreetAngle2 )

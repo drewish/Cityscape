@@ -14,6 +14,7 @@ void BlockMode::setup() {
     mOptions.drawBlocks = false;
     mOptions.drawLots = true;
     mOptions.drawBuildings = true;
+
     layout();
 }
 
@@ -72,108 +73,11 @@ void BlockMode::addPoint( ci::vec2 point ) {
 }
 
 void BlockMode::layout() {
-    mArr.clear();
-    if (mOutline.size() < 4) return;
+    mBlock = Block::create( mOutline );
 
-    float angle = 0;
-
-    // Build straight skeleton
-    // TODO figure out why we need to reverse this...
-    CGAL::Polygon_2<InexactK> poly = polygonFrom<InexactK>( mOutline );
-    if ( poly.is_clockwise_oriented() ) {
-        poly.reverse_orientation();
-    }
-    SsPtr skel = CGAL::create_interior_straight_skeleton_2( poly, InexactK() );
-
-    std::list<Segment_2> outlineSegments;
-    std::list<Segment_2> skeletonSegments;
-
-    Ss::Halfedge longest = *skel->halfedges_begin();
-    float len = 0;
-
-    for( auto edge = skel->halfedges_begin(); edge != skel->halfedges_end(); ++edge ) {
-        const auto &curr = edge->vertex(), &next = edge->next()->vertex();
-        const auto &a1 = curr->point(),    &b1 = next->point();
-        Segment_2 seg( Point_2( a1.x(), a1.y() ), Point_2( b1.x(), b1.y() ) );
-
-        // Find the angle of the longest outter edge
-        // TODO see if we use the longest edge in the skeleton instead.
-        if ( edge->is_border() ) {
-            // Use the skeleton's outline since, unlike mOutline, will always
-            // be a closed polygon.
-            outlineSegments.push_back( seg );
-
-            vec2 v = vecFrom(b1) - vecFrom(a1);
-            if (glm::length(v) > len) {
-                len = glm::length(v);
-                angle = atan2( v.y, v.x );
-                longest = *edge;
-            }
-        }
-
-        // The skeleton has half edges going both directions for each segment in
-        // the skeleton. We only need one so before putting a->b in check that
-        // b->a isn't already in there.
-        auto predicate = [seg](const Segment_2 &other){
-            return other.source() == seg.target() && other.target() == seg.source();
-        };
-        if ( curr->is_skeleton() && next->is_skeleton() ) {
-            if ( none_of( skeletonSegments.begin(), skeletonSegments.end(), predicate ) ) {
-                skeletonSegments.push_back( seg );
-            }
-        }
-    }
-
-    // Adjust the skeleton so it intersects with the outline rather than doing
-    // it's normal split thing.
-
-    // Find faces with 3 edges: 1 skeleton and 2 contour
-    for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
-        // Move around the face until we get to an edge with a skeleton
-        // (seems to be the second edge).
-        Ss::Halfedge_handle skelEdge = face->halfedge();
-        do {
-            skelEdge = skelEdge->next();
-        } while ( !skelEdge->vertex()->is_skeleton() );
-
-        // Bail if we don't have two contour verts followed by the skeleton vert.
-        Ss::Halfedge_handle contourA = skelEdge->next();
-        Ss::Halfedge_handle contourB = contourA->next();
-        if (!contourA->vertex()->is_contour()) continue;
-        if (!contourB->vertex()->is_contour()) continue;
-        if (contourB->next() != skelEdge) continue;
-
-        // Find point where skeleton vector intersects contour edge.
-        auto a = contourA->vertex()->point();
-        auto b = contourB->vertex()->point();
-        auto c = skelEdge->vertex()->point();
-        // TODO: figure out how to do the math on the points directly rather
-        // than upacking
-        Point_2 adj( ( b.x() + a.x() ) / 2.0, ( b.y() + a.y() ) / 2.0 );
-
-        // Create a segment for the adjusted edge
-        skeletonSegments.push_back( Segment_2( Point_2( c.x(), c.y() ), adj ) );
-    }
-
-    // Then start walking across the outline looking for the intersections...
-    std::list<Segment_2> dividerSegments;
-    mDividers = computeDividers( mOutline.getPoints(), angle );
-    for ( const Segment_2 &divider : segmentsFrom( mDividers ) ) {
-        outlineSegments.push_back( divider );
-
-        std::vector<Point_2> dividerPoints;
-        CGAL::compute_intersection_points( outlineSegments.begin(), outlineSegments.end(), std::back_inserter(dividerPoints) );
-        for ( const Segment_2 &dividerChunk : segmentsFrom( dividerPoints ) ) {
-            dividerSegments.push_back( dividerChunk );
-        }
-
-        outlineSegments.pop_back();
-    }
-
-    // Put the outline and adjusted skeleton into the arrangment followed
-    insert_empty( mArr, outlineSegments.begin(), outlineSegments.end() );
-    insert( mArr, skeletonSegments.begin(), skeletonSegments.end() );
-    insert( mArr, dividerSegments.begin(), dividerSegments.end() );
+//    mDividers = computeDividers( mOutline.getPoints(), mAngle );
+    // TODO: Need to split this functionality in the class out into more functions
+    mArr = mBlock->arrangementSubdividing( mBlock->mShape, mLotWidth );
 }
 
 void BlockMode::draw() {
