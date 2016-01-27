@@ -29,6 +29,9 @@ class CityscapeApp : public App {
 
     void mouseMove( MouseEvent event );
     void mouseDown( MouseEvent event );
+    void mouseUp( MouseEvent event );
+    void mouseDrag( MouseEvent event );
+    void mouseWheel( MouseEvent event );
     void resize();
     void update();
 
@@ -38,13 +41,14 @@ class CityscapeApp : public App {
 
   protected:
     CameraPersp         mCamera;
-    CameraUi            mCamUi;
+    CameraUi            mCameraUi;
 
     ModeRef             mModeRef;
     ci::params::InterfaceGlRef mParams;
     ci::gl::BatchRef    mSkyBatch;
     ci::gl::BatchRef    mGroundBatch;
     ci::vec3            mCenter = vec3( 320, 240, 0 );
+    ci::vec2            mMouseClickAt;
 };
 
 // TODO: Consider making this a general purpose gradient generator.
@@ -64,8 +68,8 @@ void CityscapeApp::buildBackground()
     positions.push_back( vec3( -0.5, -0.2, +0.0 ) );
     colors.push_back( medBlue );
     colors.push_back( medBlue );
-    positions.push_back( vec3( +0.5, +0.1, +0.0 ) );
-    positions.push_back( vec3( -0.5, +0.1, +0.0 ) );
+    positions.push_back( vec3( +0.5, +0.2, +0.0 ) );
+    positions.push_back( vec3( -0.5, +0.2, +0.0 ) );
     colors.push_back( medBlue );
     colors.push_back( medBlue );
     positions.push_back( vec3( +0.5, +0.5, +0.0 ) );
@@ -87,7 +91,7 @@ void CityscapeApp::buildBackground()
 
     geom::Plane plane = geom::Plane()
         .size( vec2( 1200 ) )
-        .origin( mCenter - vec3( 0, 0, 0.01 ) )
+        .origin( mCenter - vec3( 0, 0, 0.1 ) )
         .axes( vec3( 1, 0, 0 ), vec3( 0, 1, 0 ) );
 
     mGroundBatch = gl::Batch::create( plane, shader );
@@ -100,10 +104,10 @@ void CityscapeApp::setup()
     mParams->minimize();
     setupModeParams();
 
-    mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 100.0f, 2000.0f );
+    mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 10.0f, 3000.0f );
     mCamera.lookAt( vec3( 320, -360, 180 ), mCenter, vec3( 0, 1, 0 ) );
     mCamera.setWorldUp( vec3( 0, 0, 1 ) );
-    mCamUi = CameraUi( &mCamera, getWindow() );
+    mCameraUi = CameraUi( &mCamera );
 
     buildBackground();
 
@@ -154,31 +158,46 @@ void CityscapeApp::update()
 
 void CityscapeApp::layout()
 {
-    if (mModeRef) mModeRef->layout();
-}
-
-void CityscapeApp::mouseDown( MouseEvent event )
-{
-// Disabling until I figure out how to toggle between view and edit mode
-return;
-    if (!mModeRef) return;
-
-    float u = ((float) event.getX()) / getWindowWidth();
-    float v = ((float) (getWindowHeight() - event.getY())) / getWindowHeight();
-    Ray r = mCamera.generateRay(u, v, mCamera.getAspectRatio());
-    float result = 0.0f;
-    vec3 point;
-    if (r.calcPlaneIntersection(glm::zero<ci::vec3>(), vec3( 0, 0, 1 ), &result)) {
-        point = r.calcPosition(result);
-        mModeRef->addPoint( vec2( point.x, point.y ) );
-    }
+    if ( mModeRef ) mModeRef->layout();
 }
 
 void CityscapeApp::mouseMove( MouseEvent event )
 {
-// Disabling until I figure out how to toggle between view and edit mode
-return;
-    if (mModeRef) mModeRef->mMousePos = event.getPos();
+    if ( mModeRef ) mModeRef->mMousePos = event.getPos();
+}
+
+void CityscapeApp::mouseDown( MouseEvent event )
+{
+    mCameraUi.mouseDown( event );
+    mMouseClickAt = event.getPos();
+}
+
+void CityscapeApp::mouseUp( MouseEvent event )
+{
+    mCameraUi.mouseUp( event );
+
+    if ( !mModeRef ) return;
+    // If they start dragging don't add points
+    if ( glm::distance2( mMouseClickAt, vec2( event.getPos() ) ) > 10.0 ) return;
+
+    float u = event.getX() / (float) getWindowWidth();
+    float v =  ( getWindowHeight() - event.getY() ) / (float) getWindowHeight();
+    Ray ray = mCamera.generateRay( u, v, mCamera.getAspectRatio() );
+    float distance = 0.0f;
+    if ( ray.calcPlaneIntersection( glm::zero<ci::vec3>(), vec3( 0, 0, 1 ), &distance ) ) {
+        vec3 point = ray.calcPosition( distance );
+        mModeRef->addPoint( vec2( point.x, point.y ) );
+    }
+}
+
+void CityscapeApp::mouseDrag( MouseEvent event )
+{
+    mCameraUi.mouseDrag( event );
+}
+
+void CityscapeApp::mouseWheel( MouseEvent event )
+{
+    mCameraUi.mouseWheel( event );
 }
 
 void CityscapeApp::draw()
@@ -208,7 +227,7 @@ void CityscapeApp::draw()
             mGroundBatch->draw();
         }
 
-        if (mModeRef) mModeRef->draw();
+        if ( mModeRef ) mModeRef->draw();
     }
 
 	mParams->draw();

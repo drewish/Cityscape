@@ -18,6 +18,10 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
         .keyDecr( "-" ).keyIncr( "=" )
         .updateFn( std::bind( &BuildingMode::layout, this ) );
     params->addSeparator();
+    params->addButton( "Clear Points", [&] {
+        mOutline = PolyLine2f();
+        layout();
+    }, "key=0");
     params->addButton( "Square", [&] {
         mOutline = BuildingPlan::square();
         layout();
@@ -48,14 +52,18 @@ void BuildingMode::addPoint( ci::vec2 point ) {
 }
 
 void BuildingMode::layout() {
+    if ( mOutline.size() == 0 ) {
+        mBuilding.reset();
+        return;
+    }
+
     mBuilding = Building::create( BuildingPlan( mOutline, mBuildingRoof ), mFloors );
     mBuilding->layout( mOptions );
 }
 
 void BuildingMode::draw() {
     gl::translate( getWindowCenter() );
-    gl::rotate( 2 * M_PI * mMousePos.x / (float) getWindowWidth() );
-    gl::scale( 8, 8, 8);
+    gl::scale( vec3( 2 ) );
 
     if ( mBuilding ) mBuilding->draw( mOptions );
 }
