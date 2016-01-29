@@ -13,7 +13,6 @@
 
 #include "Options.h"
 #include "Resources.h"
-#include "RoadNetwork.h"
 
 class BaseMode;
 typedef std::shared_ptr<BaseMode> ModeRef;

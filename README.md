@@ -15,8 +15,7 @@ of ideas and he's included an algorithm for using the block's straight skeleton
 to partitioning it into lots.
 
 The goal of this project is an app that will accept a series of roads, and
-generate a city of buildings in Crew's style, around them. I've really just
-scratched the surface with the project at this point. I decided to use the CGAL
+generate a city of buildings in Crews' style, around them. I decided to use the CGAL
 library for its straight skeleton and that forced me to learn a lot about C++
 templates, which slowed my progress. But as I've started to discover how to use
 it, I found the breadth of CGAL's functionality to be amazing. It may not do it
@@ -27,7 +26,7 @@ fast, but it'll do it accurately.
 
 ## Installation
 
-Install CGAL 4.6 using homebrew:
+Install CGAL 4.7 using homebrew:
 
 ```
 brew install cgal

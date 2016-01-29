@@ -102,6 +102,8 @@ void CityscapeApp::buildBackground()
 
 void CityscapeApp::setup()
 {
+    setWindowSize( 800, 600 );
+
     // Create params ahead of CameraUI so it gets first crack at the signals
     mParams = params::InterfaceGl::create( "Cityscape", ivec2( 350, 700 ) );
     mParams->minimize();

@@ -77,7 +77,7 @@ void BlockMode::layout() {
 
 //    mDividers = computeDividers( mOutline.getPoints(), mAngle );
     // TODO: Need to split this functionality in the class out into more functions
-    mArr = mBlock->arrangementSubdividing( mBlock->mShape, mLotWidth );
+    mArr = mBlock->arrangementSubdividing( mBlock->mShape, mOptions.block.lotWidth );
 }
 
 void BlockMode::draw() {

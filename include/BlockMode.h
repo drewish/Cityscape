@@ -14,7 +14,5 @@ public:
 
     BlockRef        mBlock;
     ci::PolyLine2f  mOutline;
-    float           mAngle = 0.0;
-    int16_t         mLotWidth = 100;
 };
 

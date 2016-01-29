@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Mode.h"
+#include "RoadNetwork.h"
 
 class CityMode : public BaseMode
 {
