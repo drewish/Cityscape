@@ -24,10 +24,12 @@ typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
 ci::PolyLine2f BuildingPlan::triangle()
 {
-    return ci::PolyLine2f( {
+    ci::PolyLine2f result( {
         ci::vec2(10, -10), ci::vec2(10, 10), ci::vec2(-10, 10),
         ci::vec2(10, -10) // closure
     } );
+    result.setClosed();
+    return result;
 }
 
 ci::PolyLine2f BuildingPlan::square()
@@ -39,41 +41,49 @@ ci::PolyLine2f BuildingPlan::rectangle( const uint16_t width, const uint16_t hei
 {
     float w = width / 2.0;
     float h = height / 2.0;
-    return ci::PolyLine2f( {
+    ci::PolyLine2f result( {
         ci::vec2(w, -h), ci::vec2(w, h),
         ci::vec2(-w, h), ci::vec2(-w, -h),
         ci::vec2(w, -h) // closure
     } );
+    result.setClosed();
+    return result;
 }
 
 ci::PolyLine2f BuildingPlan::lshape()
 {
-    return ci::PolyLine2f( {
+    ci::PolyLine2f result( {
         ci::vec2(15, 0), ci::vec2(15, 10), ci::vec2(-15, 10),
         ci::vec2(-15, -10), ci::vec2(-5, -10), ci::vec2(-5, 0),
         ci::vec2(15, 0) // closure
     } );
+    result.setClosed();
+    return result;
 }
 
 ci::PolyLine2f BuildingPlan::plus()
 {
-    return ci::PolyLine2f( {
+    ci::PolyLine2f result( {
         ci::vec2(15,-5), ci::vec2(15,5), ci::vec2(5,5),
         ci::vec2(5,15), ci::vec2(-5,15), ci::vec2(-5,5),
         ci::vec2(-15,5), ci::vec2(-15,-5), ci::vec2(-5,-5),
         ci::vec2(-5,-15), ci::vec2(5,-15), ci::vec2(5,-5),
         ci::vec2(15,-5) // closure
     } );
+    result.setClosed();
+    return result;
 }
 
 ci::PolyLine2f BuildingPlan::tee()
 {
-    return ci::PolyLine2f( {
+    ci::PolyLine2f result( {
         ci::vec2(5,10), ci::vec2(-5,10), ci::vec2(-5,0),
         ci::vec2(-15,0), ci::vec2(-15,-10), ci::vec2(15,-10),
         ci::vec2(15,0), ci::vec2(5,0),
         ci::vec2(5,10) // closure
     } );
+    result.setClosed();
+    return result;
 }
 
 ci::PolyLine2f BuildingPlan::randomOutline()
@@ -96,13 +106,10 @@ ci::PolyLine2f BuildingPlan::randomOutline()
 
 const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float rotation) const
 {
-    glm::mat3 matrix;
-    matrix = rotate( translate( matrix, offset ), rotation );
-
+    glm::mat3 matrix = rotate( translate( glm::mat3(), offset ), rotation );
     PolyLine2f ret = PolyLine2f();
-    for( auto it = mOutline.begin(); it != mOutline.end(); ++it ) {
-        vec3 transformed = matrix * vec3( *it, 1 );
-        ret.push_back( vec2( transformed ) );
+    for ( const auto &it : mOutline ) {
+        ret.push_back( vec2( matrix * vec3( it, 1 ) ) );
     }
     return ret;
 }
@@ -124,9 +131,9 @@ public:
     WallMesh( const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight )
     {
         uint32_t base = 0;
-        for ( auto i = outline.begin(); i != outline.end(); ++i ) {
-            vec3 bottom = vec3( i->x, i->y, 0.0 );
-            auto it = topOffsets.find( std::make_pair( i->x, i->y ) );
+        for ( auto &i : outline ) {
+            vec3 bottom = vec3( i.x, i.y, 0.0 );
+            auto it = topOffsets.find( std::make_pair( i.x, i.y ) );
             vec3 topOffset = ( it == topOffsets.end() ) ? vec3( 0.0, 0.0, defaultTopHeight ) : it->second;
 
             mPositions.push_back( bottom );
@@ -363,7 +370,7 @@ float sawtoothHeight( const float x, const float upWidth, const float height, co
 
 void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const float height, const float downWidth, vector<vec3> &verts, vector<uint32_t> &indices)
 {
-    if (outline.size() == 0) return;
+    if (outline.size() < 3) return;
 
     Arrangement_2 arr;
     OffsetMap offsets;
@@ -379,6 +386,7 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
     // Then start walking across the outline looking for intersections.
     std::list<Segment_2> newEdges;
     std::list<Point_2> newPoints;
+// TODO: look at replacing this with two calls to computeDividers(), one for each height
     u_int16_t step = 0;
     Rectf bounds = Rectf( outline.getPoints() );
     float x = bounds.x1;

@@ -36,7 +36,6 @@ class CityscapeApp : public App {
     void update();
 
     void draw();
-
     void layout();
 
   protected:
@@ -49,6 +48,10 @@ class CityscapeApp : public App {
     ci::gl::BatchRef    mGroundBatch;
     ci::vec3            mCenter = vec3( 320, 240, 0 );
     ci::vec2            mMouseClickAt;
+    // These names aren't great but it's for seeing where the mouse would
+    // intersect with the ground plane.
+    bool                mIsMouseOnPlane;
+    ci::vec2            mMouseOnPlaneAt;
 };
 
 // TODO: Consider making this a general purpose gradient generator.
@@ -163,7 +166,19 @@ void CityscapeApp::layout()
 
 void CityscapeApp::mouseMove( MouseEvent event )
 {
-    if ( mModeRef ) mModeRef->mMousePos = event.getPos();
+    float u = event.getX() / (float) getWindowWidth();
+    float v = ( getWindowHeight() - event.getY() ) / (float) getWindowHeight();
+    Ray ray = mCamera.generateRay( u, v, mCamera.getAspectRatio() );
+    float distance = 0.0f;
+    if ( ! ray.calcPlaneIntersection( glm::zero<ci::vec3>(), vec3( 0, 0, 1 ), &distance ) ) {
+        mIsMouseOnPlane = false;
+        return;
+    }
+    vec3 intersection = ray.calcPosition( distance );
+    mMouseOnPlaneAt = vec2( intersection.x, intersection.y );
+    mIsMouseOnPlane = true;
+
+    if ( mModeRef ) mModeRef->mMousePos = mMouseOnPlaneAt;
 }
 
 void CityscapeApp::mouseDown( MouseEvent event )
@@ -180,14 +195,7 @@ void CityscapeApp::mouseUp( MouseEvent event )
     // If they start dragging don't add points
     if ( glm::distance2( mMouseClickAt, vec2( event.getPos() ) ) > 10.0 ) return;
 
-    float u = event.getX() / (float) getWindowWidth();
-    float v =  ( getWindowHeight() - event.getY() ) / (float) getWindowHeight();
-    Ray ray = mCamera.generateRay( u, v, mCamera.getAspectRatio() );
-    float distance = 0.0f;
-    if ( ray.calcPlaneIntersection( glm::zero<ci::vec3>(), vec3( 0, 0, 1 ), &distance ) ) {
-        vec3 point = ray.calcPosition( distance );
-        mModeRef->addPoint( vec2( point.x, point.y ) );
-    }
+    if ( mModeRef ) mModeRef->addPoint( mMouseOnPlaneAt );
 }
 
 void CityscapeApp::mouseDrag( MouseEvent event )
