@@ -33,7 +33,9 @@ brew install cgal
 ```
 
 
-Install cinder 0.9.0:
+Install cinder 0.9.0 (as a sibling directory):
 ```
-
+cd ../
+git clone --recursive --branch release_v0.9.0 https://github.com/cinder/Cinder.git
+Cinder/xcode/fullbuild.sh
 ```
