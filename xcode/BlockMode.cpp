@@ -6,10 +6,6 @@
 using namespace ci;
 using namespace ci::app;
 
-// This is hacky but we only use one instance of it at a time.
-Arrangement_2 mArr;
-std::vector<vec2> mDividers;
-
 void BlockMode::setup() {
     mOptions.drawBlocks = false;
     mOptions.drawLots = true;
@@ -73,53 +69,37 @@ void BlockMode::addPoint( ci::vec2 point ) {
 }
 
 void BlockMode::layout() {
-    mBlock = Block::create( mOutline );
+    mBlock.reset();
+    if ( mOutline.size() < 3 ) return;
 
-//    mDividers = computeDividers( mOutline.getPoints(), mAngle );
-    // TODO: Need to split this functionality in the class out into more functions
-    mArr = mBlock->arrangementSubdividing( mBlock->mShape, mOptions.block.lotWidth );
+    mBlock = Block::create( mOutline );
+    mBlock->layout( mOptions );
 }
 
 void BlockMode::draw() {
-    gl::color( 1, 0, 1 );
-    assert( mDividers.size() % 2 == 0 );
-    for ( auto i = mDividers.begin(); i != mDividers.end(); ++i) {
-        gl::drawLine( *i, *++i );
-    }
+    if ( !mBlock ) return;
+
+    mBlock->draw( mOptions );
+
+    // Disabling the rest of this since it's only really helpful for debugging
+    // the cgal arrangement.
+    return;
+
+    Arrangement_2 &arr = mBlock->mArr;
 
     gl::color( 1, 1, 0 );
-    for ( auto i = mArr.vertices_begin(); i != mArr.vertices_end(); ++i ) {
+    for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
         gl::drawSolidCircle( vecFrom( i->point() ), 5 );
     }
 
     gl::color(0, 0, 0 );
-    for ( auto i = mArr.edges_begin(); i != mArr.edges_end(); ++i ) {
+    for ( auto i = arr.edges_begin(); i != arr.edges_end(); ++i ) {
         PolyLine2f p = PolyLine2f({ vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
         gl::draw( p );
     }
 
     float steps = 0;
-//    std::cout << "\n\n------\nfaces: " << mArr.number_of_faces() << std::endl;
-    for ( auto i = mArr.faces_begin(); i != mArr.faces_end(); ++i ) {
-//        std::cout << "\tunbounded: " << i->is_unbounded() << " fictitious: " << i->is_fictitious() << std::endl;
-//        std::cout << "\touter_ccbs:" << i->number_of_outer_ccbs() << " holes: " << i->number_of_holes() << std::endl;
-        /*
-         for ( auto j = i->holes_begin(); j != i->holes_end(); ++j ) {
-         PolyLine2f faceOutline;
-         Arrangement_2::Ccb_halfedge_circulator cc = *j;
-         do {
-         Arrangement_2::Halfedge_handle he = cc;
-         faceOutline.push_back( vecFrom( he->target()->point() ) );
-         } while ( ++cc != *j );
-
-         gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
-         steps += 0.17;
-         if (steps > 1) steps -= 1.0;
-         std::cout << "\t\t" << num << faceOutline << "\n";
-         gl::drawSolid( faceOutline );
-         }
-         */
-
+    for ( auto i = arr.faces_begin(); i != arr.faces_end(); ++i ) {
         for ( auto j = i->outer_ccbs_begin(); j != i->outer_ccbs_end(); ++j ) {
             PolyLine2f faceOutline;
             Arrangement_2::Ccb_halfedge_circulator cc = *j;
@@ -132,7 +112,6 @@ void BlockMode::draw() {
             gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
             steps += 0.27;
             if (steps > 1) steps -= 1.0;
-//            std::cout << "\t\t" << num << ": " << faceOutline << "\n";
             gl::drawSolid( faceOutline );
         }
     }

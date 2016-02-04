@@ -11,8 +11,18 @@
 
 using namespace ci;
 
+void Lot::drawGround( const Options &options ) const
+{
+    if ( options.drawLots ) {
+        gl::lineWidth( 1 );
+        gl::color( ColorA( mColor, 0.4 ) );
+        gl::draw( mShape.mesh() );
+    }
+}
 
-void Lot::buildInCenter( const Options &options )
+// * * *
+
+void SingleBuildingLot::layout( const Options &options )
 {
     int floors = 1 + randInt(2);
 
@@ -30,11 +40,16 @@ void Lot::buildInCenter( const Options &options )
         b = { mBuildingRef->outline() },
         diff = PolyLine2f::calcDifference( b, a );
     if ( diff.size() != 0 ) {
-        mBuildingRef = NULL;
+        mBuildingRef.reset();
     }
+
+    if ( mBuildingRef ) mBuildingRef->layout( options );
 }
 
-void Lot::buildFullLot( const Options &options )
+
+// * * *
+
+void FilledLot::layout( const Options &options )
 {
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots
@@ -42,33 +57,24 @@ void Lot::buildFullLot( const Options &options )
     int floors = (int) (sqrt(area) / 20) + ci::randInt(7);
 
     if ( area > 100 ) {
-//std::cout << mShape.outline() << std::endl;
         mBuildingRef = Building::create( BuildingPlan( mShape.outline(), static_cast<BuildingPlan::RoofStyle>( options.building.roofStyle ) ), floors );
     }
     else {
-        mBuildingRef = NULL;
-    }
-}
-
-void Lot::layout( const Options &options )
-{
-    switch ( options.lot.buildingPlacement ) {
-    case LotOptions::BUILDING_IN_CENTER:
-        buildInCenter( options );
-        break;
-    case LotOptions::BUILDING_FILL_LOT:
-        buildFullLot( options );
-        break;
+        mBuildingRef.reset();
     }
 
     if ( mBuildingRef ) mBuildingRef->layout( options );
 }
 
-void Lot::draw( const Options &options ) const
-{
-    if ( options.drawLots ) {
-        gl::lineWidth( 1 );
-        gl::color( ColorA( mColor, 0.4 ) );
-        gl::draw( mShape.mesh() );
-    }
+// * * *
+
+void ParkLot::layout( const Options &options ) {
+    gl::GlslProgRef shader = gl::getStockShader( gl::ShaderDef().color() );
+    auto geom = geom::Sphere().center( vec3( mShape.centroid(), 10 ) ).radius( 10 );
+    mBatch = gl::Batch::create( geom, shader );
+}
+
+void ParkLot::drawStructures( const Options &options ) const {
+    gl::ScopedColor scopedColor( Color( 0, 1, 0 ) );
+    mBatch->draw();
 }

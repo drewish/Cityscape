@@ -129,20 +129,7 @@ void RoadNetwork::draw( const Options &options )
         }
     }
 
-    // Sort of tacky to go into the hierarchy like this but the goal is to stack
-    // the drawing such that lots are atop blocks...
-    for( const Block &block : mBlocks ) {
+    for ( const Block &block : mBlocks ) {
         block.draw( options );
-        for( const Lot &lot : block.mLots ) {
-            lot.draw( options );
-        }
     }
-
-    // ...and buildings are on top of everything else.
-    for( const Block &block : mBlocks ) {
-        for( const Lot &lot : block.mLots ) {
-            if (lot.mBuildingRef) lot.mBuildingRef->draw( options );
-        }
-    }
-
 }

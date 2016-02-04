@@ -33,13 +33,15 @@ public:
     {}
     void layout( const Options &options );
     void draw( const Options &options ) const;
-    void subdivideNotReally();
-    void subdivideSkeleton( int16_t lotWidth );
+    void subdivideNotReally( const Options &options );
+    void subdivideSkeleton( const Options &options );
 
     Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotWidth );
 
     void placeBuildings();
 
     FlatShape mShape;
-    std::vector<Lot> mLots;
+    // Use shared pointers to lots so we can call virtual methods.
+    std::vector<LotRef> mLots;
+    Arrangement_2 mArr;
 };

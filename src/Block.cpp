@@ -6,15 +6,17 @@
 //
 //
 
+#include "cinder/Rand.h"
+
 #include "Block.h"
 #include "Lot.h"
 #include "GeometryHelpers.h"
 
-using namespace ci;
-
 #include "CinderCGAL.h"
 #include <CGAL/create_straight_skeleton_from_polygon_with_holes_2.h>
 #include <CGAL/Polygon_set_2.h>
+
+using namespace ci;
 
 
 typedef CGAL::Straight_skeleton_2<InexactK> Ss;
@@ -24,16 +26,18 @@ typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
 void Block::layout( const Options &options )
 {
+    mLots.clear();
+
     // Don't bother dividing small blocks
     if ( options.block.division == BlockOptions::BLOCK_DIVIDED && mShape.outline().calcArea() >= 100 ) {
-        subdivideSkeleton( options.block.lotWidth );
+        subdivideSkeleton( options );
     }
     else { // BlockOptions::NO_BLOCK_DIVISION
-        subdivideNotReally();
+        subdivideNotReally( options );
     }
 
-    for( Lot &lot : mLots ) {
-        lot.layout( options );
+    for ( auto &lot : mLots ) {
+        lot.get()->layout( options );
     }
 }
 
@@ -43,15 +47,24 @@ void Block::draw( const Options &options ) const
         gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
         gl::draw( mShape.mesh() );
     }
+
+    // Two passes is tacky but the goal is to stack the drawing such that lots
+    // are atop blocks...
+    for ( auto &lot : mLots ) {
+        lot.get()->drawGround( options );
+    }
+    // ...and buildings are on top of everything else.
+    for ( auto &lot : mLots ) {
+        lot.get()->drawStructures( options );
+    }
 }
 
 // Use the entire block for a lot.
-void Block::subdivideNotReally()
+void Block::subdivideNotReally( const Options &options )
 {
-    mLots.clear();
-    PolyLine2f lotOutline = mShape.outline();
-    Lot lot = Lot( lotOutline, ColorA( CM_HSV, 1, 1.0, 0.75, 0.5 ) );
-    mLots.push_back(lot);
+    ColorA color( CM_HSV, 1, 1.0, 0.75, 0.5 );
+    LotRef lot = LotRef( new SingleBuildingLot( mShape.outline(), color ) );
+    mLots.push_back( lot );
 }
 
 Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16_t lotWidth )
@@ -168,11 +181,11 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
     return arrangement;
 }
 
-void Block::subdivideSkeleton( int16_t lotWidth )
+void Block::subdivideSkeleton( const Options &options )
 {
     float hue = 0.0;
 
-    Arrangement_2 mArr = arrangementSubdividing( mShape, lotWidth );
+    mArr = arrangementSubdividing( mShape, options.block.lotWidth );
 
     for( auto face = mArr.faces_begin(); face != mArr.faces_end(); ++face ) {
         for ( auto j = face->outer_ccbs_begin(); j != face->outer_ccbs_end(); ++j ) {
@@ -186,8 +199,23 @@ void Block::subdivideSkeleton( int16_t lotWidth )
             // Skip small lots
             if ( lotOutline.calcArea() < 10 ) continue;
 
-            Lot l = Lot( lotOutline, ColorA( CM_HSV, hue, 1.0, 0.75, 0.5 ) );
-            mLots.push_back(l);
+            ColorA c( CM_HSV, hue, 1.0, 0.75, 0.5 );
+            LotRef l;
+            // TODO this weight should become an option
+            if ( randInt(5) == 0 ) {
+                l = LotRef( new EmptyLot( lotOutline, c ) );
+            }
+            // TODO these options need to be moved and renamed
+            else if ( options.lot.buildingPlacement == LotOptions::BUILDING_FILL_LOT ) {
+                l = LotRef( new FilledLot( lotOutline, c ) );
+            }
+            else if ( options.lot.buildingPlacement == LotOptions::BUILD_PARK ) {
+                l = LotRef( new ParkLot( lotOutline, c ) );
+            }
+            else {
+                l = LotRef( new SingleBuildingLot( lotOutline, c ) );
+            }
+            mLots.push_back( l );
 
             hue += 0.17;
             if (hue > 1) hue -= 1.0;
