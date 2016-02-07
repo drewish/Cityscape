@@ -9,7 +9,7 @@ using namespace ci::app;
 void BlockMode::setup() {
     mOptions.drawBlocks = false;
     mOptions.drawLots = true;
-    mOptions.drawBuildings = true;
+    mOptions.drawBuildings = false;
 
     layout();
 }

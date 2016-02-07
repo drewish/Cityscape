@@ -12,6 +12,8 @@ public:
     void layout();
     void draw();
 
+    void setOutline( const ci::PolyLine2f &outline );
+
     BuildingRef mBuilding;
     ci::PolyLine2f mOutline;
     int32_t mFloors = 1;

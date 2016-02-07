@@ -6,7 +6,7 @@ using namespace ci::app;
 
 void BuildingMode::setup() {
     mOptions.drawBuildings = true;
-    mOutline = BuildingPlan::lshape();
+    setOutline( BuildingPlan::lshape() );
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
@@ -19,41 +19,32 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
         .updateFn( std::bind( &BuildingMode::layout, this ) );
     params->addSeparator();
     params->addButton( "Clear Points", [&] {
-        mOutline = PolyLine2f();
-        mOutline.offset( getWindowCenter() );
-        layout();
+        setOutline( PolyLine2f() );
     }, "key=0");
     params->addButton( "Square", [&] {
-        mOutline = BuildingPlan::square();
-        mOutline.offset( getWindowCenter() );
-        layout();
+        setOutline( BuildingPlan::square() );
     }, "key=1" );
     params->addButton( "Rect", [&] {
-        mOutline = BuildingPlan::rectangle(60, 40);
-        mOutline.offset( getWindowCenter() );
-        layout();
+        setOutline( BuildingPlan::rectangle( 60, 40 ) );
     }, "key=2" );
     params->addButton( "L", [&] {
-        mOutline = BuildingPlan::lshape();
-        mOutline.offset( getWindowCenter() );
-        layout();
+        setOutline( BuildingPlan::lshape() );
     }, "key=3" );
     params->addButton( "T", [&] {
-        mOutline = BuildingPlan::tee();
-        mOutline.offset( getWindowCenter() );
-        layout();
+        setOutline( BuildingPlan::tee() );
     }, "key=4" );
     params->addButton( "+", [&] {
-        mOutline = BuildingPlan::plus();
-        mOutline.offset( getWindowCenter() );
-        layout();
+        setOutline( BuildingPlan::plus() );
     }, "key=5" );
     params->addButton( "<", [&] {
-        mOutline = BuildingPlan::triangle();
-        mOutline.offset( getWindowCenter() );
-        layout();
+        setOutline( BuildingPlan::triangle() );
     }, "key=6" );
+}
 
+void BuildingMode::setOutline( const ci::PolyLine2f &outline ) {
+    mOutline = outline;
+    mOutline.offset( getWindowCenter() );
+    layout();
 }
 
 void BuildingMode::addPoint( ci::vec2 point ) {
@@ -66,10 +57,11 @@ void BuildingMode::addPoint( ci::vec2 point ) {
 }
 
 void BuildingMode::layout() {
-    if ( mOutline.size() == 0 ) {
-        mBuilding.reset();
-        return;
-    }
+    mBuilding.reset();
+
+    if ( mOutline.size() < 3 ) return;
+
+// TODO: need to ensure the outline is in counterclockwise order
 
     // Make sure the outline is closed
     ci::PolyLine2f outline = mOutline.getPoints();

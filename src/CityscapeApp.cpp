@@ -24,7 +24,7 @@ using namespace std;
 class CityscapeApp : public App {
   public:
     void setup();
-    void setupModeParams();
+    void setupModeParams( ModeRef mode );
     void buildBackground();
 
     void mouseMove( MouseEvent event );
@@ -107,7 +107,7 @@ void CityscapeApp::setup()
     // Create params ahead of CameraUI so it gets first crack at the signals
     mParams = params::InterfaceGl::create( "Cityscape", ivec2( 350, 700 ) );
     mParams->minimize();
-    setupModeParams();
+    setupModeParams( ModeRef( new CityMode() ) );
 
     mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 10.0f, 3000.0f );
     mCamera.lookAt( vec3( 320, -360, 180 ), mCenter, vec3( 0, 1, 0 ) );
@@ -115,40 +115,25 @@ void CityscapeApp::setup()
     mCameraUi = CameraUi( &mCamera );
 
     buildBackground();
+}
 
-    mModeRef = ModeRef( new CityMode() );
+void CityscapeApp::setupModeParams( ModeRef newMode )
+{
+    mParams->clear();
+    mParams->addButton( "City Mode", [this] {
+        setupModeParams( ModeRef( new CityMode() ) );
+    }, "key=q" );
+    mParams->addButton( "Block Mode", [this] {
+        setupModeParams( ModeRef( new BlockMode() ) );
+    }, "key=w" );
+    mParams->addButton( "Building Mode", [this] {
+        setupModeParams( ModeRef( new BuildingMode() ) );
+    }, "key=e" );
+
+    mModeRef = newMode;
     mModeRef->setup();
     mModeRef->addParams( mParams );
 
-    layout();
-}
-
-void CityscapeApp::setupModeParams()
-{
-    mParams->addButton( "City Mode", [&] {
-        mParams->clear();
-        setupModeParams();
-
-        mModeRef = ModeRef( new CityMode() );
-        mModeRef->setup();
-        mModeRef->addParams( mParams );
-    }, "key=q" );
-    mParams->addButton( "Block Mode", [&] {
-        mParams->clear();
-        setupModeParams();
-
-        mModeRef = ModeRef( new BlockMode() );
-        mModeRef->setup();
-        mModeRef->addParams( mParams );
-    }, "key=w" );
-    mParams->addButton( "Building Mode", [&] {
-        mParams->clear();
-        setupModeParams();
-
-        mModeRef = ModeRef( new BuildingMode() );
-        mModeRef->setup();
-        mModeRef->addParams( mParams );
-    }, "key=e" );
     mParams->addSeparator();
 }
 

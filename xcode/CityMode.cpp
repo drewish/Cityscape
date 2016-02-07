@@ -7,6 +7,8 @@ void CityMode::setup() {
     mOptions.drawBlocks = false;
     mOptions.drawLots = false;
     mOptions.drawBuildings = true;
+
+    layout();
 }
 
 void CityMode::addParams( ci::params::InterfaceGlRef params) {
