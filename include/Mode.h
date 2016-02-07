@@ -33,5 +33,4 @@ class BaseMode
     virtual void draw() {}
 
     Options   mOptions;
-    ci::ivec2 mMousePos;
 };

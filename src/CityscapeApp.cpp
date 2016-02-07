@@ -164,8 +164,6 @@ void CityscapeApp::mouseMove( MouseEvent event )
     vec3 intersection = ray.calcPosition( distance );
     mMouseOnPlaneAt = vec2( intersection.x, intersection.y );
     mIsMouseOnPlane = true;
-
-    if ( mModeRef ) mModeRef->mMousePos = mMouseOnPlaneAt;
 }
 
 void CityscapeApp::mouseDown( MouseEvent event )
@@ -178,7 +176,6 @@ void CityscapeApp::mouseUp( MouseEvent event )
 {
     mCameraUi.mouseUp( event );
 
-    if ( !mModeRef ) return;
     // If they start dragging don't add points
     if ( glm::distance2( mMouseClickAt, vec2( event.getPos() ) ) > 10.0 ) return;
 
