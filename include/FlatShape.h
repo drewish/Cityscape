@@ -40,7 +40,9 @@ class FlatShape {
     const PolyLine2fs holes() const { return mHoles; }
     const ci::TriMesh mesh() const { return mMesh; }
 
-    const ci::vec2 centroid();
+    ci::vec2 centroid() const;
+    ci::Rectf boundingBox() const { return ci::Rectf( mOutline.getPoints() ); }
+    ci::vec2 randomPoint() const;
 
     template<class K>
     const CGAL::Polygon_2<K> polygon() const
@@ -52,8 +54,8 @@ class FlatShape {
     const CGAL::Polygon_with_holes_2<K> polygon_with_holes() const
     {
         CGAL::Polygon_with_holes_2<K> poly( polygon<K>() );
-        for ( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {
-            poly.add_hole( polygonFrom<K>( *it ) );
+        for ( auto &it : mHoles ) {
+            poly.add_hole( polygonFrom<K>( it ) );
         }
         return poly;
     }

@@ -7,10 +7,12 @@
 //
 
 #include "FlatShape.h"
-
+#include "cinder/Rand.h"
 #include <CGAL/linear_least_squares_fitting_2.h>
 
-const ci::vec2 FlatShape::centroid()
+using namespace ci;
+
+vec2 FlatShape::centroid() const
 {
     CGAL::Polygon_2<InexactK> p( polygonFrom<InexactK>( mOutline ) );
     InexactK::Point_2 centroid = InexactK::Point_2(0, 0);
@@ -21,12 +23,24 @@ const ci::vec2 FlatShape::centroid()
     return vecFrom( centroid );
 }
 
-const ci::TriMesh FlatShape::makeMesh() {
+vec2 FlatShape::randomPoint() const
+{
+    Rectf bounds = boundingBox();
+    vec2 point;
+    do {
+        point = vec2( randFloat( bounds.x1, bounds.x2 ), randFloat( bounds.y1, bounds.y2 ) );
+    } while ( ! mOutline.contains( point ) );
+    return point;
+}
+
+const TriMesh FlatShape::makeMesh()
+{
     // TODO might be good to lazily create this when they first ask for the mesh.
-    ci::Triangulator triangulator( mOutline );
+    Triangulator triangulator( mOutline );
     for( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {
         triangulator.addPolyLine( *it );
     }
 
     return triangulator.calcMesh();
 }
+

@@ -202,17 +202,15 @@ void Block::subdivideSkeleton( const Options &options )
             ColorA c( CM_HSV, hue, 1.0, 0.75, 0.5 );
             LotRef l;
             // TODO this weight should become an option
-            if ( randInt(5) == 0 ) {
+            if ( randInt( 8 ) == 0 ) {
+                l = LotRef( new ParkLot( lotOutline, randFloat( 0.25, 0.75 ) ) );
+            } else if ( randInt( 16 ) == 0 ) {
                 l = LotRef( new EmptyLot( lotOutline, c ) );
             }
             // TODO these options need to be moved and renamed
             else if ( options.lot.buildingPlacement == LotOptions::BUILDING_FILL_LOT ) {
                 l = LotRef( new FilledLot( lotOutline, c ) );
-            }
-            else if ( options.lot.buildingPlacement == LotOptions::BUILD_PARK ) {
-                l = LotRef( new ParkLot( lotOutline, c ) );
-            }
-            else {
+            } else {
                 l = LotRef( new SingleBuildingLot( lotOutline, c ) );
             }
             mLots.push_back( l );

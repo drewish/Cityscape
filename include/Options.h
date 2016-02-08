@@ -33,10 +33,9 @@ struct LotOptions {
     enum BuildingPlacement {
         BUILDING_IN_CENTER = 0,
         BUILDING_FILL_LOT = 1,
-        BUILD_PARK = 2,
     };
 
-    BuildingPlacement buildingPlacement = BUILD_PARK;
+    BuildingPlacement buildingPlacement = BUILDING_FILL_LOT;
 };
 
 struct BuildingOptions {

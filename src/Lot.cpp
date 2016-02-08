@@ -53,7 +53,7 @@ void FilledLot::layout( const Options &options )
 {
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots
-    float area = mShape.polygon<InexactK>().area();
+    float area = mShape.outline().calcArea();
     int floors = (int) (sqrt(area) / 20) + ci::randInt(7);
 
     if ( area > 100 ) {
@@ -69,12 +69,28 @@ void FilledLot::layout( const Options &options )
 // * * *
 
 void ParkLot::layout( const Options &options ) {
+    float area = mShape.outline().calcArea();
+    float totalTreeArea = 0.0;
+
+    geom::SourceMods trees;
+    while ( totalTreeArea / area < mTreeCoverRatio ) {
+        float diameter = randFloat( 4, 12 );
+        // Treat it as a square for faster math and less dense coverage.
+        totalTreeArea += diameter * diameter;
+        // TODO would be good to avoid random points by the edges so the trees
+        // didn't go out of their lots.
+        trees.append( makeTree( mShape.randomPoint(), diameter ) );
+    }
+
     gl::GlslProgRef shader = gl::getStockShader( gl::ShaderDef().color() );
-    auto geom = geom::Sphere().center( vec3( mShape.centroid(), 10 ) ).radius( 10 );
-    mBatch = gl::Batch::create( geom, shader );
+    mBatch = gl::Batch::create( trees, shader );
 }
 
 void ParkLot::drawStructures( const Options &options ) const {
-    gl::ScopedColor scopedColor( Color( 0, 1, 0 ) );
+    gl::ScopedColor scopedColor( ColorA8u( 0x69, 0x98, 0x38, 0xC0 ) );
     mBatch->draw();
+}
+
+geom::SourceMods ParkLot::makeTree( const vec2 &at, const float diameter ) const {
+    return geom::Sphere().subdivisions( 12 ).radius( diameter ).center( vec3( at, diameter + 3 ) );
 }
