@@ -101,13 +101,12 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
 
         if ( currVert->is_skeleton() && nextVert->is_skeleton() ) {
             // Find the angle of the longest skeleton segment edge.
-            vec2 v = vecFrom( nextPoint ) - vecFrom( currPoint );
-            // TODO: see if we can get a lengthSquared() to avoid the sqrt() call.
-            float newLen = glm::length( v );
-            if ( newLen > maxLength ) {
-                maxLength = newLen;
-                // Reverse the x and y to get the perpendicular angle.
-                angle = atan2( v.y , v.x );
+            vec2 vec = vecFrom( currPoint ) - vecFrom( nextPoint );
+            float length = glm::length2( vec );
+            if ( length > maxLength ) {
+                // Find the perpendicular angle.
+                angle = atan2( vec.y, -vec.x );
+                maxLength = length;
             }
 
             // The skeleton has half edges going both directions for each segment in
