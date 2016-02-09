@@ -15,6 +15,20 @@ void BlockMode::setup() {
 }
 
 void BlockMode::addParams( ci::params::InterfaceGlRef params) {
+    params->addSeparator();
+
+    params->addParam( "Division", {"None", "Divided"}, (int*)&mOptions.block.division )
+        .updateFn( std::bind( &BlockMode::layout, this ) );
+
+    params->addSeparator();
+
+    params->addParam( "lotWidth", &mOptions.block.lotWidth ).step( 5 )
+        .min( 10 ).max( 400 ).updateFn( std::bind( &BlockMode::layout, this ) );
+    params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
+        .updateFn( std::bind( &BlockMode::layout, this ) );
+
+    params->addSeparator();
+
     params->addParam( "Roads", &mOptions.drawRoads, "key=a" );
     params->addParam( "Block", &mOptions.drawBlocks, "key=s" );
     params->addParam( "Lot", &mOptions.drawLots, "key=d" );

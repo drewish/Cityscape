@@ -17,7 +17,9 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
         .min( 1 ).max( 5 )
         .keyDecr( "-" ).keyIncr( "=" )
         .updateFn( std::bind( &BuildingMode::layout, this ) );
+
     params->addSeparator();
+
     params->addButton( "Clear Points", [&] {
         setOutline( PolyLine2f() );
     }, "key=0");

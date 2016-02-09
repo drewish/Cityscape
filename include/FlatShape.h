@@ -17,12 +17,13 @@ class FlatShape {
     typedef std::vector<ci::PolyLine2f> PolyLine2fs;
 
     FlatShape( const FlatShape &s )
-        : mOutline(s.mOutline), mHoles(s.mHoles), mMesh(s.mMesh)
+        : mOutline( s.mOutline ), mHoles( s.mHoles ), mMesh( s.mMesh ), mArea( s.mArea )
     {}
     FlatShape( const ci::PolyLine2f &outline, const PolyLine2fs &holes = {} )
-        : mOutline(outline), mHoles(holes)
+        : mOutline( outline ), mHoles( holes )
     {
         mMesh = makeMesh();
+        mArea = mOutline.calcArea();
     };
     FlatShape( const CGAL::Polygon_with_holes_2<ExactK> &pwh )
     {
@@ -34,13 +35,14 @@ class FlatShape {
         }
 
         mMesh = makeMesh();
+        mArea = mOutline.calcArea();
     };
 
     const ci::PolyLine2f outline() const { return mOutline; }
     const PolyLine2fs holes() const { return mHoles; }
     const ci::TriMesh mesh() const { return mMesh; }
 
-    float       area() const;
+    float       area() const { return mArea; }
     ci::vec2    centroid() const;
     ci::Rectf   boundingBox() const { return ci::Rectf( mOutline.getPoints() ); }
     ci::vec2    randomPoint() const;
@@ -68,5 +70,5 @@ class FlatShape {
     ci::PolyLine2f mOutline;
     PolyLine2fs mHoles;
     ci::TriMesh mMesh;
-    float       mArea = -1;
+    float       mArea;
 };

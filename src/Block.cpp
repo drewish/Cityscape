@@ -63,8 +63,8 @@ void Block::draw( const Options &options ) const
 void Block::subdivideNotReally( const Options &options )
 {
     ColorA color( CM_HSV, 1, 1.0, 0.75, 0.5 );
-    LotRef lot = LotRef( new SingleBuildingLot( mShape.outline(), color ) );
-    mLots.push_back( lot );
+    LotRef lot = buildLot( mShape.outline(), color, options.lot.buildingPlacement );
+    if ( lot ) mLots.push_back( lot );
 }
 
 Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16_t lotWidth )
@@ -186,8 +186,7 @@ void Block::subdivideSkeleton( const Options &options )
     float hue = 0.0;
 
     mArr = arrangementSubdividing( mShape, options.block.lotWidth );
-
-    for( auto face = mArr.faces_begin(); face != mArr.faces_end(); ++face ) {
+    for ( auto face = mArr.faces_begin(); face != mArr.faces_end(); ++face ) {
         for ( auto j = face->outer_ccbs_begin(); j != face->outer_ccbs_end(); ++j ) {
             PolyLine2f lotOutline;
             Arrangement_2::Ccb_halfedge_circulator cc = *j;
@@ -196,27 +195,37 @@ void Block::subdivideSkeleton( const Options &options )
                 lotOutline.push_back( vecFrom( he->target()->point() ) );
             } while ( ++cc != *j );
 
-            // Skip small lots
-            if ( lotOutline.calcArea() < 10 ) continue;
+            ColorA color( CM_HSV, hue, 1.0, 0.75, 0.5 );
 
-            ColorA c( CM_HSV, hue, 1.0, 0.75, 0.5 );
-            LotRef l;
-            // TODO this weight should become an option
-            if ( randInt( 8 ) == 0 ) {
-                l = LotRef( new ParkLot( lotOutline, randFloat( 0.25, 0.75 ) ) );
-            } else if ( randInt( 16 ) == 0 ) {
-                l = LotRef( new EmptyLot( lotOutline, c ) );
-            }
-            // TODO these options need to be moved and renamed
-            else if ( options.lot.buildingPlacement == LotOptions::BUILDING_FILL_LOT ) {
-                l = LotRef( new FilledLot( lotOutline, c ) );
-            } else {
-                l = LotRef( new SingleBuildingLot( lotOutline, c ) );
-            }
-            mLots.push_back( l );
+            LotRef l = buildLot( lotOutline, color, options.lot.buildingPlacement );
+            if ( l ) {
+                mLots.push_back( l );
 
-            hue += 0.17;
-            if (hue > 1) hue -= 1.0;
+                hue += 0.17;
+                if (hue > 1) hue -= 1.0;
+            }
         }
     }
+}
+
+LotRef Block::buildLot( const ci::PolyLine2f &lotOutline, const ci::ColorA &color, const LotOptions::BuildingPlacement placement )
+{
+    FlatShape shape( lotOutline );
+
+    // Skip small lots
+    if ( shape.area() < 10 ) return nullptr;
+
+    // TODO these lot proportions should become an options
+    if ( randInt( 8 ) == 0 ) {
+        // Randomize the tree coverage
+        return LotRef( new ParkLot( shape, randFloat( 0.25, 0.75 ) ) );
+    }
+    if ( randInt( 16 ) == 0 ) {
+        return LotRef( new EmptyLot( shape, color ) );
+    }
+    // TODO these options need to be moved from lot to block and renamed
+    if ( placement == LotOptions::BUILDING_FILL_LOT ) {
+        return LotRef( new FilledLot( shape, color ) );
+    }
+    return LotRef( new SingleBuildingLot( shape, color ) );
 }

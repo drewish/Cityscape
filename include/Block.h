@@ -36,6 +36,8 @@ public:
     void subdivideNotReally( const Options &options );
     void subdivideSkeleton( const Options &options );
 
+    LotRef buildLot( const ci::PolyLine2f &lotOutline, const ci::ColorA &color, const LotOptions::BuildingPlacement placement );
+
     Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotWidth );
 
     void placeBuildings();
