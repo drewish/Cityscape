@@ -12,6 +12,12 @@
 
 using namespace ci;
 
+float FlatShape::area() const
+{
+    if ( mArea < 0 ) mArea = mOutline.calcArea();
+    return mArea;
+}
+
 vec2 FlatShape::centroid() const
 {
     CGAL::Polygon_2<InexactK> p( polygonFrom<InexactK>( mOutline ) );

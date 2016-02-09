@@ -29,7 +29,7 @@ void Block::layout( const Options &options )
     mLots.clear();
 
     // Don't bother dividing small blocks
-    if ( options.block.division == BlockOptions::BLOCK_DIVIDED && mShape.outline().calcArea() >= 100 ) {
+    if ( options.block.division == BlockOptions::BLOCK_DIVIDED && mShape.area() >= 100 ) {
         subdivideSkeleton( options );
     }
     else { // BlockOptions::NO_BLOCK_DIVISION

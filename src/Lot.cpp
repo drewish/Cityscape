@@ -53,8 +53,8 @@ void FilledLot::layout( const Options &options )
 {
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots
-    float area = mShape.outline().calcArea();
-    int floors = (int) (sqrt(area) / 20) + ci::randInt(7);
+    float area = mShape.area();
+    int floors = (int) (sqrt( area ) / 20) + ci::randInt( 7 );
 
     if ( area > 100 ) {
         mBuildingRef = Building::create( BuildingPlan( mShape.outline(), static_cast<BuildingPlan::RoofStyle>( options.building.roofStyle ) ), floors );
@@ -69,7 +69,7 @@ void FilledLot::layout( const Options &options )
 // * * *
 
 void ParkLot::layout( const Options &options ) {
-    float area = mShape.outline().calcArea();
+    float area = mShape.area();
     float totalTreeArea = 0.0;
 
     geom::SourceMods trees;
