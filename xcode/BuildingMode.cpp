@@ -43,21 +43,6 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
     }, "key=6" );
 }
 
-void BuildingMode::setOutline( const ci::PolyLine2f &outline ) {
-    mOutline = outline;
-    mOutline.offset( getWindowCenter() );
-    layout();
-}
-
-void BuildingMode::addPoint( ci::vec2 point ) {
-    // Don't add on to a closed outline
-    if ( mOutline.isClosed() ) return;
-
-    console() << "vec2(" << point.x << "," << point.y << "),\n";
-    mOutline.push_back( point );
-    layout();
-}
-
 void BuildingMode::layout() {
     mBuilding.reset();
 
@@ -78,3 +63,41 @@ void BuildingMode::layout() {
 void BuildingMode::draw() {
     if ( mBuilding ) mBuilding->draw( mOptions );
 }
+
+void BuildingMode::setOutline( const ci::PolyLine2f &outline ) {
+    mOutline = outline;
+    mOutline.offset( getWindowCenter() );
+    layout();
+}
+
+void BuildingMode::addPoint( ci::vec2 point ) {
+    // Don't add on to a closed outline
+    if ( mOutline.isClosed() ) return;
+
+    console() << "vec2(" << point.x << "," << point.y << "),\n";
+    mOutline.push_back( point );
+    layout();
+}
+
+bool BuildingMode::isOverMovablePoint( ci::vec2 &point, float margin )
+{
+    for ( const auto &other : mOutline ) {
+        if ( length2( point - other ) < margin * margin ) {
+            // Snap their point to ours
+            point = other;
+            return true;
+        }
+    }
+    return false;
+}
+
+void BuildingMode::movePoint( ci::vec2 from, ci::vec2 to )
+{
+    PolyLine2f newOutline;
+    for ( const auto &p : mOutline ) {
+        newOutline.push_back( from == p ? to : p );
+    }
+    mOutline = newOutline;
+    layout();
+}
+

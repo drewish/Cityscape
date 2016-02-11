@@ -27,31 +27,39 @@ class CityscapeApp : public App {
     void setupModeParams( ModeRef mode );
     void buildBackground();
 
+    void keyUp( KeyEvent event );
     void mouseMove( MouseEvent event );
     void mouseDown( MouseEvent event );
     void mouseUp( MouseEvent event );
     void mouseDrag( MouseEvent event );
     void mouseWheel( MouseEvent event );
+    void calcMouseOnPlane( vec2 mouse );
     void resize();
     void update();
 
     void draw();
+    void drawCursor();
     void layout();
 
   protected:
-    CameraPersp         mCamera;
-    CameraUi            mCameraUi;
+    CameraPersp         mEditCamera;
+    CameraUi            mEditCameraUI;
+    CameraPersp         mViewCamera;
+    CameraUi            mViewCameraUI;
+    bool                mIsEditing = true;
 
     ModeRef             mModeRef;
     ci::params::InterfaceGlRef mParams;
     ci::gl::BatchRef    mSkyBatch;
     ci::gl::BatchRef    mGroundBatch;
     ci::vec3            mCenter = vec3( 320, 240, 0 );
-    ci::vec2            mMouseClickAt;
     // These names aren't great but it's for seeing where the mouse would
     // intersect with the ground plane.
     bool                mIsMouseOnPlane;
     ci::vec2            mMouseOnPlaneAt;
+    ci::vec2            mMouseMoveFrom;
+    enum action { ACTION_ADD, ACTION_HOVER, ACTION_MOVE, ACTION_PAN };
+    action              mEditAction;
 };
 
 // TODO: Consider making this a general purpose gradient generator.
@@ -104,15 +112,19 @@ void CityscapeApp::setup()
 {
     setWindowSize( 800, 600 );
 
-    // Create params ahead of CameraUI so it gets first crack at the signals
     mParams = params::InterfaceGl::create( "Cityscape", ivec2( 350, 700 ) );
     mParams->minimize();
     setupModeParams( ModeRef( new CityMode() ) );
 
-    mCamera.setPerspective( 40.0f, getWindowAspectRatio(), 10.0f, 3000.0f );
-    mCamera.lookAt( vec3( 320, -360, 180 ), mCenter, vec3( 0, 1, 0 ) );
-    mCamera.setWorldUp( vec3( 0, 0, 1 ) );
-    mCameraUi = CameraUi( &mCamera );
+    mEditCamera.setPerspective( 60.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
+    mEditCamera.lookAt( mCenter + vec3( 0, 0, 1000 ), mCenter, vec3( 0, 1, 0 ) );
+    mEditCameraUI = CameraUi( &mEditCamera );
+    mViewCameraUI.enable( mIsEditing );
+
+    mViewCamera.setPerspective( 40.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
+    mViewCamera.lookAt( vec3( 320, -360, 180 ), mCenter, vec3( 0, 0, 1 ) );
+    mViewCameraUI = CameraUi( &mViewCamera );
+    mViewCameraUI.enable( ! mIsEditing );
 
     buildBackground();
 }
@@ -139,7 +151,8 @@ void CityscapeApp::setupModeParams( ModeRef newMode )
 
 void CityscapeApp::resize()
 {
-    mCamera.setAspectRatio( getWindowAspectRatio() );
+    mEditCamera.setAspectRatio( getWindowAspectRatio() );
+    mViewCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
 void CityscapeApp::update()
@@ -151,11 +164,108 @@ void CityscapeApp::layout()
     if ( mModeRef ) mModeRef->layout();
 }
 
+void CityscapeApp::keyUp( KeyEvent event )
+{
+    if ( event.getCode() == KeyEvent::KEY_SPACE ) {
+        mIsEditing = !mIsEditing;
+        if ( mIsEditing ) {
+            mViewCameraUI.disable();
+            mEditCameraUI.enable();
+            hideCursor();
+        } else {
+            mViewCameraUI.enable();
+            mEditCameraUI.disable();
+            showCursor();
+        }
+    }
+}
+
 void CityscapeApp::mouseMove( MouseEvent event )
 {
-    float u = event.getX() / (float) getWindowWidth();
-    float v = ( getWindowHeight() - event.getY() ) / (float) getWindowHeight();
-    Ray ray = mCamera.generateRay( u, v, mCamera.getAspectRatio() );
+    // Don't bother computing the hover point when viewing.
+    if ( ! mIsEditing || ! mModeRef ) return;
+
+    calcMouseOnPlane( event.getPos() );
+
+    // If this is true it'll snap to the point it's over
+    // TODO: The "margin" param should be coupled to the cursor size
+    if ( mModeRef->isOverMovablePoint( mMouseOnPlaneAt, 10.0f ) ) {
+        mEditAction = ACTION_HOVER;
+    } else {
+        mEditAction = ACTION_ADD;
+    }
+}
+
+void CityscapeApp::mouseDown( MouseEvent event )
+{
+    mViewCameraUI.mouseDown( event );
+
+    if ( ! mIsEditing || ! mModeRef ) return;
+
+    if ( mEditAction == ACTION_HOVER ) {
+        mMouseMoveFrom = mMouseOnPlaneAt;
+    } else {
+        mEditCameraUI.mouseDown( event.getPos() );
+    }
+}
+
+void CityscapeApp::mouseDrag( MouseEvent event )
+{
+    mViewCameraUI.mouseDrag( event );
+
+    if ( ! mIsEditing || ! mModeRef ) return;
+
+    calcMouseOnPlane( event.getPos() );
+
+    // We only want panning if they're not moving a point.
+    if ( mEditAction == ACTION_HOVER ) {
+        mEditAction = ACTION_MOVE;
+    } else if ( mEditAction == ACTION_MOVE ) {
+        // ?
+    } else {
+        mEditAction = ACTION_PAN;
+        mEditCameraUI.mouseDrag( event.getPos(), false, true, false );
+    }
+}
+
+void CityscapeApp::mouseUp( MouseEvent event )
+{
+    mViewCameraUI.mouseUp( event );
+
+    if ( ! mIsEditing ) return;
+
+    switch ( mEditAction ) {
+        case ACTION_HOVER:
+        case ACTION_ADD:
+            mModeRef->addPoint( mMouseOnPlaneAt );
+            mEditAction = ACTION_HOVER;
+            break;
+        case ACTION_MOVE:
+            // TODO: This minimum drag distance should be coupled to the cursor size
+            if ( glm::distance2( mMouseMoveFrom, mMouseOnPlaneAt ) > 10.0 * 10.0 ) {
+                mModeRef->movePoint( mMouseMoveFrom, mMouseOnPlaneAt );
+                mEditAction = ACTION_HOVER;
+            } else {
+                mEditAction = ACTION_ADD;
+            }
+            break;
+        case ACTION_PAN:
+            mEditAction = ACTION_ADD;
+            break;
+    }
+}
+
+void CityscapeApp::mouseWheel( MouseEvent event )
+{
+    mViewCameraUI.mouseWheel( event );
+    mEditCameraUI.mouseWheel( event );
+}
+
+void CityscapeApp::calcMouseOnPlane( vec2 mouse )
+{
+    float u = mouse.x / (float) getWindowWidth();
+    float v = ( getWindowHeight() - mouse.y ) / (float) getWindowHeight();
+    Ray ray = mEditCamera.generateRay( u, v, mEditCamera.getAspectRatio() );
     float distance = 0.0f;
     if ( ! ray.calcPlaneIntersection( glm::zero<ci::vec3>(), vec3( 0, 0, 1 ), &distance ) ) {
         mIsMouseOnPlane = false;
@@ -164,32 +274,6 @@ void CityscapeApp::mouseMove( MouseEvent event )
     vec3 intersection = ray.calcPosition( distance );
     mMouseOnPlaneAt = vec2( intersection.x, intersection.y );
     mIsMouseOnPlane = true;
-}
-
-void CityscapeApp::mouseDown( MouseEvent event )
-{
-    mCameraUi.mouseDown( event );
-    mMouseClickAt = event.getPos();
-}
-
-void CityscapeApp::mouseUp( MouseEvent event )
-{
-    mCameraUi.mouseUp( event );
-
-    // If they start dragging don't add points
-    if ( glm::distance2( mMouseClickAt, vec2( event.getPos() ) ) > 10.0 ) return;
-
-    if ( mModeRef ) mModeRef->addPoint( mMouseOnPlaneAt );
-}
-
-void CityscapeApp::mouseDrag( MouseEvent event )
-{
-    mCameraUi.mouseDrag( event );
-}
-
-void CityscapeApp::mouseWheel( MouseEvent event )
-{
-    mCameraUi.mouseWheel( event );
 }
 
 void CityscapeApp::draw()
@@ -212,7 +296,14 @@ void CityscapeApp::draw()
         gl::ScopedBlendAlpha scopedAlpha;
         gl::ScopedDepth depthScope(true);
         gl::ScopedMatrices matrixScope;
-        gl::setMatrices( mCamera );
+        if ( mIsEditing ) {
+            gl::ScopedColor scopedColor( Color::white() );
+            gl::setMatrices( mEditCamera );
+
+            drawCursor();
+        } else {
+            gl::setMatrices( mViewCamera );
+        }
 
         {
             gl::ScopedColor scopedColor( Color8u(233, 203, 151) );
@@ -223,6 +314,36 @@ void CityscapeApp::draw()
     }
 
 	mParams->draw();
+}
+
+void CityscapeApp::drawCursor()
+{
+    gl::ScopedModelMatrix scopedMatrix;
+
+    gl::translate( mMouseOnPlaneAt );
+
+    gl::scale( vec2( 4.0 ) );
+
+    switch ( mEditAction ) {
+        case ACTION_MOVE:
+            gl::drawSolidCircle( vec2( 0 ), 2.0f, 12 );
+            break;
+        case ACTION_ADD:
+            gl::drawSolidRect( Rectf( vec2( -1, 4 ), vec2( 1, -4 ) ) );
+            gl::drawSolidRect( Rectf( vec2( -4, 1 ), vec2( 4, -1 ) ) );
+            break;
+        case ACTION_HOVER:
+            gl::drawSolidCircle( vec2( 0 ), 2.0f, 12 );
+            // no break
+        case ACTION_PAN:
+            gl::scale( vec2( 1.5 ) );
+
+            gl::drawSolidTriangle( vec2( 0,  5 ), vec2( -2,  3 ), vec2(  2,  3 ) );
+            gl::drawSolidTriangle( vec2( 0, -5 ), vec2(  2, -3 ), vec2( -2, -3 ) );
+            gl::drawSolidTriangle( vec2(  5, 0 ), vec2(  3, -2 ), vec2(  3,  2 ) );
+            gl::drawSolidTriangle( vec2( -5, 0 ), vec2( -3,  2 ), vec2( -3, -2 ) );
+            break;
+    }
 }
 
 void prepareSettings( App::Settings *settings )

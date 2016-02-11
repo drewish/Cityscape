@@ -102,7 +102,7 @@
 		5FEFD9D51A92F9FF0093F109 /* Block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Block.cpp; path = ../src/Block.cpp; sourceTree = "<group>"; };
 		5FEFD9D81A92FB450093F109 /* Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Block.h; path = ../include/Block.h; sourceTree = "<group>"; };
 		5FEFD9D91A92FB450093F109 /* Building.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Building.h; sourceTree = "<group>"; };
-		5FEFD9DA1A92FB450093F109 /* Lot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Lot.h; path = ../include/Lot.h; sourceTree = "<group>"; };
+		5FEFD9DA1A92FB450093F109 /* Lot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lot.h; sourceTree = "<group>"; };
 		87F1E1C66EC543B1852B8B39 /* Cityscape_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Cityscape_Prefix.pch; path = ../xcode/Cityscape_Prefix.pch; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Cityscape.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cityscape.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ACB4D9448A764F68A540CED0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };

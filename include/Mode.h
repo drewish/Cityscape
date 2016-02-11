@@ -26,11 +26,15 @@ class BaseMode
            ci::app::loadResource( RES_FRAG )
        );
     }
-    virtual void setup() {}
+
     virtual void addParams( ci::params::InterfaceGlRef params) {}
-    virtual void addPoint( ci::vec2 point ) {}
+    virtual void setup() {}
     virtual void layout() {}
     virtual void draw() {}
+
+    virtual void addPoint( ci::vec2 point ) {}
+    virtual bool isOverMovablePoint( ci::vec2 &point, float margin ) { return false; }
+    virtual void movePoint( ci::vec2 from, ci::vec2 to ) {}
 
     Options   mOptions;
 };

@@ -76,12 +76,6 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
     }, "key=3" );
 }
 
-void BlockMode::addPoint( ci::vec2 point ) {
-    console() << "vec2(" << point.x << "," << point.y << "),\n";
-    mOutline.push_back( point );
-    layout();
-}
-
 void BlockMode::layout() {
     mBlock.reset();
     if ( mOutline.size() < 3 ) return;
@@ -129,4 +123,32 @@ void BlockMode::draw() {
             gl::drawSolid( faceOutline );
         }
     }
+}
+
+void BlockMode::addPoint( ci::vec2 point ) {
+    console() << "vec2(" << point.x << "," << point.y << "),\n";
+    mOutline.push_back( point );
+    layout();
+}
+
+bool BlockMode::isOverMovablePoint( ci::vec2 &point, float margin )
+{
+    for ( const auto &other : mOutline ) {
+        if ( length2( point - other ) < margin * margin ) {
+            // Snap their point to ours
+            point = other;
+            return true;
+        }
+    }
+    return false;
+}
+
+void BlockMode::movePoint( ci::vec2 from, ci::vec2 to )
+{
+    PolyLine2f newOutline;
+    for ( const auto &p : mOutline ) {
+        newOutline.push_back( from == p ? to : p );
+    }
+    mOutline = newOutline;
+    layout();
 }
