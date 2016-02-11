@@ -54,7 +54,7 @@ void FilledLot::layout( const Options &options )
     // Vary the floors based on the area...
     // TODO: would be interesting to make taller buildings on smaller lots
     float area = mShape.area();
-    int floors = (int) (sqrt( area ) / 20) + ci::randInt( 7 );
+    int floors = 1 + (int) ( sqrt( area ) / 20 ) + ci::randInt( 6 );
 
     if ( area > 100 ) {
         mBuildingRef = Building::create( BuildingPlan( mShape.outline(), static_cast<BuildingPlan::RoofStyle>( options.building.roofStyle ) ), floors );
