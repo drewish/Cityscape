@@ -10,6 +10,7 @@
 #include "CinderCGAL.h"
 #include "CgalArrangement.h"
 #include "CgalStraightSkeleton.h"
+#include "GeometryHelpers.h"
 
 #include "cinder/Rand.h"
 #include "cinder/Triangulate.h"
@@ -124,63 +125,6 @@ BuildingPlanRef BuildingPlan::createRandom()
     return BuildingPlanRef( new BuildingPlan( randomOutline(), RANDOM_ROOF ) );
 }
 
-// * * *
-
-class WallMesh : public Source {
-public:
-    WallMesh( const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight )
-    {
-        uint32_t base = 0;
-        for ( auto &i : outline ) {
-            vec3 bottom = vec3( i.x, i.y, 0.0 );
-            auto it = topOffsets.find( std::make_pair( i.x, i.y ) );
-            vec3 topOffset = ( it == topOffsets.end() ) ? vec3( 0.0, 0.0, defaultTopHeight ) : it->second;
-
-            mPositions.push_back( bottom );
-            mPositions.push_back( bottom + topOffset );
-        }
-        uint16_t totalVerts = mPositions.size();
-
-        uint32_t i;
-        for ( i = base + 2; i < totalVerts; i += 2 ) {
-            mIndices.push_back( i + 0 );
-            mIndices.push_back( i + 1 );
-            mIndices.push_back( i - 1 );
-            mIndices.push_back( i + 0 );
-            mIndices.push_back( i - 1 );
-            mIndices.push_back( i - 2 );
-        }
-        mIndices.push_back( base + 0 );
-        mIndices.push_back( base + 1 );
-        mIndices.push_back( i - 1 );
-        mIndices.push_back( base + 0 );
-        mIndices.push_back( i - 1 );
-        mIndices.push_back( i - 2 );
-    };
-
-    size_t    getNumVertices() const override { return mPositions.size(); }
-    size_t    getNumIndices() const override { return mIndices.size(); }
-    Primitive getPrimitive() const override { return Primitive::TRIANGLES; }
-    uint8_t   getAttribDims( Attrib attr ) const override
-    {
-        switch( attr ) {
-            case Attrib::POSITION: return 3;
-            default: return 0;
-        }
-    }
-
-    AttribSet getAvailableAttribs() const override { return { Attrib::POSITION }; }
-    void    loadInto( Target *target, const AttribSet &requestedAttribs ) const override
-    {
-        target->copyAttrib( Attrib::POSITION, 3, 0, (const float*)mPositions.data(), mPositions.size() );
-        target->copyIndices( Primitive::TRIANGLES, mIndices.data(), mIndices.size(), 4 );
-    }
-    WallMesh* clone() const override { return new WallMesh( *this ); }
-
-protected:
-    std::vector<vec3>       mPositions;
-    std::vector<uint32_t>   mIndices;
-};
 
 // * * *
 
@@ -429,7 +373,6 @@ class RoofMesh : public Source {
 public:
     RoofMesh( const PolyLine2f &outline, BuildingPlan::RoofStyle roof )
     {
-
         if ( roof == BuildingPlan::RANDOM_ROOF ) {
             roof = static_cast<BuildingPlan::RoofStyle>(ci::randInt(5));
         };
@@ -485,11 +428,10 @@ protected:
     std::vector<uint32_t>   mIndices;
 };
 
-
 void BuildingPlan::makeMesh()
 {
     // Build the walls
-    mWallMeshRef = gl::VboMesh::create( WallMesh( mOutline, {}, mFloorHeight ) );
+    mWallMeshRef = gl::VboMesh::create( geom::Extrude( shapeFrom( mOutline ), mFloorHeight, 1.0f ).caps( false ) >> geom::Translate( vec3( 0, 0, mFloorHeight / 2.0 ) ) );
 
     // Build roof
     mRoofMeshRef = gl::VboMesh::create( RoofMesh( mOutline, mRoof ) );
