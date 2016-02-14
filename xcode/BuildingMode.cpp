@@ -50,13 +50,7 @@ void BuildingMode::layout() {
 
 // TODO: need to ensure the outline is in counterclockwise order
 
-    // Make sure the outline is closed
-    ci::PolyLine2f outline = mOutline.getPoints();
-    if ( ! outline.isClosed() ) {
-        outline.push_back( outline.getPoints().front() );
-    }
-
-    mBuilding = Building::create( BuildingPlan( outline, static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle ) ), mFloors );
+    mBuilding = Building::create( BuildingPlan( mOutline, static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle ) ), mFloors );
     mBuilding->layout( mOptions );
 }
 

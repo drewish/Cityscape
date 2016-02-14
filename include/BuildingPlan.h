@@ -47,7 +47,14 @@ public:
     BuildingPlan( const ci::PolyLine2f &outline, const RoofStyle roof = FLAT_ROOF )
         : mOutline(outline), mRoof(roof)
     {
-        assert( outline.size() );
+        assert( mOutline.size() );
+
+        // This assumes the caller actually sets the closed flag, and that we
+        // always want a closed outline.
+        if ( ! mOutline.isClosed() ) {
+            mOutline.push_back( mOutline.getPoints().front() );
+        }
+
         makeMesh();
     };
     BuildingPlan( const BuildingPlan &s )
