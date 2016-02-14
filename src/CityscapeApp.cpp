@@ -52,7 +52,7 @@ class CityscapeApp : public App {
     ci::params::InterfaceGlRef mParams;
     ci::gl::BatchRef    mSkyBatch;
     ci::gl::BatchRef    mGroundBatch;
-    ci::vec3            mCenter = vec3( 320, 240, 0 );
+    ci::vec3            mCenter = vec3( 0, 0, 0 );
     // These names aren't great but it's for seeing where the mouse would
     // intersect with the ground plane.
     bool                mIsMouseOnPlane;
@@ -122,9 +122,11 @@ void CityscapeApp::setup()
     mViewCameraUI.enable( mIsEditing );
 
     mViewCamera.setPerspective( 40.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
-    mViewCamera.lookAt( vec3( 320, -360, 180 ), mCenter, vec3( 0, 0, 1 ) );
+    mViewCamera.lookAt( vec3( 0, -800, 300 ), mCenter, vec3( 0, 0, 1 ) );
     mViewCameraUI = CameraUi( &mViewCamera );
     mViewCameraUI.enable( ! mIsEditing );
+
+    hideCursor();
 
     buildBackground();
 }
@@ -171,11 +173,9 @@ void CityscapeApp::keyUp( KeyEvent event )
         if ( mIsEditing ) {
             mViewCameraUI.disable();
             mEditCameraUI.enable();
-            hideCursor();
         } else {
             mViewCameraUI.enable();
             mEditCameraUI.disable();
-            showCursor();
         }
     }
 }

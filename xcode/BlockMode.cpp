@@ -40,37 +40,37 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
     }, "key=0");
     params->addButton( "Test 1", [&] {
         mOutline = PolyLine2f({
-            vec2(133,41),
-            vec2(143,451),
-            vec2(495,424),
-            vec2(370,254),
-            vec2(529,131),
+            vec2( -153, -213 ),
+            vec2( -143, 197 ),
+            vec2( 209, 170 ),
+            vec2( 84, 0 ),
+            vec2( 243, -123 ),
         });
         layout();
     }, "key=1" );
     params->addButton( "Test 2", [&] {
         mOutline = PolyLine2f({
-            vec2(133,41),
-            vec2(143,451),
-            vec2(495,424),
-            vec2(370,254),
-            vec2(529,131),
-            vec2(133,41), // The difference is this point to close the loop
+            vec2( -153, -213 ),
+            vec2( -143, 197 ),
+            vec2( 209, 170 ),
+            vec2( 84, 0 ),
+            vec2( 243, -123 ),
+            vec2( -153, -213 ), // The difference is this point to close the loop
         });
         layout();
     }, "key=2" );
     params->addButton( "Test 3", [&] {
-        mOutline = PolyLine2f({
-            vec2(179.795,607.902),
-            vec2(174.921,200.486),
-            vec2(405.803,358.815),
-            vec2(388.601,79.3861),
-            vec2(193.129,146.753),
-            vec2(216.225,10.8599),
-            vec2(205.467,-41.0754),
-            vec2(467.135,-22.5028),
-            vec2(516.892,456.916),
-            vec2(179.795,607.902),
+        PolyLine2f({
+            vec2( -156.205, 324.902 ),
+            vec2( -161.079, -82.514 ),
+            vec2( 69.803, 75.815 ),
+            vec2( 52.601, -203.614 ),
+            vec2( -142.871, -136.247 ),
+            vec2( -119.775, -272.14 ),
+            vec2( -130.533, -324.075 ),
+            vec2( 131.135, -305.503 ),
+            vec2( 180.892, 173.916 ),
+            vec2( -156.205, 324.902 ),
         });
         layout();
     }, "key=3" );

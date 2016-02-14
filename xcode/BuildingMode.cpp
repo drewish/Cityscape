@@ -60,7 +60,6 @@ void BuildingMode::draw() {
 
 void BuildingMode::setOutline( const ci::PolyLine2f &outline ) {
     mOutline = outline;
-    mOutline.offset( getWindowCenter() );
     layout();
 }
 
