@@ -13,12 +13,13 @@
 #include "Lot.h"
 #include "Options.h"
 #include "CgalArrangement.h"
+#include "CgalStraightSkeleton.h"
 
 class Block;
 typedef std::shared_ptr<Block> BlockRef;
 
 class Block {
-public:
+  public:
 
     static BlockRef create( const FlatShape &fs )
     {
@@ -42,8 +43,13 @@ public:
 
     void placeBuildings();
 
+    friend class BlockMode;
+
+  private:
     FlatShape mShape;
     // Use shared pointers to lots so we can call virtual methods.
     std::vector<LotRef> mLots;
     Arrangement_2 mArr;
+    SsPtr mSkel;
+    float mDividerAngle;
 };

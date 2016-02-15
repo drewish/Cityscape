@@ -346,7 +346,8 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
     if ( newEdges.size() )
         insert( arr, newEdges.begin(), newEdges.end() );
 
-    // Compute a height for each vertex.
+    // Compute a height for each vertex (we need to do them all because the
+    // outline may have points between the peaks and valleys).
     for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
         vec2 v = vecFrom( i->point() );
         float h = sawtoothHeight( v.x - bounds.x1, upWidth, height, downWidth );

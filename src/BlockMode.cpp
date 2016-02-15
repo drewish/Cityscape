@@ -60,7 +60,7 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
         layout();
     }, "key=2" );
     params->addButton( "Test 3", [&] {
-        PolyLine2f({
+        mOutline = PolyLine2f({
             vec2( -156.205, 324.902 ),
             vec2( -161.079, -82.514 ),
             vec2( 69.803, 75.815 ),
@@ -87,40 +87,91 @@ void BlockMode::layout() {
 void BlockMode::draw() {
     if ( !mBlock ) return;
 
-    mBlock->draw( mOptions );
+//    mBlock->draw( mOptions );
 
-    // Disabling the rest of this since it's only really helpful for debugging
-    // the cgal arrangement.
-    return;
+    // * * *
 
-    Arrangement_2 &arr = mBlock->mArr;
+    // This it only really helpful when debugging the CGAL arrangement.
 
-    gl::color( 1, 1, 0 );
-    for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
-        gl::drawSolidCircle( vecFrom( i->point() ), 5 );
+    if ( false ) {
+        Arrangement_2 &arr = mBlock->mArr;
+
+        gl::color( 1, 1, 0 );
+        for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
+            gl::drawSolidCircle( vecFrom( i->point() ), 5 );
+        }
+
+        gl::color(0, 0, 0 );
+        for ( auto i = arr.edges_begin(); i != arr.edges_end(); ++i ) {
+            PolyLine2f p = PolyLine2f({ vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
+            gl::draw( p );
+        }
+
+        float steps = 0;
+        for ( auto i = arr.faces_begin(); i != arr.faces_end(); ++i ) {
+            for ( auto j = i->outer_ccbs_begin(); j != i->outer_ccbs_end(); ++j ) {
+                PolyLine2f faceOutline;
+                Arrangement_2::Ccb_halfedge_circulator cc = *j;
+                faceOutline.push_back( vecFrom( cc->source()->point() ) );
+                do {
+                    Arrangement_2::Halfedge_handle he = cc;
+                    faceOutline.push_back( vecFrom( he->target()->point() ) );
+                } while ( ++cc != *j );
+
+                gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.25 ) );
+                steps += 0.27;
+                if (steps > 1) steps -= 1.0;
+                gl::drawSolid( faceOutline );
+            }
+        }
     }
 
-    gl::color(0, 0, 0 );
-    for ( auto i = arr.edges_begin(); i != arr.edges_end(); ++i ) {
-        PolyLine2f p = PolyLine2f({ vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
-        gl::draw( p );
+    if ( false ) {
+        std::vector<vec2> dividers = computeDividers( mOutline.getPoints(), mBlock->mDividerAngle );
+
+        gl::color( 1, 0, 1 );
+        assert( dividers.size() % 2 == 0 );
+        for ( auto i = dividers.begin(); i != dividers.end(); ++i) {
+            gl::drawLine( *i, *++i );
+        }
     }
 
-    float steps = 0;
-    for ( auto i = arr.faces_begin(); i != arr.faces_end(); ++i ) {
-        for ( auto j = i->outer_ccbs_begin(); j != i->outer_ccbs_end(); ++j ) {
-            PolyLine2f faceOutline;
-            Arrangement_2::Ccb_halfedge_circulator cc = *j;
-            faceOutline.push_back( vecFrom( cc->source()->point() ) );
+    // * * *
+
+    // Or debugging the skeleton
+
+    if ( ! false && mBlock->mSkel ) {
+        SsPtr &ss = mBlock->mSkel;
+        float hue = 0;
+
+        for( auto face = ss->faces_begin(); face != ss->faces_end(); ++face ) {
+            PolyLine2f shape;
+
+            Ss::Halfedge_const_handle begin = face->halfedge();
+            Ss::Halfedge_const_handle edge = begin;
             do {
-                Arrangement_2::Halfedge_handle he = cc;
-                faceOutline.push_back( vecFrom( he->target()->point() ) );
-            } while ( ++cc != *j );
+                vec2 p = vecFrom( edge->vertex()->point() );
 
-            gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.5 ) );
-            steps += 0.27;
-            if (steps > 1) steps -= 1.0;
-            gl::drawSolid( faceOutline );
+                if ( edge->vertex()->is_skeleton() ) {
+                    gl::color( Color::black() );
+                } else if ( edge->vertex()->is_contour() ) {
+                    gl::color( Color::white() );
+                } else {
+                    gl::color( Color( 0, 1, 1 ) );
+                }
+                gl::drawSolidCircle( p, 5 );
+
+                shape.push_back( p );
+                edge = edge->next();
+            } while ( edge != begin );
+
+            gl::color( ColorA( CM_HSV, hue, 1.0, 0.75, 0.25 ) );
+            hue += 0.17;
+            if (hue > 1) hue -= 1.0;
+            gl::drawSolid( shape );
+
+            gl::color( Color( 1, 0, 0 ) );
+            gl::draw( shape );
         }
     }
 }

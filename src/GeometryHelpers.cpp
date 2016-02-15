@@ -5,34 +5,30 @@ using namespace ci;
 // Gives back pairs of points to divide the shape with lines of a given angle.
 std::vector<vec2> computeDividers( const std::vector<vec2> &outline, const float angle, const float width )
 {
-    // Rotate the shape to the desired angle...
-    Rectf outlineBounds( outline );
-    vec2 center = vec2( outlineBounds.getWidth() / 2.0, outlineBounds.getHeight() / 2.0 );
-    glm::mat3 matrix;
-    matrix = translate( rotate( translate( matrix, -center ), angle ), center );
-
-    // ...then find the bounding box...
+    // Rotate the shape to the desired angle and find the bounding box...
+    glm::mat3 matrix = rotate( glm::mat3(), angle );
     std::vector<vec2> rotated;
     for( const auto &point : outline ) {
         rotated.push_back( vec2( matrix * vec3( point, 1 ) ) );
     }
-    Rectf bounds = Rectf( rotated ).scaledCentered(1.1);
+    Rectf bounds = Rectf( rotated );
 
     // ...now figure out where the left edge of that box would be in the
     // unrotated space...
-    mat3 reverse = inverse( matrix );
-    vec2 topLeft =    vec2( reverse * vec3( bounds.getUpperLeft(), 1 ) );
-    vec2 bottomLeft = vec2( reverse * vec3( bounds.getLowerLeft(), 1 ) );
-    vec2 direction = normalize( vec2( reverse * ( vec3( 1, 0, 0 ) ) ) );
+    mat3 inv = inverse( matrix );
+    vec2 topLeft(    inv * vec3( bounds.getUpperLeft(), 1 ) );
+    vec2 bottomLeft( inv * vec3( bounds.getLowerLeft(), 1 ) );
+    // (direction is perpendicular to the vector from TL to BL)
+    vec2 direction(  inv * vec3( 1, 0, 0 ) );
 
-    // ...and work across from those points finding dividers
+    // ...then step across from left to right creating "vertical" dividers. Skip
+    // over the first since it'll just fall on the edge.
     std::vector<vec2> result;
     for ( float distance = width; distance < bounds.getWidth(); distance += width ) {
-        vec2 thing = direction * distance;
-        result.push_back( thing + topLeft );
-        result.push_back( thing + bottomLeft );
+        vec2 step = direction * distance;
+        result.push_back( step + topLeft );
+        result.push_back( step + bottomLeft );
     }
-
     return result;
 }
 

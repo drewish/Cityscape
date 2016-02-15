@@ -177,6 +177,8 @@ void CityscapeApp::keyUp( KeyEvent event )
             mViewCameraUI.enable();
             mEditCameraUI.disable();
         }
+    } else if ( event.getCode() == KeyEvent::KEY_TAB ) {
+        mParams->maximize( ! mParams->isMaximized() );
     }
 }
 

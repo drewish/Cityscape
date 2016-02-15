@@ -73,8 +73,6 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
 
     if (shape.outline().size() < 4) return arrangement;
 
-    float angle = 0;
-
     // Build straight skeleton
     // TODO figure out why we need to reverse this...
     CGAL::Polygon_2<InexactK> poly = shape.polygon<InexactK>();
@@ -82,6 +80,7 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
         poly.reverse_orientation();
     }
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( poly, InexactK() );
+    mSkel = skel; // Save a copy so BlockMode can peek in.
 
     std::list<Segment_2> outlineSegments;
     std::list<Segment_2> skeletonSegments;
@@ -105,7 +104,7 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
             float length = glm::length2( vec );
             if ( length > maxLength ) {
                 // Find the perpendicular angle.
-                angle = atan2( vec.y, -vec.x );
+                mDividerAngle = atan2( vec.y, -vec.x );
                 maxLength = length;
             }
 
@@ -157,7 +156,7 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
 
     // Then start walking across the outline adding dividers.
     std::list<Segment_2> dividerSegments;
-    for ( const Segment_2 &divider : segmentsFrom( computeDividers( shape.outline().getPoints(), angle, lotWidth ) ) ) {
+    for ( const Segment_2 &divider : segmentsFrom( computeDividers( shape.outline().getPoints(), mDividerAngle, lotWidth ) ) ) {
         outlineSegments.push_back( divider );
 
         // The intersection points come back in a sorted order so we can just
