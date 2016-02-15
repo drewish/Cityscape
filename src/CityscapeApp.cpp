@@ -252,6 +252,7 @@ void CityscapeApp::mouseUp( MouseEvent event )
             }
             break;
         case ACTION_PAN:
+            mEditCameraUI.mouseUp( event.getPos() );
             mEditAction = ACTION_ADD;
             break;
     }
