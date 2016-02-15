@@ -143,6 +143,11 @@ void CityMode::draw() {
     mRoads.draw( mOptions );
 }
 
+std::vector<ci::vec2> CityMode::getPoints()
+{
+    return mRoads.getPoints();
+}
+
 void CityMode::addPoint( ci::vec2 point )
 {
     console() << "vec2(" << point.x << "," << point.y << "),\n";

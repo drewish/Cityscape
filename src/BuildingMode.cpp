@@ -63,6 +63,11 @@ void BuildingMode::setOutline( const ci::PolyLine2f &outline ) {
     layout();
 }
 
+std::vector<ci::vec2> BuildingMode::getPoints()
+{
+    return mOutline.getPoints();
+}
+
 void BuildingMode::addPoint( ci::vec2 point ) {
     // Don't add on to a closed outline
     if ( mOutline.isClosed() ) return;

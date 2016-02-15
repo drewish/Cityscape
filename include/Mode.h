@@ -32,6 +32,7 @@ class BaseMode
     virtual void layout() {}
     virtual void draw() {}
 
+    virtual std::vector<ci::vec2> getPoints() { return {}; }
     virtual void addPoint( ci::vec2 point ) {}
     virtual bool isOverMovablePoint( ci::vec2 &point, float margin ) { return false; }
     virtual void movePoint( ci::vec2 from, ci::vec2 to ) {}

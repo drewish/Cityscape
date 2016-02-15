@@ -176,6 +176,11 @@ void BlockMode::draw() {
     }
 }
 
+std::vector<ci::vec2> BlockMode::getPoints()
+{
+    return mOutline.getPoints();
+}
+
 void BlockMode::addPoint( ci::vec2 point ) {
     console() << "vec2(" << point.x << "," << point.y << "),\n";
     mOutline.push_back( point );

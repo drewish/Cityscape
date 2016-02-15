@@ -303,6 +303,15 @@ void CityscapeApp::draw()
             gl::ScopedColor scopedColor( Color::white() );
             gl::setMatrices( mEditCamera );
 
+            if ( mModeRef && mModeRef->getPoints().size() ) {
+                for ( const vec2 &p : mModeRef->getPoints() ) {
+                    gl::drawSolidCircle( p, 8.0f, 12 );
+                }
+                // Draw a second outline for the last point since additions will
+                // follow it.
+                gl::drawStrokedCircle( mModeRef->getPoints().back(), 12.0f, 4.0f, 12 );
+            }
+
             drawCursor();
         } else {
             gl::setMatrices( mViewCamera );
@@ -339,6 +348,8 @@ void CityscapeApp::drawCursor()
             gl::drawSolidCircle( vec2( 0 ), 2.0f, 12 );
             // no break
         case ACTION_PAN:
+            // TODO: should avoid this second scaling and just size the
+            // triangles to match everything else.
             gl::scale( vec2( 1.5 ) );
 
             gl::drawSolidTriangle( vec2( 0,  5 ), vec2( -2,  3 ), vec2(  2,  3 ) );
