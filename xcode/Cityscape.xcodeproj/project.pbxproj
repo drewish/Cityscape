@@ -57,7 +57,7 @@
 		493D46DF1A9D734600618E33 /* CinderCGAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CinderCGAL.h; path = ../include/CinderCGAL.h; sourceTree = "<group>"; };
 		497E4AB21B1EBA6600AF6B17 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryHelpers.h; sourceTree = "<group>"; };
-		497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeometryHelpers.cpp; sourceTree = "<group>"; };
+		497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryHelpers.cpp; path = ../src/GeometryHelpers.cpp; sourceTree = "<group>"; };
 		498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RoadNetwork.cpp; path = ../src/RoadNetwork.cpp; sourceTree = "<group>"; };
 		498D89CB1B1C027300A962B5 /* RoadNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoadNetwork.h; sourceTree = "<group>"; };
 		49A6B2DF1ABBFD3E000EA750 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = TODO.md; path = ../TODO.md; sourceTree = "<group>"; };
@@ -85,11 +85,11 @@
 		5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuildingPlan.cpp; path = ../src/BuildingPlan.cpp; sourceTree = "<group>"; };
 		5FA1B5331B26ADC6006047DE /* BuildingPlan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildingPlan.h; sourceTree = "<group>"; };
 		5FA88B2B1C48B866008C1A4A /* CityMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityMode.h; sourceTree = "<group>"; };
-		5FA88B2C1C48B871008C1A4A /* CityMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CityMode.cpp; sourceTree = "<group>"; };
+		5FA88B2C1C48B871008C1A4A /* CityMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CityMode.cpp; path = ../src/CityMode.cpp; sourceTree = "<group>"; };
 		5FA88B2E1C48B95F008C1A4A /* BlockMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockMode.h; sourceTree = "<group>"; };
 		5FA88B2F1C48B9A6008C1A4A /* BuildingMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildingMode.h; sourceTree = "<group>"; };
-		5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockMode.cpp; sourceTree = "<group>"; };
-		5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BuildingMode.cpp; sourceTree = "<group>"; };
+		5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BlockMode.cpp; path = ../src/BlockMode.cpp; sourceTree = "<group>"; };
+		5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuildingMode.cpp; path = ../src/BuildingMode.cpp; sourceTree = "<group>"; };
 		5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL_Core.11.0.0.dylib; sourceTree = "<group>"; };
 		5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL.11.0.0.dylib; sourceTree = "<group>"; };
 		5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../usr/local/Cellar/gmp/6.0.0a/lib/libgmp.10.dylib; sourceTree = "<group>"; };
