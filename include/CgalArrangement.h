@@ -28,7 +28,7 @@ inline Point_2 pointFrom( const ci::vec2 &p )
     return Point_2( p.x, p.y );
 }
 
-void findIntersections(const std::list<Segment_2> &input, std::list<Segment_2> &newEdges, std::list<Point_2> &newPoints);
+void findIntersections( const std::list<Segment_2> &input, std::list<Segment_2> &newEdges );
 
 // Segments will be created from a->b, b->c, c->d
 std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points );

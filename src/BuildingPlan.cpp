@@ -182,8 +182,8 @@ void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const Offset
     }
 
     std::vector<uint32_t> roofIndices = roofMesh.getIndices();
-    for ( auto i = roofIndices.begin(); i != roofIndices.end(); ++i) {
-        indices.push_back( index + *i );
+    for ( auto &i : roofIndices ) {
+        indices.push_back( index + i );
     }
 }
 
@@ -329,26 +329,21 @@ void buildSawtoothRoof(const PolyLine2f &outline, const float upWidth, const flo
 
     // Then start walking across the outline looking for intersections.
     std::list<Segment_2> newEdges;
-    std::list<Point_2> newPoints;
 // TODO: look at replacing this with two calls to computeDividers(), one for each height
     u_int16_t step = 0;
     Rectf bounds = Rectf( outline.getPoints() );
     float x = bounds.x1;
     while ( x < bounds.x2 ) {
         intersect.push_back( Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
-        findIntersections( intersect, newEdges, newPoints );
+        findIntersections( intersect, newEdges );
         intersect.pop_back();
 
         x += (step % 2) ? downWidth : upWidth;
         ++step;
     };
 
-    // Add all the new points and edges.
-    Naive_pl pl(arr);
-// TODO: I don't think we need these points
-    for ( auto p = newPoints.begin(); p != newPoints.end(); ++p )
-        insert_point( arr, *p, pl );
-    if (newEdges.size())
+    // Add all the new edges.
+    if ( newEdges.size() )
         insert( arr, newEdges.begin(), newEdges.end() );
 
     // Compute a height for each vertex.
@@ -378,8 +373,6 @@ public:
         };
 
         switch ( roof ) {
-            case BuildingPlan::RANDOM_ROOF:
-                break;
             case BuildingPlan::FLAT_ROOF:
                 buildFlatRoof( outline, mPositions, mIndices );
                 break;
