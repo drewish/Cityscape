@@ -95,7 +95,9 @@ void BuildingMode::movePoint( ci::vec2 from, ci::vec2 to )
     for ( const auto &p : mOutline ) {
         newOutline.push_back( from == p ? to : p );
     }
+    newOutline.setClosed( mOutline.isClosed() );
+
     mOutline = newOutline;
+
     layout();
 }
-

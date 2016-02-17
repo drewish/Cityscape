@@ -39,15 +39,21 @@ public:
     static ci::PolyLine2f tee();
     static ci::PolyLine2f randomOutline();
 
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof );
-    static BuildingPlanRef createRandom();
+    static BuildingPlanRef create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof, float overhang = 0.0f )
+    {
+        return BuildingPlanRef( new BuildingPlan( outline, roof, overhang ) );
+    }
+    static BuildingPlanRef createRandom()
+    {
+        return BuildingPlanRef( new BuildingPlan( randomOutline(), RANDOM_ROOF ) );
+    }
 
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.
-    BuildingPlan( const ci::PolyLine2f &outline, const RoofStyle roof = FLAT_ROOF )
-        : mOutline(outline), mRoof(roof)
+    BuildingPlan( const ci::PolyLine2f &outline, const RoofStyle roof = FLAT_ROOF, float overhang = 0.0f )
+        : mOutline( outline ), mRoof( roof ), mOverhang( overhang )
     {
-        assert( mOutline.size() );
+        assert( mOutline.size() > 0 );
 
         // This assumes the caller actually sets the closed flag, and that we
         // always want a closed outline.
@@ -69,9 +75,10 @@ public:
 private:
     void makeMesh();
 
-    ci::PolyLine2f mOutline;
-    RoofStyle mRoof;
-    const float mFloorHeight = 10.0;
+    ci::PolyLine2f  mOutline;
+    RoofStyle       mRoof;
+    float           mOverhang;
+    const float     mFloorHeight = 10.0;
     ci::gl::VboMeshRef mRoofMeshRef;
     ci::gl::VboMeshRef mWallMeshRef;
 };

@@ -23,6 +23,7 @@ class FlatShape {
         : mOutline( outline ), mHoles( holes )
     {
         mMesh = makeMesh();
+        // TODO: This isn't subtracting out the area of holes
         mArea = mOutline.calcArea();
     };
     FlatShape( const CGAL::Polygon_with_holes_2<ExactK> &pwh )
@@ -35,6 +36,7 @@ class FlatShape {
         }
 
         mMesh = makeMesh();
+        // TODO: This isn't subtracting out the area of holes
         mArea = mOutline.calcArea();
     };
 
