@@ -91,18 +91,19 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
         layout();
     }, "key=2" );
     params->addButton( "Test 3", [&] {
+        // Intentionally don't clear so we can combine with other shapes
         mRoads.addPoints({
-            vec2( -155.896, -303.71 ),
-            vec2( -12.647, 554.302 ),
-            vec2( -12.647, 554.302 ),
-            vec2( 171.026, -250.313 ),
-            vec2( 171.026, -250.313 ),
-            vec2( -155.896, -303.71 ),
+            vec2(-9.6225,498.446),
+            vec2(-519.615,-336.788),
+            vec2(-519.615,-336.788),
+            vec2(533.087,-159.734),
+            vec2(533.087,-159.734),
+            vec2(-9.6225,498.446),
         });
         layout();
     }, "key=3" );
     params->addButton( "Test 4", [&] {
-        mRoads.clear();
+        // Intentionally don't clear so we can combine with other shapes
         mRoads.addPoints({
             vec2( -586, 585 ),
             vec2( 583, 582 ),

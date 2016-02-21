@@ -74,7 +74,9 @@ void ParkLot::layout( const Options &options ) {
 
     geom::SourceMods trees;
     while ( totalTreeArea / area < mTreeCoverRatio ) {
-        float diameter = randFloat( 4, 12 );
+        // Bigger areas should get bigger trees (speeds up the generation).
+        // TODO: come up with a better formula for this
+        float diameter = area < 10000 ? randFloat( 4, 12 ) : randFloat( 10, 20 );
         // Treat it as a square for faster math and less dense coverage.
         totalTreeArea += diameter * diameter;
         // TODO would be good to avoid random points by the edges so the trees

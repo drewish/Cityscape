@@ -36,6 +36,7 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addButton( "Clear Points", [&] {
         mOutline = PolyLine2f();
+        mHoles = { PolyLine2f() };
         layout();
     }, "key=0");
     params->addButton( "Test 1", [&] {
@@ -46,20 +47,10 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
             vec2( 84, 0 ),
             vec2( 243, -123 ),
         });
+        mHoles = { PolyLine2f() };
         layout();
     }, "key=1" );
     params->addButton( "Test 2", [&] {
-        mOutline = PolyLine2f({
-            vec2( -153, -213 ),
-            vec2( -143, 197 ),
-            vec2( 209, 170 ),
-            vec2( 84, 0 ),
-            vec2( 243, -123 ),
-            vec2( -153, -213 ), // The difference is this point to close the loop
-        });
-        layout();
-    }, "key=2" );
-    params->addButton( "Test 3", [&] {
         mOutline = PolyLine2f({
             vec2( -156.205, 324.902 ),
             vec2( -161.079, -82.514 ),
@@ -72,6 +63,26 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
             vec2( 180.892, 173.916 ),
             vec2( -156.205, 324.902 ),
         });
+        mHoles = { PolyLine2f() };
+        layout();
+    }, "key=2" );
+    params->addButton( "Test 3", [&] {
+        mOutline = PolyLine2f({
+            vec2(-9.6225,498.446),
+            vec2(-519.615,-336.788),
+            vec2(533.087,-159.734),
+            vec2(-9.6225,498.446),
+        });
+        mHoles = {
+            PolyLine2f({
+                vec2( -154, -213 ),
+                vec2( -144, 197 ),
+                vec2( 208, 170 ),
+                vec2( 83, 0 ),
+                vec2( 242, -123 ),
+                vec2( -154, -213 ),
+            })
+        };
         layout();
     }, "key=3" );
 }
@@ -80,7 +91,7 @@ void BlockMode::layout() {
     mBlock.reset();
     if ( mOutline.size() < 3 ) return;
 
-    mBlock = Block::create( mOutline );
+    mBlock = Block::create( FlatShape( mOutline, mHoles ), ci::ColorA( 0.3, 0.7, 0.4 ) );
     mBlock->layout( mOptions );
 }
 

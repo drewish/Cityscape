@@ -71,23 +71,52 @@ void RoadNetwork::buildBlocks( const Options &options )
     list<CGAL::Polygon_with_holes_2<ExactK>> pavedShapes, unpavedShapes;
 
     buildHighways( options, paved );
-    // TODO: Make this step optional
-    buildSideStreets( options, paved );
 
-    // Get the expanded street network
-    paved.polygons_with_holes( back_inserter( pavedShapes ) );
-    for ( auto &it : pavedShapes ) {
-        mRoadShapes.push_back( FlatShape( it ) );
-    }
+    unpaved.complement( paved );
+
+//    // TODO: Make this step optional
+//    if ( false ) {
+//        buildSideStreets( options, paved );
+//        unpaved.complement( paved );
+//    }
 
     // Extract the final blocks
-    unpavedShapes.clear();
-    unpaved.complement(paved);
     unpaved.polygons_with_holes( back_inserter( unpavedShapes ) );
-    for ( auto &it : unpavedShapes ) {
-        if ( it.is_unbounded() ) continue;
+    float hue = 0;
+    std::cout << "\n\n" << unpavedShapes.size() << " unpavedshapes\n";
+    for ( auto &s : unpavedShapes ) {
 
-        mBlocks.push_back( Block( FlatShape( it ), ColorA( 1.0, 1.0, 0.0, 0.3 ) ) );
+        printPolygon( s );
+
+        ColorA color = ColorA( CM_HSV, hue, 1.0, 1.0, 0.5 );
+        if ( s.is_unbounded() ) {
+// TODO: This could go up before we do side streets to get sub divided.
+            // Construct an outter boundary from the board shape (clockwise).
+            CGAL::Polygon_2<ExactK> board;
+            board.push_back( ExactK::Point_2( -600,  600 ) );
+            board.push_back( ExactK::Point_2(  600,  600 ) );
+            board.push_back( ExactK::Point_2(  600, -600 ) );
+            board.push_back( ExactK::Point_2( -600, -600 ) );
+            CGAL::Polygon_with_holes_2<ExactK> outter( board );
+            // Add any holes for roads but make them counter-clockwise.
+            for ( auto hole = s.holes_begin(); hole != s.holes_end(); ++hole ) {
+                // HEY! reversing the shape in place rather than copying since we
+                // won't be using the PWH again.
+                hole->reverse_orientation();
+                outter.add_hole( *hole );
+            }
+            mBlocks.push_back( Block( FlatShape( outter ), color) );
+        } else {
+            mBlocks.push_back( Block( FlatShape( s ), color) );
+        }
+        hue += 0.17;
+        if (hue > 1) hue -= 1.0;
+    }
+
+    // Keep the final street network
+    paved.polygons_with_holes( back_inserter( pavedShapes ) );
+    for ( auto &s : pavedShapes ) {
+        mRoadShapes.push_back( FlatShape( s ) );
     }
 }
 

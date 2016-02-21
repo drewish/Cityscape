@@ -23,7 +23,10 @@ void Block::layout( const Options &options )
     mLots.clear();
 
     // Don't bother dividing small blocks
-    if ( options.block.division == BlockOptions::BLOCK_DIVIDED && mShape.area() >= 100 ) {
+    if ( mShape.area() < 100 ) {
+        subdivideNotReally( options );
+    }
+    else if ( options.block.division == BlockOptions::BLOCK_DIVIDED ) {
         subdivideSkeleton( options );
     }
     else { // BlockOptions::NO_BLOCK_DIVISION
@@ -38,7 +41,7 @@ void Block::layout( const Options &options )
 void Block::draw( const Options &options ) const
 {
     if ( options.drawBlocks ) {
-        gl::color( ColorA( 0.0f, 0.8f, 0.2f, 0.5f ) );
+        gl::ScopedColor scopedColor( mColor );
         gl::draw( mShape.mesh() );
     }
 
@@ -56,24 +59,24 @@ void Block::draw( const Options &options ) const
 // Use the entire block for a lot.
 void Block::subdivideNotReally( const Options &options )
 {
-    ColorA color( CM_HSV, 1, 1.0, 0.75, 0.5 );
-    LotRef lot = buildLot( mShape.outline(), color, options.lot.buildingPlacement );
+    // TODO since lots can't have holes if the shape does we should split it
+    // so the lot doesn't cover the holes
+    // TODO we should invert the color so lots are differnt than blocks
+    LotRef lot = buildLot( mShape.outline(), mColor, options.lot.buildingPlacement );
     if ( lot ) mLots.push_back( lot );
 }
 
+// TODO: This needs work to handle the holes correctly
 Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16_t lotWidth )
 {
     Arrangement_2 arrangement;
 
+    // TODO: find out why 4? because it's closed?
     if (shape.outline().size() < 4) return arrangement;
 
     // Build straight skeleton
-    // TODO figure out why we need to reverse this...
-    CGAL::Polygon_2<InexactK> poly = shape.polygon<InexactK>();
-    if ( poly.is_clockwise_oriented() ) {
-        poly.reverse_orientation();
-    }
-    SsPtr skel = CGAL::create_interior_straight_skeleton_2( poly, InexactK() );
+    CGAL::Polygon_with_holes_2 <InexactK> poly_with_holes = shape.polygon_with_holes<InexactK>();
+    SsPtr skel = CGAL::create_interior_straight_skeleton_2( poly_with_holes );
     mSkel = skel; // Save a copy so BlockMode can peek in.
 
     std::list<Segment_2> outlineSegments;
@@ -178,6 +181,8 @@ void Block::subdivideSkeleton( const Options &options )
     float hue = 0.0;
 
     mArr = arrangementSubdividing( mShape, options.block.lotWidth );
+
+    // TODO: this doesn't exclude the faces that are holes in the initial shape
     for ( auto face = mArr.faces_begin(); face != mArr.faces_end(); ++face ) {
         for ( auto j = face->outer_ccbs_begin(); j != face->outer_ccbs_end(); ++j ) {
             PolyLine2f lotOutline;

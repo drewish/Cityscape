@@ -22,7 +22,7 @@ ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circu
 void findIntersections(const std::list<Segment_2> &input, std::list<Segment_2> &newEdges )
 {
     std::vector<Point_2> pts;
-    CGAL::compute_intersection_points( input.begin(), input.end(), std::back_inserter(pts) );
+    CGAL::compute_intersection_points( input.begin(), input.end(), std::back_inserter( pts ) );
 
     // Even numbers of intersections become segments
     for ( int i = pts.size() - 1; i > 0; i -= 2 ) {

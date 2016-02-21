@@ -21,16 +21,16 @@ typedef std::shared_ptr<Block> BlockRef;
 class Block {
   public:
 
-    static BlockRef create( const FlatShape &fs )
+    static BlockRef create( const FlatShape &fs, const ci::ColorA &c )
     {
-        return BlockRef( new Block( fs ) );
+        return BlockRef( new Block( fs, c ) );
     }
 
-    Block( const FlatShape &fs, const ci::Color &c = ci::Color::white() )
-        : mShape(fs)
+    Block( const FlatShape &fs, const ci::ColorA &c )
+        : mShape( fs ), mColor( c )
     {}
     Block( const Block &src )
-        : mShape(src.mShape), mLots(src.mLots)
+        : mShape( src.mShape ), mLots( src.mLots ), mColor( src.mColor )
     {}
     void layout( const Options &options );
     void draw( const Options &options ) const;
@@ -52,4 +52,5 @@ class Block {
     Arrangement_2 mArr;
     SsPtr mSkel;
     float mDividerAngle;
+    ci::ColorA mColor;
 };

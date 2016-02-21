@@ -19,5 +19,6 @@ class BlockMode : public BaseMode
   private:
     BlockRef        mBlock;
     ci::PolyLine2f  mOutline;
+    std::vector<ci::PolyLine2f> mHoles;
 };
 

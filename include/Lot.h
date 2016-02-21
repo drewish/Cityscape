@@ -24,9 +24,7 @@ class Lot {
     // Drawing is separated into two steps so we can get all the surfaces in
     // place before drawing the structures atop them.
     virtual void drawGround( const Options &options ) const;
-    virtual void drawStructures( const Options &options ) const {
-        //
-    };
+    virtual void drawStructures( const Options &options ) const {};
 
   protected:
     FlatShape mShape;
