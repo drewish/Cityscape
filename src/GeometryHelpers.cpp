@@ -16,8 +16,9 @@ std::vector<vec2> computeDividers( const std::vector<vec2> &outline, const float
     // ...now figure out where the left edge of that box would be in the
     // unrotated space...
     mat3 inv = inverse( matrix );
-    vec2 topLeft(    inv * vec3( bounds.getUpperLeft(), 1 ) );
-    vec2 bottomLeft( inv * vec3( bounds.getLowerLeft(), 1 ) );
+    // Put some Y-axis padding to ensure the lines overlap
+    vec2 topLeft(    inv * vec3( bounds.getUpperLeft() - vec2( 0, 10 ), 1 ) );
+    vec2 bottomLeft( inv * vec3( bounds.getLowerLeft() + vec2( 0, 10 ), 1 ) );
     // (direction is perpendicular to the vector from TL to BL)
     vec2 direction(  inv * vec3( 1, 0, 0 ) );
 
