@@ -7,7 +7,7 @@
 //
 
 #include "BuildingPlan.h"
-#include "CinderCGAL.h"
+#include "CgalPolygon.h"
 #include "CgalArrangement.h"
 #include "CgalStraightSkeleton.h"
 #include "GeometryHelpers.h"

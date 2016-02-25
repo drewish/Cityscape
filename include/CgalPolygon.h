@@ -1,8 +1,8 @@
 //
-//  CinderCGAL.h
+//  CgalPolygon.hpp
 //  Cityscape
 //
-//  Created by Andrew Morton on 2/24/15.
+//  Created by Andrew Morton on 2/24/16.
 //
 //
 
@@ -13,30 +13,14 @@
 #include <CGAL/Polygon_2.h>
 #include <CGAL/Polygon_with_holes_2.h>
 
-inline ci::vec2 vecFrom(const InexactK::Point_2 &p)
-{
-    return ci::vec2( p.x(), p.y() );
-}
-
-inline ci::vec2 vecFrom(const ExactK::Point_2 &p)
-{
-    return ci::vec2( p.x().floatValue(), p.y().floatValue() );
-}
-
-template<class K>
-inline CGAL::Point_2<K> pointFrom(const ci::vec2 &p)
-{
-    return CGAL::Point_2<K>(p.x, p.y);
-}
-
 template<class K>
 CGAL::Polygon_2<K> polygonFrom( const ci::PolyLine2f &p )
 {
     CGAL::Polygon_2<K> poly;
     auto begin = p.begin(),
-        end = p.end(),
-        last = --p.end(),
-        i = begin;
+    end = p.end(),
+    last = --p.end(),
+    i = begin;
 
     if (p.size() < 3) return poly;
 
@@ -77,4 +61,29 @@ ci::PolyLine2f polyLineFrom(const CGAL::Polygon_2<K> &p)
     }
 
     return poly;
+}
+
+template<class K>
+void printPolygon( const CGAL::Polygon_with_holes_2<K> &s )
+{
+    std::cout << "\nouter is ";
+    if ( s.is_unbounded() ) {
+        std::cout << "unbounded\n";
+    } else {
+        if ( s.outer_boundary().is_clockwise_oriented() ) { std::cout << "clockwise:\n"; }
+        else { std::cout << "counter-clockwise:\n"; }
+        for ( auto p = s.outer_boundary().vertices_begin(); p != s.outer_boundary().vertices_end(); ++p ) {
+            std::cout << p->x() << ", " << p->y() << "\n";
+        }
+    }
+    if ( s.number_of_holes() > 0 ) {
+        std::cout << "inner is ";
+        for ( auto h = s.holes_begin(); h != s.holes_end(); ++h ) {
+            if ( h->is_clockwise_oriented() ) { std::cout << "clockwise:\n"; }
+            else { std::cout << "counter-clockwise:\n"; }
+            for ( auto p = h->vertices_begin(); p != h->vertices_end(); ++p ) {
+                std::cout << p->x() << ", " << p->y() << "\n";
+            }
+        }
+    }
 }

@@ -54,7 +54,7 @@
 		25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = CityscapeApp.cpp; path = ../src/CityscapeApp.cpp; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		493D46DF1A9D734600618E33 /* CinderCGAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CinderCGAL.h; path = ../include/CinderCGAL.h; sourceTree = "<group>"; };
+		495222581C7ED78700FC88B7 /* CgalPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CgalPolygon.h; sourceTree = "<group>"; };
 		497E4AB21B1EBA6600AF6B17 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryHelpers.h; sourceTree = "<group>"; };
 		497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryHelpers.cpp; path = ../src/GeometryHelpers.cpp; sourceTree = "<group>"; };
@@ -214,7 +214,7 @@
 				49DC254D1B4C69E4003AD4B2 /* CgalKernel.h */,
 				49DC254B1B4C65B1003AD4B2 /* CgalArrangement.h */,
 				49DC254C1B4C65D3003AD4B2 /* CgalStraightSkeleton.h */,
-				493D46DF1A9D734600618E33 /* CinderCGAL.h */,
+				495222581C7ED78700FC88B7 /* CgalPolygon.h */,
 				49E8F7C51B0EDB1C006FF1E5 /* Options.h */,
 				497D933E1C588C71001323D2 /* Modes */,
 				498D89CB1B1C027300A962B5 /* RoadNetwork.h */,

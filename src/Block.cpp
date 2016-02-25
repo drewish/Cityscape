@@ -11,16 +11,10 @@
 #include "Block.h"
 #include "Lot.h"
 #include "GeometryHelpers.h"
-
-#include "CinderCGAL.h"
-#include <CGAL/create_straight_skeleton_from_polygon_with_holes_2.h>
-#include <CGAL/Polygon_set_2.h>
+#include "CgalPolygon.h"
+#include "CgalStraightSkeleton.h"
 
 using namespace ci;
-
-
-typedef CGAL::Straight_skeleton_2<InexactK> Ss;
-typedef boost::shared_ptr<Ss> SsPtr;
 
 typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 

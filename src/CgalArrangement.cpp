@@ -7,7 +7,7 @@
 //
 
 #include "CgalArrangement.h"
-#include "CinderCGAL.h"
+#include "CgalPolygon.h"
 
 ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circulator )
 {

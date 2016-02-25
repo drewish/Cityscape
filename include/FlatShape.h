@@ -10,7 +10,7 @@
 
 #include "cinder/TriMesh.h"
 #include "cinder/Triangulate.h"
-#include "CinderCGAL.h"
+#include "CgalPolygon.h"
 
 class FlatShape {
   public:

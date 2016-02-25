@@ -8,7 +8,7 @@
 
 #include "RoadNetwork.h"
 #include "Lot.h"
-#include "CinderCGAL.h"
+#include "CgalPolygon.h"
 #include "GeometryHelpers.h"
 
 using namespace ci;
