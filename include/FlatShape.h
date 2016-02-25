@@ -22,22 +22,25 @@ class FlatShape {
     FlatShape( const ci::PolyLine2f &outline, const PolyLine2fs &holes = {} )
         : mOutline( outline ), mHoles( holes )
     {
-        mMesh = makeMesh();
-        // TODO: This isn't subtracting out the area of holes
         mArea = mOutline.calcArea();
+        for ( const auto &hole : holes ) {
+            mArea -= hole.calcArea();
+        }
+
+        mMesh = makeMesh();
     };
     FlatShape( const CGAL::Polygon_with_holes_2<ExactK> &pwh )
     {
         mOutline = polyLineFrom<ExactK>( pwh.outer_boundary() );
+        mArea = mOutline.calcArea();
 
         mHoles.reserve( pwh.number_of_holes() );
         for ( auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit ) {
             mHoles.push_back( polyLineFrom<ExactK>( *hit ) );
+            mArea -= mHoles.back().calcArea();
         }
 
         mMesh = makeMesh();
-        // TODO: This isn't subtracting out the area of holes
-        mArea = mOutline.calcArea();
     };
 
     const ci::PolyLine2f outline() const { return mOutline; }
