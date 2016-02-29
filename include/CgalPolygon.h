@@ -64,6 +64,22 @@ ci::PolyLine2f polyLineFrom(const CGAL::Polygon_2<K> &p)
 }
 
 template<class K>
+ci::PolyLine2f polyLineFrom( const std::vector< CGAL::Point_2<K> > &points )
+{
+    ci::PolyLine2f poly;
+    for ( auto &p : points ) {
+        poly.push_back( vecFrom( p ) );
+    }
+    // Close it... I'm not sure I love doing this...
+    if (poly.size() > 2) {
+        poly.push_back( *poly.begin() );
+        poly.setClosed();
+    }
+
+    return poly;
+}
+
+template<class K>
 void printPolygon( const CGAL::Polygon_with_holes_2<K> &s )
 {
     std::cout << "\nouter is ";
@@ -77,8 +93,9 @@ void printPolygon( const CGAL::Polygon_with_holes_2<K> &s )
         }
     }
     if ( s.number_of_holes() > 0 ) {
-        std::cout << "inner is ";
+        std::cout << "num holes: " << s.number_of_holes() << "\n";
         for ( auto h = s.holes_begin(); h != s.holes_end(); ++h ) {
+            std::cout << "hole with " << h->size() << " points going ";
             if ( h->is_clockwise_oriented() ) { std::cout << "clockwise:\n"; }
             else { std::cout << "counter-clockwise:\n"; }
             for ( auto p = h->vertices_begin(); p != h->vertices_end(); ++p ) {

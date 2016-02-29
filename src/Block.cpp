@@ -59,10 +59,8 @@ void Block::draw( const Options &options ) const
 // Use the entire block for a lot.
 void Block::subdivideNotReally( const Options &options )
 {
-    // TODO since lots can't have holes if the shape does we should split it
-    // so the lot doesn't cover the holes
     // TODO we should invert the color so lots are differnt than blocks
-    LotRef lot = buildLot( mShape.outline(), mColor, options.lot.buildingPlacement );
+    LotRef lot = buildLot( mShape.polyLineWithConnectedHoles(), mColor, options.lot.buildingPlacement );
     if ( lot ) mLots.push_back( lot );
 }
 
@@ -74,9 +72,11 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
     // TODO: find out why 4? because it's closed?
     if (shape.outline().size() < 4) return arrangement;
 
-    // Build straight skeleton
-    CGAL::Polygon_with_holes_2 <InexactK> poly_with_holes = shape.polygon_with_holes<InexactK>();
-    SsPtr skel = CGAL::create_interior_straight_skeleton_2( poly_with_holes );
+    // Build straight skeleton...
+    // Create with holes
+    SsPtr skel = CGAL::create_interior_straight_skeleton_2( shape.polygonWithHoles<InexactK>() );
+//    // Avoid holes do we don't have to skip the face for the hole when reading out the lots
+//    SsPtr skel = CGAL::create_interior_straight_skeleton_2( shape.polygonWithConnectedHoles(), InexactK() );
     mSkel = skel; // Save a copy so BlockMode can peek in.
 
     std::list<Segment_2> outlineSegments;
@@ -153,7 +153,8 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
 
     // Then start walking across the outline adding dividers.
     std::list<Segment_2> dividerSegments;
-    for ( const Segment_2 &divider : segmentsFrom( computeDividers( shape.outline().getPoints(), mDividerAngle, lotWidth ) ) ) {
+    std::vector<vec2> dividers = computeDividers( shape.outline().getPoints(), mDividerAngle, lotWidth );
+    for ( const Segment_2 &divider : segmentsFrom( dividers ) ) {
         outlineSegments.push_back( divider );
 
         // The intersection points come back in a sorted order so we can just
@@ -192,7 +193,7 @@ void Block::subdivideSkeleton( const Options &options )
                 lotOutline.push_back( vecFrom( he->target()->point() ) );
             } while ( ++cc != *j );
 
-            ColorA color( CM_HSV, hue, 1.0, 0.75, 0.5 );
+            ColorA color( CM_HSV, hue, 1.0, 0.5, 0.5 );
 
             LotRef l = buildLot( lotOutline, color, options.lot.buildingPlacement );
             if ( l ) {

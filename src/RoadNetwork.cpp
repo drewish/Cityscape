@@ -91,21 +91,16 @@ void RoadNetwork::buildBlocks( const Options &options )
         ColorA color = ColorA( CM_HSV, hue, 1.0, 1.0, 0.5 );
         if ( s.is_unbounded() ) {
 // TODO: This could go up before we do side streets to get sub divided.
-            // Construct an outter boundary from the board shape (clockwise).
             CGAL::Polygon_2<ExactK> board;
-            board.push_back( ExactK::Point_2( -600,  600 ) );
-            board.push_back( ExactK::Point_2(  600,  600 ) );
-            board.push_back( ExactK::Point_2(  600, -600 ) );
             board.push_back( ExactK::Point_2( -600, -600 ) );
-            CGAL::Polygon_with_holes_2<ExactK> outter( board );
-            // Add any holes for roads but make them counter-clockwise.
+            board.push_back( ExactK::Point_2(  600, -600 ) );
+            board.push_back( ExactK::Point_2(  600,  600 ) );
+            board.push_back( ExactK::Point_2( -600,  600 ) );
+            CGAL::Polygon_with_holes_2<ExactK> outer( board );
             for ( auto hole = s.holes_begin(); hole != s.holes_end(); ++hole ) {
-                // HEY! reversing the shape in place rather than copying since we
-                // won't be using the PWH again.
-                hole->reverse_orientation();
-                outter.add_hole( *hole );
+                outer.add_hole( *hole );
             }
-            mBlocks.push_back( Block( FlatShape( outter ), color) );
+            mBlocks.push_back( Block( FlatShape( outer ), color) );
         } else {
             mBlocks.push_back( Block( FlatShape( s ), color) );
         }

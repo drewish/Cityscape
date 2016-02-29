@@ -12,6 +12,8 @@
 #include "cinder/Triangulate.h"
 #include "CgalPolygon.h"
 
+#include <CGAL/connect_holes.h>
+
 class FlatShape {
   public:
     typedef std::vector<ci::PolyLine2f> PolyLine2fs;
@@ -59,15 +61,38 @@ class FlatShape {
     }
 
     template<class K>
-    const CGAL::Polygon_with_holes_2<K> polygon_with_holes() const
+    const CGAL::Polygon_with_holes_2<K> polygonWithHoles() const
     {
         CGAL::Polygon_with_holes_2<K> poly( polygon<K>() );
-        for ( auto &it : mHoles ) {
-            poly.add_hole( polygonFrom<K>( it ) );
+        for ( auto &h : mHoles ) {
+            poly.add_hole( polygonFrom<K>( h ) );
         }
         return poly;
     }
-    
+
+    const CGAL::Polygon_2<InexactK> polygonWithConnectedHoles() const
+    {
+        std::vector<ExactK::Point_2> points;
+
+        CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
+
+        CGAL::Polygon_2<InexactK> result;
+        for ( auto &p : points ) {
+            result.push_back( InexactK::Point_2( p.x().floatValue(), p.y().floatValue() ) );
+        }
+        std::cout << "is simple" << result.is_simple() << "\n";
+        return result;
+    }
+
+    ci::PolyLine2f polyLineWithConnectedHoles() const
+    {
+        std::vector<CGAL::Point_2<ExactK>> points;
+
+        CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
+
+        return polyLineFrom<ExactK>( points );
+    }
+
   private:
 
     const ci::TriMesh makeMesh();

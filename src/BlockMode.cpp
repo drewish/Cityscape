@@ -36,7 +36,7 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addButton( "Clear Points", [&] {
         mOutline = PolyLine2f();
-        mHoles = { PolyLine2f() };
+        mHoles = {};
         layout();
     }, "key=0");
     params->addButton( "Test 1", [&] {
@@ -47,7 +47,7 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
             vec2( 84, 0 ),
             vec2( 243, -123 ),
         });
-        mHoles = { PolyLine2f() };
+        mHoles = {};
         layout();
     }, "key=1" );
     params->addButton( "Test 2", [&] {
@@ -63,7 +63,7 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
             vec2( 180.892, 173.916 ),
             vec2( -156.205, 324.902 ),
         });
-        mHoles = { PolyLine2f() };
+        mHoles = {};
         layout();
     }, "key=2" );
     params->addButton( "Test 3", [&] {

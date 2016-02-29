@@ -19,7 +19,7 @@ class Building {
   public:
 
     static BuildingRef create( const BuildingPlan &plan, uint32_t floors = 1,
-        ci::vec2 position = ci::vec2(0, 0), float rotation = 0 )
+        ci::vec2 position = ci::vec2( 0 ), float rotation = 0 )
     {
         return BuildingRef( new Building( plan, floors, position, rotation ) );
     }
