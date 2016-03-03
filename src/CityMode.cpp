@@ -138,10 +138,13 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 
 void CityMode::layout() {
     mRoads.layout( mOptions );
+
+    mCityView = CityScape::CityView::create( mRoads );
 }
 
 void CityMode::draw() {
-    mRoads.draw( mOptions );
+//    mRoads.draw( mOptions );
+    if ( mCityView ) mCityView->draw( mOptions );
 }
 
 std::vector<ci::vec2> CityMode::getPoints()

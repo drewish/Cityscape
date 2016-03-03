@@ -38,6 +38,11 @@ public:
     void layout( const Options &options );
     void draw( const Options &options );
 
+    // TODO: move to CityModel
+    std::vector<Block> mBlocks;
+    std::vector<FlatShape> mRoadShapes;
+    ci::ColorA mRoadColor = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
+
 private:
     void buildHighways( const Options &options, CGAL::Polygon_set_2<ExactK> &paved );
     void buildSideStreets( const Options &options, CGAL::Polygon_set_2<ExactK> &paved );
@@ -46,8 +51,5 @@ private:
     CGAL::Polygon_2<ExactK> roadOutline( const ci::vec2 &a, const ci::vec2 &b, uint8_t width = 10 );
 
     std::vector<ci::vec2> mPoints;
-    std::vector<Block> mBlocks;
-    std::vector<FlatShape> mRoadShapes;
 
-    ci::ColorA mRoadColor = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
 };

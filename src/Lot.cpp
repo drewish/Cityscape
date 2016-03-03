@@ -72,27 +72,18 @@ void ParkLot::layout( const Options &options ) {
     float area = mShape.area();
     float totalTreeArea = 0.0;
 
-    geom::SourceMods trees;
     while ( totalTreeArea / area < mTreeCoverRatio ) {
         // Bigger areas should get bigger trees (speeds up the generation).
         // TODO: come up with a better formula for this
         float diameter = area < 10000 ? randFloat( 4, 12 ) : randFloat( 10, 20 );
-        // Treat it as a square for faster math and less dense coverage.
-        totalTreeArea += diameter * diameter;
+
         // TODO would be good to avoid random points by the edges so the trees
         // didn't go out of their lots.
-        trees.append( makeTree( mShape.randomPoint(), diameter ) );
+        Tree t( vec3( mShape.randomPoint(), diameter + 3 ), diameter );
+        mTrees.push_back( t );
+
+        // Treat it as a square for faster math and less dense coverage.
+        totalTreeArea += diameter * diameter;
     }
 
-    gl::GlslProgRef shader = gl::getStockShader( gl::ShaderDef().color() );
-    mBatch = gl::Batch::create( trees, shader );
-}
-
-void ParkLot::drawStructures( const Options &options ) const {
-    gl::ScopedColor scopedColor( ColorA8u( 0x69, 0x98, 0x38, 0xC0 ) );
-    mBatch->draw();
-}
-
-geom::SourceMods ParkLot::makeTree( const vec2 &at, const float diameter ) const {
-    return geom::Sphere().subdivisions( 12 ).radius( diameter ).center( vec3( at, diameter + 3 ) );
 }

@@ -45,12 +45,14 @@ class Block {
 
     friend class BlockMode;
 
-  private:
-    FlatShape mShape;
+    // TODO: move to CityModel
     // Use shared pointers to lots so we can call virtual methods.
     std::vector<LotRef> mLots;
+    FlatShape mShape;
+    ci::ColorA mColor;
+
+  private:
     Arrangement_2 mArr;
     SsPtr mSkel;
     float mDividerAngle;
-    ci::ColorA mColor;
 };

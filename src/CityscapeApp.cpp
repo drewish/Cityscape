@@ -6,6 +6,7 @@
 #include "cinder/GeomIo.h"
 #include "cinder/gl/gl.h"
 
+#include "CityData.h"
 
 #include "Mode.h"
 #include "CityMode.h"

@@ -13,7 +13,6 @@
 		00B784B50FF439BC000DE1D7 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B10FF439BC000DE1D7 /* AudioUnit.framework */; };
 		00B784B60FF439BC000DE1D7 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B20FF439BC000DE1D7 /* CoreAudio.framework */; };
 		35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */; };
-		497E4AB31B1EBA6600AF6B17 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 497E4AB21B1EBA6600AF6B17 /* README.md */; };
 		497EFE111C4A0D240053D720 /* GeometryHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */; };
 		498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */; };
 		49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.md */; };
@@ -23,6 +22,8 @@
 		49D8C5D81B45056200ABDAB6 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D8C5D71B45056200ABDAB6 /* IOSurface.framework */; };
 		49E959221B23EC340093E4C8 /* direction_colored.vert in Resources */ = {isa = PBXBuildFile; fileRef = 49E959211B23EC340093E4C8 /* direction_colored.vert */; };
 		49E959241B23EC4D0093E4C8 /* direction_colored.frag in Resources */ = {isa = PBXBuildFile; fileRef = 49E959231B23EC4D0093E4C8 /* direction_colored.frag */; };
+		49FC37311C87EA3F00FD5ECB /* CityView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FC372F1C87EA3F00FD5ECB /* CityView.cpp */; };
+		49FC37331C87EB2300FD5ECB /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 49FC37321C87EB2300FD5ECB /* README.md */; };
 		49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5F39B9FF1C228A6B0006F986 /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39B9FE1C228A6B0006F986 /* libboost_thread-mt.dylib */; };
@@ -55,7 +56,6 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		495222581C7ED78700FC88B7 /* CgalPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CgalPolygon.h; sourceTree = "<group>"; };
-		497E4AB21B1EBA6600AF6B17 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryHelpers.h; sourceTree = "<group>"; };
 		497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryHelpers.cpp; path = ../src/GeometryHelpers.cpp; sourceTree = "<group>"; };
 		498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RoadNetwork.cpp; path = ../src/RoadNetwork.cpp; sourceTree = "<group>"; };
@@ -71,6 +71,10 @@
 		49E8F7C51B0EDB1C006FF1E5 /* Options.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
 		49E959211B23EC340093E4C8 /* direction_colored.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = direction_colored.vert; path = ../resources/direction_colored.vert; sourceTree = "<group>"; };
 		49E959231B23EC4D0093E4C8 /* direction_colored.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = direction_colored.frag; path = ../resources/direction_colored.frag; sourceTree = "<group>"; };
+		49FC372E1C87E9FE00FD5ECB /* CityData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityData.h; sourceTree = "<group>"; };
+		49FC372F1C87EA3F00FD5ECB /* CityView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CityView.cpp; path = ../src/CityView.cpp; sourceTree = "<group>"; };
+		49FC37301C87EA3F00FD5ECB /* CityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityView.h; sourceTree = "<group>"; };
+		49FC37321C87EB2300FD5ECB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CgalArrangement.cpp; path = ../src/CgalArrangement.cpp; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
@@ -147,6 +151,7 @@
 			children = (
 				25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */,
 				49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */,
+				49FC372F1C87EA3F00FD5ECB /* CityView.cpp */,
 				497D933F1C588C82001323D2 /* Modes */,
 				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
 				5FEFD9D51A92F9FF0093F109 /* Block.cpp */,
@@ -194,7 +199,7 @@
 		29B97314FDCFA39411CA2CEA /* Cityscape */ = {
 			isa = PBXGroup;
 			children = (
-				497E4AB21B1EBA6600AF6B17 /* README.md */,
+				49FC37321C87EB2300FD5ECB /* README.md */,
 				49A6B2DF1ABBFD3E000EA750 /* TODO.md */,
 				01B97315FEAEA392516A2CEA /* Blocks */,
 				29B97315FDCFA39411CA2CEA /* Headers */,
@@ -216,6 +221,8 @@
 				49DC254C1B4C65D3003AD4B2 /* CgalStraightSkeleton.h */,
 				495222581C7ED78700FC88B7 /* CgalPolygon.h */,
 				49E8F7C51B0EDB1C006FF1E5 /* Options.h */,
+				49FC372E1C87E9FE00FD5ECB /* CityData.h */,
+				49FC37301C87EA3F00FD5ECB /* CityView.h */,
 				497D933E1C588C71001323D2 /* Modes */,
 				498D89CB1B1C027300A962B5 /* RoadNetwork.h */,
 				5FEFD9D81A92FB450093F109 /* Block.h */,
@@ -356,13 +363,14 @@
 				498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */,
 				5FA88B331C48B9D6008C1A4A /* BuildingMode.cpp in Sources */,
 				5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */,
+				49FC37311C87EA3F00FD5ECB /* CityView.cpp in Sources */,
 				5FA88B2D1C48B871008C1A4A /* CityMode.cpp in Sources */,
 				49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */,
 				35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */,
 				5FA88B311C48B9CA008C1A4A /* BlockMode.cpp in Sources */,
 				5FEFD9D71A92F9FF0093F109 /* Block.cpp in Sources */,
-				497E4AB31B1EBA6600AF6B17 /* README.md in Sources */,
 				5FEFD9D41A92F9B30093F109 /* Lot.cpp in Sources */,
+				49FC37331C87EB2300FD5ECB /* README.md in Sources */,
 				5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */,
 				5FEFD9D11A92F9550093F109 /* Building.cpp in Sources */,
 				497EFE111C4A0D240053D720 /* GeometryHelpers.cpp in Sources */,

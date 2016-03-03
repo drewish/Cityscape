@@ -12,12 +12,20 @@
 #include "Building.h"
 #include "Options.h"
 
+struct Tree {
+    Tree( const ci::vec3 &p, float d ) : position( p ), diameter( d ) { };
+
+    ci::vec3 position;
+    float diameter;
+};
+
 class Lot;
 typedef std::shared_ptr<Lot> LotRef;
 
 class Lot {
   public:
-    Lot( const FlatShape &fs, const ci::ColorA &c ) : mShape( fs ), mColor( c ) {};
+    Lot( const FlatShape &fs, const ci::ColorA &c, const std::vector<Tree> &trees = {} )
+        : mShape( fs ), mColor( c ), mTrees( trees) {};
     virtual ~Lot() {};
 
     virtual void layout( const Options &options ) {};
@@ -26,9 +34,11 @@ class Lot {
     virtual void drawGround( const Options &options ) const;
     virtual void drawStructures( const Options &options ) const {};
 
-  protected:
+// TODO: move to CityModel
+//  protected:
     FlatShape mShape;
     ci::ColorA mColor;
+    std::vector<Tree> mTrees;
 };
 
 class EmptyLot : public Lot {
@@ -76,11 +86,8 @@ class ParkLot : public Lot {
     {};
 
     virtual void layout( const Options &options ) override;
-    virtual void drawStructures( const Options &options ) const override;
 
   protected:
-
-    ci::geom::SourceMods makeTree( const ci::vec2 &at, const float diameter ) const;
 
     cinder::gl::BatchRef mBatch;
     float mTreeCoverRatio;

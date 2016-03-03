@@ -11,6 +11,7 @@
 #include "cinder/gl/GlslProg.h"
 #include "cinder/params/Params.h"
 
+#include "CityView.h"
 #include "Options.h"
 #include "Resources.h"
 
@@ -38,4 +39,6 @@ class BaseMode
     virtual void movePoint( ci::vec2 from, ci::vec2 to ) {}
 
     Options   mOptions;
+
+    CityScape::CityViewRef  mCityView;
 };

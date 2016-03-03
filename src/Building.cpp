@@ -22,7 +22,6 @@ void Building::draw( const Options &options ) const
 
         gl::ScopedGlslProg glslScope( options.buildingShader );
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
-        gl::ScopedLineWidth(5);
 //        gl::enableWireframe();
 
         gl::pushModelMatrix();
