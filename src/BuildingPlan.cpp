@@ -408,9 +408,9 @@ public:
                 // Make slope configurable... might be good for other angled roofs.
                 buildShedRoof( outline, overhang, 0.2, mPositions, mIndices );
                 break;
-            case BuildingPlan::GAMBREL_ROOF:
-                // probably based off GABLED with an extra division of the faces to give it the barn look
-                break;
+//            case BuildingPlan::GAMBREL_ROOF:
+//                // probably based off GABLED with an extra division of the faces to give it the barn look
+//                break;
             default:
                 break;
         }

@@ -23,12 +23,12 @@ public:
         GABLED_ROOF,
         SAWTOOTH_ROOF,
         SHED_ROOF,
-        GAMBREL_ROOF,
+//        GAMBREL_ROOF,
     };
 
     static const std::vector<std::string> roofStyleNames()
     {
-        return std::vector<std::string>({ "Random", "Flat", "Hipped", "Gabled", "Sawtooth", "Shed", "Gambrel" });
+        return std::vector<std::string>({ "Random", "Flat", "Hipped", "Gabled", "Sawtooth", "Shed" /*, "Gambrel"*/ });
     }
 
     static ci::PolyLine2f triangle();
