@@ -11,16 +11,6 @@
 
 using namespace ci;
 
-void Lot::drawGround( const Options &options ) const
-{
-    if ( options.drawLots ) {
-        gl::lineWidth( 1 );
-        gl::color( ColorA( mColor, 0.4 ) );
-        gl::draw( mShape.mesh() );
-    }
-}
-
-// * * *
 
 void SingleBuildingLot::layout( const Options &options )
 {

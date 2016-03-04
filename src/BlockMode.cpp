@@ -7,9 +7,9 @@ using namespace ci;
 using namespace ci::app;
 
 void BlockMode::setup() {
-    mOptions.drawBlocks = false;
-    mOptions.drawLots = true;
-    mOptions.drawBuildings = false;
+    mViewOptions.drawBlocks = false;
+    mViewOptions.drawLots = true;
+    mViewOptions.drawBuildings = false;
 
     layout();
 }
@@ -29,11 +29,11 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addSeparator();
 
-    params->addParam( "Roads", &mOptions.drawRoads, "key=a" );
-    params->addParam( "Block", &mOptions.drawBlocks, "key=s" );
-    params->addParam( "Lot", &mOptions.drawLots, "key=d" );
-    params->addParam( "Trees", &mOptions.drawTrees, "key=f" );
-    params->addParam( "Building", &mOptions.drawBuildings, "key=g" );
+    params->addParam( "Roads", &mViewOptions.drawRoads, "key=a" );
+    params->addParam( "Block", &mViewOptions.drawBlocks, "key=s" );
+    params->addParam( "Lot", &mViewOptions.drawLots, "key=d" );
+    params->addParam( "Trees", &mViewOptions.drawTrees, "key=f" );
+    params->addParam( "Building", &mViewOptions.drawBuildings, "key=g" );
 
     params->addButton( "Clear Points", [&] {
         mOutline = PolyLine2f();
@@ -94,12 +94,18 @@ void BlockMode::layout() {
 
     mBlock = Block::create( FlatShape( mOutline, mHoles ), ci::ColorA( 0.3, 0.7, 0.4 ) );
     mBlock->layout( mOptions );
+
+    RoadNetwork roads;
+    roads.mBlocks.push_back( *mBlock );
+    mCityView = CityView::create( roads );
 }
 
 void BlockMode::draw() {
     if ( !mBlock ) return;
 
-//    mBlock->draw( mOptions );
+    if ( mCityView ) mCityView->draw( mViewOptions );
+
+    return;
 
     // * * *
 

@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "cinder/gl/GlslProg.h"
-
 struct RoadOptions {
     uint8_t highwayWidth = 40;
     uint8_t sidestreetWidth = 20;
@@ -43,13 +41,6 @@ struct BuildingOptions {
 };
 
 struct Options {
-    bool drawRoads = true;
-    bool drawBlocks = false;
-    bool drawLots = false;
-    bool drawTrees = true;
-    bool drawBuildings = true;
-    cinder::gl::GlslProgRef	buildingShader;
-
     RoadOptions road;
     BlockOptions block;
     LotOptions lot;

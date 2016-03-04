@@ -32,10 +32,6 @@ class Lot {
     virtual ~Lot() {};
 
     virtual void layout( const Options &options ) {};
-    // Drawing is separated into two steps so we can get all the surfaces in
-    // place before drawing the structures atop them.
-    virtual void drawGround( const Options &options ) const;
-    virtual void drawStructures( const Options &options ) const {};
 
 // TODO: move to CityModel
 //  protected:
@@ -54,10 +50,6 @@ public:
     using Lot::Lot;
 
     virtual void layout( const Options &options ) override;
-    virtual void drawStructures( const Options &options ) const override
-    {
-        if ( mBuildingRef ) mBuildingRef->draw( options );
-    }
 };
 
 class SingleBuildingLot : public Lot  {
@@ -65,10 +57,6 @@ class SingleBuildingLot : public Lot  {
     using Lot::Lot;
 
     virtual void layout( const Options &options ) override;
-    virtual void drawStructures( const Options &options ) const override
-    {
-        if ( mBuildingRef ) mBuildingRef->draw( options );
-    }
 };
 
 class ParkLot : public Lot {

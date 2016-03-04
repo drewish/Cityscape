@@ -38,24 +38,6 @@ void Block::layout( const Options &options )
     }
 }
 
-void Block::draw( const Options &options ) const
-{
-    if ( options.drawBlocks ) {
-        gl::ScopedColor scopedColor( mColor );
-        gl::draw( mShape.mesh() );
-    }
-
-    // Two passes is tacky but the goal is to stack the drawing such that lots
-    // are atop blocks...
-    for ( auto &lot : mLots ) {
-        lot.get()->drawGround( options );
-    }
-    // ...and buildings are on top of everything else.
-    for ( auto &lot : mLots ) {
-        lot.get()->drawStructures( options );
-    }
-}
-
 // Use the entire block for a lot.
 void Block::subdivideNotReally( const Options &options )
 {

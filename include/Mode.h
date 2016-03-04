@@ -33,7 +33,7 @@ class BaseMode
     virtual bool isOverMovablePoint( ci::vec2 &point, float margin ) { return false; }
     virtual void movePoint( ci::vec2 from, ci::vec2 to ) {}
 
-    Options   mOptions;
-
-    CityScape::CityViewRef  mCityView;
+    Options             mOptions;
+    CityView::Options   mViewOptions;
+    CityViewRef         mCityView;
 };

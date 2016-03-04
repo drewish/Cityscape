@@ -144,16 +144,3 @@ void RoadNetwork::layout( const Options &options )
     }
 }
 
-void RoadNetwork::draw( const Options &options )
-{
-    if ( options.drawRoads ) {
-        gl::ScopedColor scopedColor( mRoadColor );
-        for ( const auto &shape : mRoadShapes ) {
-            gl::draw( shape.mesh() );
-        }
-    }
-
-    for ( const Block &block : mBlocks ) {
-        block.draw( options );
-    }
-}

@@ -33,7 +33,6 @@ class Building {
     {};
 
     void layout( const Options &options );
-    void draw( const Options &options ) const;
 
     const BuildingPlan plan() { return mPlan; };
     const ci::PolyLine2f outline() const

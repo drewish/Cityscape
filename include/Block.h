@@ -33,7 +33,6 @@ class Block {
         : mShape( src.mShape ), mLots( src.mLots ), mColor( src.mColor )
     {}
     void layout( const Options &options );
-    void draw( const Options &options ) const;
     void subdivideNotReally( const Options &options );
     void subdivideSkeleton( const Options &options );
 

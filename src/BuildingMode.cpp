@@ -5,7 +5,7 @@ using namespace ci::app;
 
 
 void BuildingMode::setup() {
-    mOptions.drawBuildings = true;
+    mViewOptions.drawBuildings = true;
     setOutline( BuildingPlan::lshape() );
 }
 
@@ -52,10 +52,24 @@ void BuildingMode::layout() {
 
     mBuilding = Building::create( BuildingPlan( mOutline, static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle ) ), mFloors );
     mBuilding->layout( mOptions );
+
+
+    // Lots of bullshit to get everything into the tree.
+    PolyLine2f other({
+        vec2( -600, -600 ), vec2(  600, -600 ),
+        vec2(  600,  600 ), vec2( -600,  600 )
+    });
+    LotRef      lot( new Lot( FlatShape( other ), ColorA( 1, 0, 0, 1 ) ) );
+    Block       block( FlatShape( other ), ColorA( 1, 1, 0, 1 ) );
+    RoadNetwork roads;
+    lot->mBuildingRef = mBuilding;
+    block.mLots.push_back( lot  );
+    roads.mBlocks.push_back( block );
+    mCityView = CityView::create( roads );
 }
 
 void BuildingMode::draw() {
-    if ( mBuilding ) mBuilding->draw( mOptions );
+    if ( mCityView ) mCityView->draw( mViewOptions );
 }
 
 void BuildingMode::setOutline( const ci::PolyLine2f &outline ) {

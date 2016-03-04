@@ -36,7 +36,6 @@ public:
     const std::vector<ci::vec2> getPoints() const { return mPoints; }
 
     void layout( const Options &options );
-    void draw( const Options &options );
 
     // TODO: move to CityModel
     std::vector<Block> mBlocks;

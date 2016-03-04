@@ -4,9 +4,9 @@ using namespace ci;
 using namespace ci::app;
 
 void CityMode::setup() {
-    mOptions.drawBlocks = false;
-    mOptions.drawLots = false;
-    mOptions.drawBuildings = true;
+    mViewOptions.drawBlocks = false;
+    mViewOptions.drawLots = false;
+    mViewOptions.drawBuildings = true;
 
     layout();
 }
@@ -49,11 +49,11 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addSeparator();
 
-    params->addParam( "Roads", &mOptions.drawRoads, "key=a" );
-    params->addParam( "Block", &mOptions.drawBlocks, "key=s" );
-    params->addParam( "Lot", &mOptions.drawLots, "key=d" );
-    params->addParam( "Trees", &mOptions.drawTrees, "key=f" );
-    params->addParam( "Building", &mOptions.drawBuildings, "key=g" );
+    params->addParam( "Roads", &mViewOptions.drawRoads, "key=a" );
+    params->addParam( "Block", &mViewOptions.drawBlocks, "key=s" );
+    params->addParam( "Lot", &mViewOptions.drawLots, "key=d" );
+    params->addParam( "Trees", &mViewOptions.drawTrees, "key=f" );
+    params->addParam( "Building", &mViewOptions.drawBuildings, "key=g" );
 
     params->addSeparator();
 
@@ -140,12 +140,11 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 void CityMode::layout() {
     mRoads.layout( mOptions );
 
-    mCityView = CityScape::CityView::create( mRoads );
+    mCityView = CityView::create( mRoads );
 }
 
 void CityMode::draw() {
-//    mRoads.draw( mOptions );
-    if ( mCityView ) mCityView->draw( mOptions );
+    if ( mCityView ) mCityView->draw( mViewOptions );
 }
 
 std::vector<ci::vec2> CityMode::getPoints()
