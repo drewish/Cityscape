@@ -13,7 +13,6 @@
 
 #include "CityView.h"
 #include "Options.h"
-#include "Resources.h"
 
 class BaseMode;
 typedef std::shared_ptr<BaseMode> ModeRef;
@@ -22,10 +21,6 @@ class BaseMode
 {
   public:
     BaseMode() {
-        mOptions.buildingShader = ci::gl::GlslProg::create(
-           ci::app::loadResource( RES_VERT ),
-           ci::app::loadResource( RES_FRAG )
-       );
     }
 
     virtual void addParams( ci::params::InterfaceGlRef params) {}

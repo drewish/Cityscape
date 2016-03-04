@@ -33,7 +33,7 @@ namespace CityScape {
 
         CityView( const RoadNetwork &model );
 
-        ci::gl::BatchRef treeBatch( const std::vector<TreeInstance> &trees ) const;
+        ci::gl::BatchRef treeBatch( const ci::gl::GlslProgRef &shader, const std::vector<TreeInstance> &trees ) const;
         ci::gl::BatchRef buildingBatch( const ci::gl::GlslProgRef &shader, const Building &building ) const;
 
         void draw( const Options &o ) const;

@@ -17,14 +17,18 @@ namespace CityScape {
         gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
 
         gl::GlslProgRef buildingShader = ci::gl::GlslProg::create(
-           app::loadResource( RES_VERT ),
-           app::loadResource( RES_FRAG )
-       );
+           app::loadResource( RES_BUILDING_VERT ),
+           app::loadResource( RES_BUILDING_FRAG )
+        );
         float hue = 0.1;
         buildingShader->uniform( "darkColor",   Color( CM_HSV, hue, 0.60, 0.25 ) );
         buildingShader->uniform( "mediumColor", Color( CM_HSV, hue, 0.55, 0.66 ) );
         buildingShader->uniform( "lightColor",  Color( CM_HSV, hue, 0.15, 1.00 ) );
 
+       gl::GlslProgRef treeShader = ci::gl::GlslProg::create(
+           app::loadResource( RES_TREE_VERT ),
+           app::loadResource( RES_TREE_FRAG )
+        );
 
         for ( const auto &shape : model.mRoadShapes ) {
             auto mesh = shape.mesh() >> geom::Constant( geom::Attrib::COLOR, model.mRoadColor );
@@ -52,43 +56,11 @@ namespace CityScape {
             }
         }
 
-        trees.push_back( InstanceBatch( treeBatch( treeData ), treeData.size() ) );
+        trees.push_back( InstanceBatch( treeBatch( treeShader, treeData ), treeData.size() ) );
     }
 
-    gl::BatchRef CityView::treeBatch( const std::vector<TreeInstance> &trees ) const
+    gl::BatchRef CityView::treeBatch( const gl::GlslProgRef &shader, const std::vector<TreeInstance> &trees ) const
     {
-        gl::GlslProgRef shader = gl::GlslProg::create( gl::GlslProg::Format()
-            .vertex(
-                CI_GLSL( 150,
-                    uniform mat4 ciModelViewProjection;
-
-                    in vec4 ciPosition;
-                    in vec4 ciColor;s
-                    in mat4 vInstanceModelMatrix; // per-instance position variable
-
-                    out lowp vec4 Color;
-
-                    void main( void )
-                    {
-                        gl_Position	= ciModelViewProjection * vInstanceModelMatrix * ciPosition;
-                        Color 		= ciColor;
-                    }
-                )
-            )
-            .fragment(
-                     CI_GLSL( 150,
-                        in vec4 Color;
-
-                        out vec4 oColor;
-
-                        void main( void )
-                        {
-                            oColor = Color;
-                        }
-                    )
-                )
-            );
-
         size_t stride = sizeof( TreeInstance );
 
         // create the VBO which will contain per-instance (rather than per-vertex) data
