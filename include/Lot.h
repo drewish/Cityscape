@@ -26,6 +26,9 @@ class Lot {
   public:
     Lot( const FlatShape &fs, const ci::ColorA &c, const std::vector<Tree> &trees = {} )
         : mShape( fs ), mColor( c ), mTrees( trees) {};
+    Lot( const Lot &src )
+        : mShape( src.mShape ), mColor( src.mColor ), mTrees( src.mTrees ), mBuildingRef( src.mBuildingRef ) {};
+
     virtual ~Lot() {};
 
     virtual void layout( const Options &options ) {};
@@ -39,6 +42,7 @@ class Lot {
     FlatShape mShape;
     ci::ColorA mColor;
     std::vector<Tree> mTrees;
+    BuildingRef mBuildingRef;
 };
 
 class EmptyLot : public Lot {
@@ -48,33 +52,23 @@ class EmptyLot : public Lot {
 class FilledLot : public Lot  {
 public:
     using Lot::Lot;
-    FilledLot( const FilledLot &src )
-        : Lot( src ), mBuildingRef( src.mBuildingRef ) {};
 
     virtual void layout( const Options &options ) override;
     virtual void drawStructures( const Options &options ) const override
     {
         if ( mBuildingRef ) mBuildingRef->draw( options );
     }
-
-protected:
-    BuildingRef mBuildingRef;
 };
 
 class SingleBuildingLot : public Lot  {
   public:
     using Lot::Lot;
-    SingleBuildingLot( const SingleBuildingLot &src )
-        : Lot( src ), mBuildingRef( src.mBuildingRef ) {};
 
     virtual void layout( const Options &options ) override;
     virtual void drawStructures( const Options &options ) const override
     {
         if ( mBuildingRef ) mBuildingRef->draw( options );
     }
-
-  protected:
-    BuildingRef mBuildingRef;
 };
 
 class ParkLot : public Lot {
