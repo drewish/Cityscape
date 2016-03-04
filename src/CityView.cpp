@@ -7,6 +7,7 @@
 //
 
 #include "CityView.h"
+#include "Resources.h"
 
 using namespace ci;
 
@@ -15,12 +16,22 @@ namespace CityScape {
     {
         gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
 
+        gl::GlslProgRef buildingShader = ci::gl::GlslProg::create(
+           app::loadResource( RES_VERT ),
+           app::loadResource( RES_FRAG )
+       );
+        float hue = 0.1;
+        buildingShader->uniform( "darkColor",   Color( CM_HSV, hue, 0.60, 0.25 ) );
+        buildingShader->uniform( "mediumColor", Color( CM_HSV, hue, 0.55, 0.66 ) );
+        buildingShader->uniform( "lightColor",  Color( CM_HSV, hue, 0.15, 1.00 ) );
+
+
         for ( const auto &shape : model.mRoadShapes ) {
             auto mesh = shape.mesh() >> geom::Constant( geom::Attrib::COLOR, model.mRoadColor );
             roads.push_back( gl::Batch::create( mesh, colorShader ) );
         }
 
-        std::vector<Tree> treeData;
+        std::vector<TreeInstance> treeData;
 
         for ( const auto &block : model.mBlocks ) {
             auto mesh = block.mShape.mesh() >> geom::Constant( geom::Attrib::COLOR, block.mColor );
@@ -31,7 +42,12 @@ namespace CityScape {
                 lots.push_back( gl::Batch::create( mesh, colorShader ) );
 
                 for ( const auto &tree : lot->mTrees ) {
-                    treeData.push_back( tree );
+                    mat4 modelView = glm::scale( glm::translate( tree.position ), vec3( tree.diameter ) );
+                    treeData.push_back( TreeInstance( modelView ) );
+                }
+
+                if ( lot->mBuildingRef ) {
+                    buildings.push_back( InstanceBatch( buildingBatch( buildingShader, *lot->mBuildingRef ), 1 ) );
                 }
             }
         }
@@ -39,25 +55,22 @@ namespace CityScape {
         trees.push_back( InstanceBatch( treeBatch( treeData ), treeData.size() ) );
     }
 
-    gl::BatchRef CityView::treeBatch( const std::vector<Tree> &trees ) const
+    gl::BatchRef CityView::treeBatch( const std::vector<TreeInstance> &trees ) const
     {
         gl::GlslProgRef shader = gl::GlslProg::create( gl::GlslProg::Format()
             .vertex(
                 CI_GLSL( 150,
-                    uniform mat4	ciModelViewProjection;
-                    uniform mat3	ciNormalMatrix;
+                    uniform mat4 ciModelViewProjection;
 
-                    in vec4		ciPosition;
-                    in vec4		ciColor;
-                    in vec3		vInstancePosition;  // per-instance position variable
-                    in float    vInstanceScale;     // per-instance position variable
+                    in vec4 ciPosition;
+                    in vec4 ciColor;s
+                    in mat4 vInstanceModelMatrix; // per-instance position variable
 
-                    out lowp vec4	Color;
+                    out lowp vec4 Color;
 
                     void main( void )
                     {
-                        // TODO: need to figure out how to scale the tree up based on the vInstanceScale param
-                        gl_Position	= ciModelViewProjection * ( ciPosition + vec4( vInstancePosition, 0 ) );
+                        gl_Position	= ciModelViewProjection * vInstanceModelMatrix * ciPosition;
                         Color 		= ciColor;
                     }
                 )
@@ -76,39 +89,62 @@ namespace CityScape {
                 )
             );
 
-        gl::VboMeshRef mesh = gl::VboMesh::create( geom::Sphere().radius( 10 ).subdivisions( 12 ) );
-        size_t recSize = sizeof( Tree );
+        size_t stride = sizeof( TreeInstance );
 
         // create the VBO which will contain per-instance (rather than per-vertex) data
-        gl::VboRef treeInstanceDataVbo = gl::Vbo::create( GL_ARRAY_BUFFER, trees.size() * recSize, trees.data(), GL_STATIC_DRAW );
+        gl::VboRef instanceDataVbo = gl::Vbo::create( GL_ARRAY_BUFFER, trees.size() * stride, trees.data(), GL_STATIC_DRAW );
 
         // we need a geom::BufferLayout to describe this data as mapping to the CUSTOM_0 semantic, and the 1 (rather than 0) as the last param indicates per-instance (rather than per-vertex)
         geom::BufferLayout instanceDataLayout;
-        instanceDataLayout.append( geom::Attrib::CUSTOM_0, 3, recSize, 0, 1 );
-        instanceDataLayout.append( geom::Attrib::CUSTOM_1, 1, recSize, sizeof( vec3 ), 1 );
+        instanceDataLayout.append( geom::Attrib::CUSTOM_0, stride / sizeof( float ), stride, 0, 1 );
 
-        // now add it to the VboMesh we already made of the Teapot
-        mesh->appendVbo( instanceDataLayout, treeInstanceDataVbo );
+        gl::VboMeshRef mesh = gl::VboMesh::create( geom::Sphere().subdivisions( 12 ) );
+        mesh->appendVbo( instanceDataLayout, instanceDataVbo );
 
-        return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstancePosition" }, { geom::Attrib::CUSTOM_1, "vInstanceScale" } } );
+        return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstanceModelMatrix" } } );
+    }
+
+    gl::BatchRef CityView::buildingBatch( const gl::GlslProgRef &shader, const Building &building ) const
+    {
+        const BuildingPlan &plan = building.mPlan;
+
+        mat4 buildingTransform = glm::translate( vec3( building.mPosition, 0 ) );
+        buildingTransform = glm::rotate( buildingTransform, building.mRotation, vec3( 0, 0, 1 ) );
+
+        // Scale the walls upwards for multiple floors
+        mat4 wallTransform = glm::scale( buildingTransform, vec3( 1, 1, building.mFloors ) );
+        geom::SourceMods walls = *plan.wallMeshRef()->createSource() >> geom::Transform( wallTransform );
+
+        // Move the roof up to the top of the walls
+        mat4 roofTransform = glm::translate( buildingTransform, vec3( 0, 0, building.mFloors * plan.floorHeight() ) );
+        geom::SourceMods roof = *plan.roofMeshRef()->createSource() >> geom::Transform( roofTransform );
+
+        // Merge the roof an walls into one batch
+        return gl::Batch::create( roof & walls, shader );
     }
 
     void CityView::draw( const Options &options ) const
     {
         if ( options.drawRoads ) {
-            for ( const auto &batch : roads )   batch->draw();
+            for ( const auto &batch : roads ) batch->draw();
         }
         if ( options.drawBlocks ) {
-            for ( const auto &batch : blocks )  batch->draw();
+            for ( const auto &batch : blocks ) batch->draw();
         }
         if ( options.drawLots ) {
-            for ( const auto &batch : lots )    batch->draw();
+            for ( const auto &batch : lots ) batch->draw();
         }
         if ( options.drawTrees ) {
+            gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
             for ( const auto &treebits : trees ) {
-                gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
                 gl::ScopedColor scopedColor( ColorA8u( 0x69, 0x98, 0x38, 0xC0 ) );
                 treebits.first->drawInstanced( treebits.second );
+            }
+        }
+        if ( options.drawBuildings ) {
+            gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
+            for ( const auto &buildingbits : buildings ) {
+                buildingbits.first->drawInstanced( buildingbits.second );
             }
         }
     }

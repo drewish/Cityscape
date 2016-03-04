@@ -46,7 +46,7 @@ struct Options {
     bool drawRoads = true;
     bool drawBlocks = false;
     bool drawLots = false;
-    bool drawTrees = false;
+    bool drawTrees = true;
     bool drawBuildings = true;
     cinder::gl::GlslProgRef	buildingShader;
 

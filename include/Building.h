@@ -41,7 +41,8 @@ class Building {
         return mPlan.outline(mPosition, mRotation);
     }
 
-private:
+// TODO: move to CityModel
+//private:
     BuildingPlan mPlan;
     uint32_t mFloors;
     ci::vec2 mPosition;

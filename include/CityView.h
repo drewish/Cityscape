@@ -17,6 +17,12 @@ namespace CityScape {
     class CityView;
     typedef std::shared_ptr<CityView>   CityViewRef;
 
+    struct TreeInstance {
+        TreeInstance( const ci::mat4 &mv ) : modelView( mv ) {};
+
+        ci::mat4 modelView;
+    };
+
     // Batch has mesh, instanced data, shader, size is number of instances to render.
     typedef std::pair<ci::gl::BatchRef, size_t> InstanceBatch;
 
@@ -27,7 +33,8 @@ namespace CityScape {
 
         CityView( const RoadNetwork &model );
 
-        ci::gl::BatchRef treeBatch( const std::vector<Tree> &trees ) const;
+        ci::gl::BatchRef treeBatch( const std::vector<TreeInstance> &trees ) const;
+        ci::gl::BatchRef buildingBatch( const ci::gl::GlslProgRef &shader, const Building &building ) const;
 
         void draw( const Options &o ) const;
 
