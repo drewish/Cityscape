@@ -104,10 +104,12 @@ namespace CityScape {
         if ( options.drawLots ) {
             for ( const auto &batch : lots )    batch->draw();
         }
-        for ( const auto &treebits : trees ) {
-            gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
-            gl::ScopedColor scopedColor( ColorA8u( 0x69, 0x98, 0x38, 0xC0 ) );
-            treebits.first->drawInstanced( treebits.second );
+        if ( options.drawTrees ) {
+            for ( const auto &treebits : trees ) {
+                gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
+                gl::ScopedColor scopedColor( ColorA8u( 0x69, 0x98, 0x38, 0xC0 ) );
+                treebits.first->drawInstanced( treebits.second );
+            }
         }
     }
 

@@ -52,7 +52,8 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
     params->addParam( "Roads", &mOptions.drawRoads, "key=a" );
     params->addParam( "Block", &mOptions.drawBlocks, "key=s" );
     params->addParam( "Lot", &mOptions.drawLots, "key=d" );
-    params->addParam( "Building", &mOptions.drawBuildings, "key=f" );
+    params->addParam( "Trees", &mOptions.drawTrees, "key=f" );
+    params->addParam( "Building", &mOptions.drawBuildings, "key=g" );
 
     params->addSeparator();
 
