@@ -13,17 +13,17 @@
 class CityView;
 typedef std::shared_ptr<CityView>   CityViewRef;
 
-struct TreeInstance {
-    TreeInstance( const ci::mat4 &mv ) : modelView( mv ) {};
-
-    ci::mat4 modelView;
-};
-
-// Batch has mesh, instanced data, shader, size is number of instances to render.
-typedef std::pair<ci::gl::BatchRef, size_t> InstanceBatch;
-
 class CityView {
 public:
+    struct TreeInstance {
+        TreeInstance( const ci::mat4 &mv ) : modelView( mv ) {};
+
+        ci::mat4 modelView;
+    };
+
+    // Batch has mesh, instanced data, shader, size is number of instances to render.
+    typedef std::pair<ci::gl::BatchRef, size_t> InstanceBatch;
+
     struct Options {
         bool drawRoads = true;
         bool drawBlocks = false;

@@ -8,7 +8,9 @@
 
 #include "FlatShape.h"
 #include "cinder/Rand.h"
+#include "cinder/Triangulate.h"
 #include <CGAL/linear_least_squares_fitting_2.h>
+#include <CGAL/connect_holes.h>
 
 using namespace ci;
 
@@ -44,3 +46,25 @@ const TriMesh FlatShape::makeMesh()
     return triangulator.calcMesh();
 }
 
+const CGAL::Polygon_2<InexactK> FlatShape::polygonWithConnectedHoles() const
+{
+    std::vector<ExactK::Point_2> points;
+
+    CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
+
+    CGAL::Polygon_2<InexactK> result;
+    for ( auto &p : points ) {
+        result.push_back( InexactK::Point_2( p.x().floatValue(), p.y().floatValue() ) );
+    }
+    std::cout << "is simple" << result.is_simple() << "\n";
+    return result;
+}
+
+ci::PolyLine2f FlatShape::polyLineWithConnectedHoles() const
+{
+    std::vector<CGAL::Point_2<ExactK>> points;
+
+    CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
+
+    return polyLineFrom<ExactK>( points );
+}

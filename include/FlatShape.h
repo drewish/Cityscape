@@ -9,10 +9,7 @@
 #pragma once
 
 #include "cinder/TriMesh.h"
-#include "cinder/Triangulate.h"
 #include "CgalPolygon.h"
-
-#include <CGAL/connect_holes.h>
 
 class FlatShape {
   public:
@@ -70,28 +67,8 @@ class FlatShape {
         return poly;
     }
 
-    const CGAL::Polygon_2<InexactK> polygonWithConnectedHoles() const
-    {
-        std::vector<ExactK::Point_2> points;
-
-        CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
-
-        CGAL::Polygon_2<InexactK> result;
-        for ( auto &p : points ) {
-            result.push_back( InexactK::Point_2( p.x().floatValue(), p.y().floatValue() ) );
-        }
-        std::cout << "is simple" << result.is_simple() << "\n";
-        return result;
-    }
-
-    ci::PolyLine2f polyLineWithConnectedHoles() const
-    {
-        std::vector<CGAL::Point_2<ExactK>> points;
-
-        CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
-
-        return polyLineFrom<ExactK>( points );
-    }
+    const CGAL::Polygon_2<InexactK> polygonWithConnectedHoles() const;
+    ci::PolyLine2f polyLineWithConnectedHoles() const;
 
   private:
 

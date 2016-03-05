@@ -25,7 +25,6 @@
 		49E959221B23EC340093E4C8 /* direction_colored.vert in Resources */ = {isa = PBXBuildFile; fileRef = 49E959211B23EC340093E4C8 /* direction_colored.vert */; };
 		49E959241B23EC4D0093E4C8 /* direction_colored.frag in Resources */ = {isa = PBXBuildFile; fileRef = 49E959231B23EC4D0093E4C8 /* direction_colored.frag */; };
 		49FC37311C87EA3F00FD5ECB /* CityView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FC372F1C87EA3F00FD5ECB /* CityView.cpp */; };
-		49FC37331C87EB2300FD5ECB /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 49FC37321C87EB2300FD5ECB /* README.md */; };
 		49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5F39B9FF1C228A6B0006F986 /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39B9FE1C228A6B0006F986 /* libboost_thread-mt.dylib */; };
@@ -378,7 +377,6 @@
 				5FA88B311C48B9CA008C1A4A /* BlockMode.cpp in Sources */,
 				5FEFD9D71A92F9FF0093F109 /* Block.cpp in Sources */,
 				5FEFD9D41A92F9B30093F109 /* Lot.cpp in Sources */,
-				49FC37331C87EB2300FD5ECB /* README.md in Sources */,
 				5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */,
 				5FEFD9D11A92F9550093F109 /* Building.cpp in Sources */,
 				497EFE111C4A0D240053D720 /* GeometryHelpers.cpp in Sources */,
