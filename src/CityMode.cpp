@@ -1,4 +1,6 @@
 #include "CityMode.h"
+#include "CityData.h"
+#include "RoadBuilder.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -49,11 +51,12 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addSeparator();
 
-    params->addParam( "Roads", &mViewOptions.drawRoads, "key=a" );
-    params->addParam( "Block", &mViewOptions.drawBlocks, "key=s" );
-    params->addParam( "Lot", &mViewOptions.drawLots, "key=d" );
-    params->addParam( "Trees", &mViewOptions.drawTrees, "key=f" );
-    params->addParam( "Building", &mViewOptions.drawBuildings, "key=g" );
+    params->addParam( "Roads",    &mViewOptions.drawRoads,     "key=a" );
+    params->addParam( "District", &mViewOptions.drawDistricts, "key=s" );
+    params->addParam( "Block",    &mViewOptions.drawBlocks,    "key=d" );
+    params->addParam( "Lot",      &mViewOptions.drawLots,      "key=f" );
+    params->addParam( "Trees",    &mViewOptions.drawTrees,     "key=z" );
+    params->addParam( "Building", &mViewOptions.drawBuildings, "key=x" );
 
     params->addSeparator();
 
@@ -140,7 +143,12 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 void CityMode::layout() {
     mRoads.layout( mOptions );
 
-    mCityView = CityView::create( mRoads );
+    Cityscape::CityModel data( mRoads );
+    data.options = mOptions;
+    Cityscape::buildHighwaysAndDistricts( data );
+    Cityscape::buildStreetsAndBlocks( data );
+
+    mCityView = CityView::create( data );
 }
 
 void CityMode::draw() {

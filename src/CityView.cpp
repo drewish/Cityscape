@@ -11,7 +11,8 @@
 
 using namespace ci;
 
-CityView::CityView(const RoadNetwork &model)
+
+CityView::CityView(const Cityscape::CityModel &model)
 {
     gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
 
@@ -24,37 +25,47 @@ CityView::CityView(const RoadNetwork &model)
     buildingShader->uniform( "mediumColor", Color( CM_HSV, hue, 0.55, 0.66 ) );
     buildingShader->uniform( "lightColor",  Color( CM_HSV, hue, 0.15, 1.00 ) );
 
-   gl::GlslProgRef treeShader = ci::gl::GlslProg::create(
+    gl::GlslProgRef treeShader = ci::gl::GlslProg::create(
        app::loadResource( RES_TREE_VERT ),
        app::loadResource( RES_TREE_FRAG )
     );
 
-    for ( const auto &shape : model.mRoadShapes ) {
-        auto mesh = shape.mesh() >> geom::Constant( geom::Attrib::COLOR, model.mRoadColor );
+    for ( const auto &shape : model.pavement ) {
+        auto mesh = shape->mesh() >> geom::Constant( geom::Attrib::COLOR, model.options.road.color );
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
     }
 
     std::vector<TreeInstance> treeData;
 
-    for ( const auto &block : model.mBlocks ) {
-        auto mesh = block.mShape.mesh() >> geom::Constant( geom::Attrib::COLOR, block.mColor );
-        blocks.push_back( gl::Batch::create( mesh, colorShader ) );
+    for ( const auto &district : model.districts ) {
+        auto mesh = district->shape->mesh()
+            >> geom::Constant( geom::Attrib::COLOR, district->color )
+            >> geom::Translate( vec3( 0, 0, 0.01 ) );
+        districts.push_back( gl::Batch::create( mesh, colorShader ) );
 
-        for ( const auto &lot : block.mLots ) {
-            auto mesh = lot->mShape.mesh() >> geom::Constant( geom::Attrib::COLOR, lot->mColor );
-            lots.push_back( gl::Batch::create( mesh, colorShader ) );
+        for ( const auto &block : district->blocks ) {
+            auto mesh = block->shape->mesh()
+                >> geom::Constant( geom::Attrib::COLOR, block->color )
+                >> geom::Translate( vec3( 0, 0, 0.02 ) );
+            blocks.push_back( gl::Batch::create( mesh, colorShader ) );
 
-            for ( const auto &tree : lot->mTrees ) {
-                mat4 modelView = glm::scale( glm::translate( tree.position ), vec3( tree.diameter ) );
-                treeData.push_back( TreeInstance( modelView ) );
-            }
+            for ( const auto &lot : block->lots ) {
+                auto mesh = lot->shape->mesh()
+                    >> geom::Constant( geom::Attrib::COLOR, lot->color )
+                    >> geom::Translate( vec3( 0, 0, 0.03 ) );
+                lots.push_back( gl::Batch::create( mesh, colorShader ) );
 
-            if ( lot->mBuildingRef ) {
-                buildings.push_back( InstanceBatch( buildingBatch( buildingShader, *lot->mBuildingRef ), 1 ) );
+                for ( const auto &tree : lot->trees ) {
+                    mat4 modelView = glm::scale( glm::translate( tree->position ), vec3( tree->diameter ) );
+                    treeData.push_back( TreeInstance( modelView ) );
+                }
+
+//                if ( lot->mBuildingRef ) {
+//                    buildings.push_back( InstanceBatch( buildingBatch( buildingShader, *lot->mBuildingRef ), 1 ) );
+//                }
             }
         }
     }
-
     trees.push_back( InstanceBatch( treeBatch( treeShader, treeData ), treeData.size() ) );
 }
 
@@ -99,6 +110,9 @@ void CityView::draw( const Options &options ) const
     if ( options.drawRoads ) {
         for ( const auto &batch : roads ) batch->draw();
     }
+    if ( options.drawDistricts ) {
+        for ( const auto &batch : districts ) batch->draw();
+    }
     if ( options.drawBlocks ) {
         for ( const auto &batch : blocks ) batch->draw();
     }
@@ -108,6 +122,7 @@ void CityView::draw( const Options &options ) const
     if ( options.drawTrees ) {
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
         for ( const auto &treebits : trees ) {
+            // TODO move the color into the instance settings
             gl::ScopedColor scopedColor( ColorA8u( 0x69, 0x98, 0x38, 0xC0 ) );
             treebits.first->drawInstanced( treebits.second );
         }

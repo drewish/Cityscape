@@ -41,6 +41,7 @@ public:
     std::vector<Block> mBlocks;
     std::vector<FlatShape> mRoadShapes;
     ci::ColorA mRoadColor = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
+    std::vector<ci::vec2> mPoints;
 
 private:
     void buildHighways( const Options &options, CGAL::Polygon_set_2<ExactK> &paved );
@@ -48,7 +49,4 @@ private:
     void buildBlocks( const Options &options );
 
     CGAL::Polygon_2<ExactK> roadOutline( const ci::vec2 &a, const ci::vec2 &b, uint8_t width = 10 );
-
-    std::vector<ci::vec2> mPoints;
-
 };

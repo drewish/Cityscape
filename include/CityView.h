@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "CityData.h"
 #include "RoadNetwork.h"
 
 class CityView;
@@ -26,15 +27,16 @@ public:
 
     struct Options {
         bool drawRoads = true;
+        bool drawDistricts = false;
         bool drawBlocks = false;
         bool drawLots = false;
         bool drawTrees = true;
         bool drawBuildings = true;
     };
 
-    static CityViewRef create( const RoadNetwork &r ) { return CityViewRef( new CityView( r ) ); }
+    static CityViewRef create( const Cityscape::CityModel &cm ) { return CityViewRef( new CityView( cm ) ); }
 
-    CityView( const RoadNetwork &model );
+    CityView( const Cityscape::CityModel &model );
 
     ci::gl::BatchRef treeBatch( const ci::gl::GlslProgRef &shader, const std::vector<TreeInstance> &trees ) const;
     ci::gl::BatchRef buildingBatch( const ci::gl::GlslProgRef &shader, const Building &building ) const;
@@ -42,6 +44,7 @@ public:
     void draw( const Options &o ) const;
 
     std::vector<ci::gl::BatchRef> roads;
+    std::vector<ci::gl::BatchRef> districts;
     std::vector<ci::gl::BatchRef> blocks;
     std::vector<ci::gl::BatchRef> lots;
     std::vector<InstanceBatch> buildings;

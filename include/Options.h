@@ -9,6 +9,7 @@
 #pragma once
 
 struct RoadOptions {
+    ci::ColorA color = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
     uint8_t highwayWidth = 40;
     uint8_t sidestreetWidth = 20;
     int16_t sidestreetAngle1 = 0; // -180 - +180 degrees
