@@ -8,7 +8,10 @@
 #pragma once
 
 #include "Options.h" // Should migrate all this into zoning
-#include "RoadNetwork.h" // Temporary until I get the data moved over
+
+// Should go someplace else...
+#include "Building.h"
+#include "BuildingPlan.h"
 
 class FlatShape;
 typedef std::shared_ptr<FlatShape>    	FlatShapeRef;
@@ -34,7 +37,7 @@ namespace Cityscape {
 
     struct CityModel {
         CityModel() {}
-        CityModel( const RoadNetwork &roads );
+        CityModel( const std::vector<ci::vec2> &highwayPoints );
 
         Options options;
 
@@ -121,7 +124,16 @@ namespace Cityscape {
     };
 
     struct Building {
-//        BuildingPlan    plan;
+        static BuildingRef create( const BuildingPlan &plan, uint8_t floors = 1 )
+        {
+            return BuildingRef( new Building( plan, floors ) );
+        }
+
+        Building( const BuildingPlan &plan, uint8_t floors = 1, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
+            : plan( plan ), floors( floors ), position( position ), rotation( rotation )
+        {};
+
+        BuildingPlan    plan;
         uint8_t         floors;
         ci::vec2        position;
         float           rotation; // radians

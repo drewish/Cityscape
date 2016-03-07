@@ -10,5 +10,4 @@
 
 using namespace ci;
 
-void Building::layout( const Options &options ) {}
 

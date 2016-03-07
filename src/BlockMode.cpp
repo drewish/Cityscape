@@ -98,7 +98,7 @@ void BlockMode::layout() {
 
     RoadNetwork roads;
     roads.mBlocks.push_back( *mBlock );
-    mCityView = CityView::create( roads );
+    mCityView = CityView::create( roads.getPoints() );
 }
 
 void BlockMode::draw() {

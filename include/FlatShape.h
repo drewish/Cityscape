@@ -51,6 +51,8 @@ class FlatShape {
     ci::Rectf   boundingBox() const { return ci::Rectf( mOutline.getPoints() ); }
     ci::vec2    randomPoint() const;
 
+    bool        contains( const ci::vec2 point ) const;
+
     template<class K>
     const CGAL::Polygon_2<K> polygon() const
     {

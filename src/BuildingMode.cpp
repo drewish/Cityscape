@@ -1,4 +1,5 @@
 #include "BuildingMode.h"
+#include "FlatShape.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -50,22 +51,27 @@ void BuildingMode::layout() {
 
 // TODO: need to ensure the outline is in counterclockwise order
 
-    mBuilding = Building::create( BuildingPlan( mOutline, static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle ) ), mFloors );
-    mBuilding->layout( mOptions );
+    mBuilding = Cityscape::Building::create( BuildingPlan( mOutline, static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle ) ), mFloors );
 
 
+
+    Cityscape::CityModel data;
+    data.options = mOptions;
     // Lots of bullshit to get everything into the tree.
-    PolyLine2f other({
+    FlatShapeRef fs( new FlatShape( PolyLine2f( {
         vec2( -600, -600 ), vec2(  600, -600 ),
         vec2(  600,  600 ), vec2( -600,  600 )
-    });
-    LotRef      lot( new Lot( FlatShape( other ), ColorA( 1, 0, 0, 1 ) ) );
-    Block       block( FlatShape( other ), ColorA( 1, 1, 0, 1 ) );
-    RoadNetwork roads;
-    lot->mBuildingRef = mBuilding;
-    block.mLots.push_back( lot  );
-    roads.mBlocks.push_back( block );
-    mCityView = CityView::create( roads );
+    } ) ) );
+    Cityscape::DistrictRef district = Cityscape::District::create( fs );
+    Cityscape::BlockRef    block    = Cityscape::Block::create( fs );
+    Cityscape::LotRef      lot      = Cityscape::Lot::create( fs );
+
+    data.districts.push_back( district );
+    district->blocks.push_back( block );
+    block->lots.push_back( lot );
+    lot->building = mBuilding;
+
+    mCityView = CityView::create( data );
 }
 
 void BuildingMode::draw() {

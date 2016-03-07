@@ -8,6 +8,8 @@
 
 #include "RoadBuilder.h"
 #include "GeometryHelpers.h"
+#include "FlatShape.h"
+#include "CgalPolygon.h"
 #include <CGAL/Polygon_set_2.h>
 
 using namespace std;
@@ -81,9 +83,10 @@ void buildHighwaysAndDistricts( CityModel &city )
 void buildStreetsAndBlocks( CityModel &city )
 {
     for ( auto &district : city.districts ) {
-        // No Block division
-        district->blocks.push_back( Block::create( district->shape ) );
-        break;
+
+//        // No Block division
+//        district->blocks.push_back( Block::create( district->shape ) );
+//        continue;
 
 
         const std::vector<vec2> outlinePoints = district->shape->outline().getPoints();
@@ -97,18 +100,20 @@ void buildStreetsAndBlocks( CityModel &city )
             roads.push_back( roadOutline( *a, *( ++a ), city.options.road.sidestreetWidth) );
         }
 
-        angle += city.options.road.sidestreetAngle2;
         // TODO move duplicated logic to a function
+        angle += city.options.road.sidestreetAngle2;
         dividerPoints = computeDividers( outlinePoints, angle * M_PI / 180.0, city.options.road.blockWidth );
         assert( dividerPoints.size() % 2 == 0 );
         for ( auto a = dividerPoints.cbegin(); a != dividerPoints.cend() ; ++a ) {
             roads.push_back( roadOutline( *a, *( ++a ), city.options.road.sidestreetWidth) );
         }
 
-        CGAL::Polygon_set_2<ExactK> paved, unpaved;
+        auto districtWithHoles = district->shape->polygonWithHoles<ExactK>();
+
+        CGAL::Polygon_set_2<ExactK> paved;
         paved.join( roads.begin(), roads.end() );
         // Find the intersection of the streets and block
-        paved.intersection( district->shape->polygonWithHoles<ExactK>() );
+        paved.intersection( districtWithHoles );
 
         // Add those as new streets.
         list<CGAL::Polygon_with_holes_2<ExactK>> pavedShapes, unpavedShapes;
@@ -118,7 +123,8 @@ void buildStreetsAndBlocks( CityModel &city )
         }
 
         // Find the unpaved chunks to break up with streets
-        unpaved.complement( paved );
+        CGAL::Polygon_set_2<ExactK> unpaved( districtWithHoles );
+        unpaved.difference( paved );
         unpaved.polygons_with_holes( back_inserter( unpavedShapes ) );
         for ( auto &s : unpavedShapes ) {
             district->blocks.push_back( Block::create( FlatShapeRef( new FlatShape( s ) ) ) );

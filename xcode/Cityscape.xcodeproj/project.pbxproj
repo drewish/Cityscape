@@ -18,7 +18,6 @@
 		497EFE111C4A0D240053D720 /* GeometryHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */; };
 		4983C3731C8954A200531A46 /* tree.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4983C3711C8954A200531A46 /* tree.frag */; };
 		4983C3741C8954A200531A46 /* tree.vert in Resources */ = {isa = PBXBuildFile; fileRef = 4983C3721C8954A200531A46 /* tree.vert */; };
-		498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */; };
 		49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.md */; };
 		49D8C5D21B4504A700ABDAB6 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D8C5D11B4504A700ABDAB6 /* AVFoundation.framework */; };
 		49D8C5D41B45052E00ABDAB6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D8C5D31B45052E00ABDAB6 /* CoreMedia.framework */; };
@@ -66,8 +65,6 @@
 		497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryHelpers.cpp; path = ../src/GeometryHelpers.cpp; sourceTree = "<group>"; };
 		4983C3711C8954A200531A46 /* tree.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = tree.frag; path = ../resources/tree.frag; sourceTree = "<group>"; };
 		4983C3721C8954A200531A46 /* tree.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = tree.vert; path = ../resources/tree.vert; sourceTree = "<group>"; };
-		498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RoadNetwork.cpp; path = ../src/RoadNetwork.cpp; sourceTree = "<group>"; };
-		498D89CB1B1C027300A962B5 /* RoadNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoadNetwork.h; sourceTree = "<group>"; };
 		49A6B2DF1ABBFD3E000EA750 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = TODO.md; path = ../TODO.md; sourceTree = "<group>"; };
 		49D8C5D11B4504A700ABDAB6 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		49D8C5D31B45052E00ABDAB6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -163,7 +160,6 @@
 				49FC372F1C87EA3F00FD5ECB /* CityView.cpp */,
 				497D933F1C588C82001323D2 /* Modes */,
 				494BE6A91C8B866500E50477 /* RoadBuilder.cpp */,
-				498D89CA1B1C027300A962B5 /* RoadNetwork.cpp */,
 				5FEFD9D51A92F9FF0093F109 /* Block.cpp */,
 				5FEFD9D21A92F9B30093F109 /* Lot.cpp */,
 				5FEFD9CF1A92F9550093F109 /* Building.cpp */,
@@ -235,7 +231,6 @@
 				49FC37301C87EA3F00FD5ECB /* CityView.h */,
 				497D933E1C588C71001323D2 /* Modes */,
 				494BE6AA1C8B866500E50477 /* RoadBuilder.h */,
-				498D89CB1B1C027300A962B5 /* RoadNetwork.h */,
 				5FEFD9D81A92FB450093F109 /* Block.h */,
 				5FEFD9DA1A92FB450093F109 /* Lot.h */,
 				5FEFD9D91A92FB450093F109 /* Building.h */,
@@ -375,7 +370,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				498D89CC1B1C027300A962B5 /* RoadNetwork.cpp in Sources */,
 				5FA88B331C48B9D6008C1A4A /* BuildingMode.cpp in Sources */,
 				5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */,
 				494BE6AB1C8B866500E50477 /* RoadBuilder.cpp in Sources */,

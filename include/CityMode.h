@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Mode.h"
-#include "RoadNetwork.h"
 
 class CityMode : public BaseMode
 {
@@ -16,5 +15,9 @@ class CityMode : public BaseMode
     virtual bool isOverMovablePoint( ci::vec2 &point, float margin ) override;
     virtual void movePoint( ci::vec2 from, ci::vec2 to ) override;
 
-    RoadNetwork mRoads;
+    virtual bool isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline ) override;
+
+  private:
+    Cityscape::CityModel  mModel;
+    std::vector<ci::vec2> mHighwayPoints;
 };

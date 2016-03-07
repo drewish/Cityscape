@@ -22,11 +22,11 @@ ColorA colorWheel()
     return color;
 }
 
-CityModel::CityModel( const RoadNetwork &roads )
+CityModel::CityModel( const std::vector<ci::vec2> &highwayPoints )
 {
     // Translate from RoadNetwork into Highways
-    for ( size_t i = 1, size = roads.mPoints.size(); i < size; i += 2 ) {
-        highways.push_back( HighwayRef( new Highway( roads.mPoints[i-1], roads.mPoints[i] ) ) );
+    for ( size_t i = 1, size = highwayPoints.size(); i < size; i += 2 ) {
+        highways.push_back( HighwayRef( new Highway( highwayPoints[i - 1], highwayPoints[i] ) ) );
     }
 }
 

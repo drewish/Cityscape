@@ -35,6 +35,21 @@ vec2 FlatShape::randomPoint() const
     return point;
 }
 
+bool FlatShape::contains( const ci::vec2 point ) const
+{
+    if ( !mOutline.contains( point ) ) {
+        return false;
+    }
+
+    for ( const auto &hole : mHoles ) {
+        if ( hole.contains( point ) ) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 const TriMesh FlatShape::makeMesh()
 {
     // TODO might be good to lazily create this when they first ask for the mesh.

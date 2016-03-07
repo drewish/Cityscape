@@ -2,6 +2,7 @@
 
 #include "Mode.h"
 #include "Building.h"
+#include "CityData.h" // For Building
 
 class BuildingMode : public BaseMode
 {
@@ -19,7 +20,7 @@ class BuildingMode : public BaseMode
     void setOutline( const ci::PolyLine2f &outline );
 
   private:
-    BuildingRef mBuilding;
+    Cityscape::BuildingRef mBuilding;
     ci::PolyLine2f mOutline;
     int32_t mFloors = 1;
 };

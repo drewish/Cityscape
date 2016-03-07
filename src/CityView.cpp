@@ -7,6 +7,7 @@
 //
 
 #include "CityView.h"
+#include "FlatShape.h"
 #include "Resources.h"
 
 using namespace ci;
@@ -40,19 +41,19 @@ CityView::CityView(const Cityscape::CityModel &model)
     for ( const auto &district : model.districts ) {
         auto mesh = district->shape->mesh()
             >> geom::Constant( geom::Attrib::COLOR, district->color )
-            >> geom::Translate( vec3( 0, 0, 0.01 ) );
+            >> geom::Translate( vec3( 0, 0, -0.03 ) );
         districts.push_back( gl::Batch::create( mesh, colorShader ) );
 
         for ( const auto &block : district->blocks ) {
             auto mesh = block->shape->mesh()
                 >> geom::Constant( geom::Attrib::COLOR, block->color )
-                >> geom::Translate( vec3( 0, 0, 0.02 ) );
+                >> geom::Translate( vec3( 0, 0, -0.02 ) );
             blocks.push_back( gl::Batch::create( mesh, colorShader ) );
 
             for ( const auto &lot : block->lots ) {
                 auto mesh = lot->shape->mesh()
                     >> geom::Constant( geom::Attrib::COLOR, lot->color )
-                    >> geom::Translate( vec3( 0, 0, 0.03 ) );
+                    >> geom::Translate( vec3( 0, 0, -0.01 ) );
                 lots.push_back( gl::Batch::create( mesh, colorShader ) );
 
                 for ( const auto &tree : lot->trees ) {

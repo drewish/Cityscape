@@ -32,8 +32,6 @@ void SingleBuildingLot::layout( const Options &options )
     if ( diff.size() != 0 ) {
         mBuildingRef.reset();
     }
-
-    if ( mBuildingRef ) mBuildingRef->layout( options );
 }
 
 
@@ -52,8 +50,6 @@ void FilledLot::layout( const Options &options )
     else {
         mBuildingRef.reset();
     }
-
-    if ( mBuildingRef ) mBuildingRef->layout( options );
 }
 
 // * * *

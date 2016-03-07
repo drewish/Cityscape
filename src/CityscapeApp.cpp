@@ -13,7 +13,6 @@
 #include "BlockMode.h"
 #include "BuildingMode.h"
 
-#include "RoadNetwork.h"
 #include "Block.h"
 #include "BuildingPlan.h"
 
@@ -303,6 +302,11 @@ void CityscapeApp::draw()
         if ( mIsEditing ) {
             gl::ScopedColor scopedColor( Color::white() );
             gl::setMatrices( mEditCamera );
+
+            PolyLine2f  hoverOutline;
+            if ( mModeRef && mModeRef->isOverOutline( mMouseOnPlaneAt, hoverOutline ) ) {
+                gl::draw( hoverOutline );
+            }
 
             if ( mModeRef && mModeRef->getPoints().size() ) {
                 for ( const vec2 &p : mModeRef->getPoints() ) {

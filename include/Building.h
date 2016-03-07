@@ -32,7 +32,6 @@ class Building {
         : mPlan(s.mPlan), mFloors(s.mFloors), mPosition(s.mPosition), mRotation(s.mRotation)
     {};
 
-    void layout( const Options &options );
 
     const BuildingPlan plan() { return mPlan; };
     const ci::PolyLine2f outline() const

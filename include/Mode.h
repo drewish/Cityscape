@@ -33,6 +33,8 @@ class BaseMode
     virtual bool isOverMovablePoint( ci::vec2 &point, float margin ) { return false; }
     virtual void movePoint( ci::vec2 from, ci::vec2 to ) {}
 
+    virtual bool isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline ) { return false; }
+
     Options             mOptions;
     CityView::Options   mViewOptions;
     CityViewRef         mCityView;

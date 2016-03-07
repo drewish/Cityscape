@@ -1,5 +1,6 @@
 #include "CityMode.h"
 #include "CityData.h"
+#include "FlatShape.h"
 #include "RoadBuilder.h"
 
 using namespace ci;
@@ -61,12 +62,11 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
     params->addSeparator();
 
     params->addButton( "Clear Points", [&] {
-        mRoads.clear();
+        mHighwayPoints.clear();
         layout();
     }, "key=0" );
     params->addButton( "Test 1", [&] {
-        mRoads.clear();
-        mRoads.addPoints({
+        mHighwayPoints = std::vector<ci::vec2>({
             vec2( -154, -213 ),
             vec2( -144, 197 ),
             vec2( -144, 197 ),
@@ -79,8 +79,7 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
         layout();
     }, "key=1" );
     params->addButton( "Test 2", [&] {
-        mRoads.clear();
-        mRoads.addPoints({
+        mHighwayPoints = std::vector<ci::vec2>({
             vec2( -154, -213 ),
             vec2( -144, 197 ),
             vec2( -144, 197 ),
@@ -96,7 +95,7 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
     }, "key=2" );
     params->addButton( "Test 3", [&] {
         // Intentionally don't clear so we can combine with other shapes
-        mRoads.addPoints({
+        mHighwayPoints = std::vector<ci::vec2>({
             vec2(-9.6225,498.446),
             vec2(-519.615,-336.788),
             vec2(-519.615,-336.788),
@@ -108,21 +107,20 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
     }, "key=3" );
     params->addButton( "Test 4", [&] {
         // Intentionally don't clear so we can combine with other shapes
-        mRoads.addPoints({
-            vec2( -586, 585 ),
-            vec2( 583, 582 ),
-            vec2( 583, 582 ),
+        mHighwayPoints = std::vector<ci::vec2>({
+            vec2( -576, 575 ),
+            vec2( 573, 572 ),
+            vec2( 573, 572 ),
             vec2( 573, -569 ),
             vec2( 573, -569 ),
             vec2( -573, -578 ),
             vec2( -573, -578 ),
-            vec2( -586, 585 ),
+            vec2( -576, 575 ),
         });
         layout();
     }, "key=4" );
     params->addButton( "Test 5", [&] {
-        mRoads.clear();
-        mRoads.addPoints({
+        mHighwayPoints = std::vector<ci::vec2>({
             vec2( -206.133, 539.26 ),
             vec2( -48.764, -527.973 ),
             vec2( -47.925, -524.444 ),
@@ -141,14 +139,13 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 }
 
 void CityMode::layout() {
-    mRoads.layout( mOptions );
+    // Should have better way to partially update
+    mModel = Cityscape::CityModel( mHighwayPoints );
+    mModel.options = mOptions;
+    Cityscape::buildHighwaysAndDistricts( mModel );
+    Cityscape::buildStreetsAndBlocks( mModel );
 
-    Cityscape::CityModel data( mRoads );
-    data.options = mOptions;
-    Cityscape::buildHighwaysAndDistricts( data );
-    Cityscape::buildStreetsAndBlocks( data );
-
-    mCityView = CityView::create( data );
+    mCityView = CityView::create( mModel );
 }
 
 void CityMode::draw() {
@@ -157,19 +154,19 @@ void CityMode::draw() {
 
 std::vector<ci::vec2> CityMode::getPoints()
 {
-    return mRoads.getPoints();
+    return mHighwayPoints;
 }
 
 void CityMode::addPoint( ci::vec2 point )
 {
     console() << "vec2(" << point.x << "," << point.y << "),\n";
-    mRoads.addPoint( point );
-    mRoads.layout( mOptions );
+    mHighwayPoints.push_back( point );
+    layout();
 }
 
 bool CityMode::isOverMovablePoint( ci::vec2 &point, float margin )
 {
-    for ( const auto &other : mRoads.getPoints() ) {
+    for ( const auto &other : mHighwayPoints ) {
         if ( length2( point - other ) < margin * margin ) {
             // Snap their point to ours
             point = other;
@@ -182,12 +179,23 @@ bool CityMode::isOverMovablePoint( ci::vec2 &point, float margin )
 void CityMode::movePoint( ci::vec2 from, ci::vec2 to )
 {
     std::vector<vec2> newPoints;
-    for ( const auto &p : mRoads.getPoints() ) {
+    for ( const auto &p : mHighwayPoints ) {
         newPoints.push_back( from == p ? to : p );
     }
-    // TODO: would be nice to move this logic into the roadnetwork
-    mRoads.clear();
-    mRoads.addPoints( newPoints );
-    mRoads.layout( mOptions );
+    mHighwayPoints = newPoints;
+    layout();
 }
 
+bool CityMode::isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline ) {
+    for ( const auto &district : mModel.districts ) {
+        if ( ! district->shape->contains( point ) ) continue;
+
+        for ( const auto &block : district->blocks ) {
+            if ( block->shape->contains( point ) ) {
+                outline = block->shape->outline();
+                return true;
+            }
+        }
+    }
+    return false;
+}
