@@ -50,7 +50,7 @@ void buildHighwaysAndDistricts( CityModel &city )
 
     paved.polygons_with_holes( back_inserter( pavedShapes ) );
     for ( auto &s : pavedShapes ) {
-        city.pavement.push_back( FlatShapeRef( new FlatShape( s ) ) );
+        city.pavement.push_back( FlatShape::create( s ) );
     }
 
     // Find the unpaved chunks to break up with streets
@@ -69,9 +69,9 @@ void buildHighwaysAndDistricts( CityModel &city )
             for ( auto hole = s.holes_begin(); hole != s.holes_end(); ++hole ) {
                 outer.add_hole( *hole );
             }
-            fs = FlatShapeRef( new FlatShape( outer ) );
+            fs = FlatShape::create( outer );
         } else {
-            fs = FlatShapeRef( new FlatShape( s ) );
+            fs = FlatShape::create( s );
         }
 
         city.districts.push_back( District::create( fs ) );
@@ -119,7 +119,7 @@ void buildStreetsAndBlocks( CityModel &city )
         list<CGAL::Polygon_with_holes_2<ExactK>> pavedShapes, unpavedShapes;
         paved.polygons_with_holes( back_inserter( pavedShapes ) );
         for ( auto &s : pavedShapes ) {
-            city.pavement.push_back( FlatShapeRef( new FlatShape( s ) ) );
+            city.pavement.push_back( FlatShape::create( s ) );
         }
 
         // Find the unpaved chunks to break up with streets
@@ -127,7 +127,7 @@ void buildStreetsAndBlocks( CityModel &city )
         unpaved.difference( paved );
         unpaved.polygons_with_holes( back_inserter( unpavedShapes ) );
         for ( auto &s : unpavedShapes ) {
-            district->blocks.push_back( Block::create( FlatShapeRef( new FlatShape( s ) ) ) );
+            district->blocks.push_back( Block::create( FlatShape::create( s ) ) );
         }
     }
 }

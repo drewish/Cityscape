@@ -61,9 +61,9 @@ CityView::CityView(const Cityscape::CityModel &model)
                     treeData.push_back( TreeInstance( modelView ) );
                 }
 
-//                if ( lot->mBuildingRef ) {
-//                    buildings.push_back( InstanceBatch( buildingBatch( buildingShader, *lot->mBuildingRef ), 1 ) );
-//                }
+                if ( lot->building ) {
+                    buildings.push_back( InstanceBatch( buildingBatch( buildingShader, *lot->building ), 1 ) );
+                }
             }
         }
     }
@@ -87,19 +87,19 @@ gl::BatchRef CityView::treeBatch( const gl::GlslProgRef &shader, const std::vect
     return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstanceModelMatrix" } } );
 }
 
-gl::BatchRef CityView::buildingBatch( const gl::GlslProgRef &shader, const Building &building ) const
+gl::BatchRef CityView::buildingBatch( const gl::GlslProgRef &shader, const Cityscape::Building &building ) const
 {
-    const BuildingPlan &plan = building.mPlan;
+    const BuildingPlan &plan = building.plan;
 
-    mat4 buildingTransform = glm::translate( vec3( building.mPosition, 0 ) );
-    buildingTransform = glm::rotate( buildingTransform, building.mRotation, vec3( 0, 0, 1 ) );
+    mat4 buildingTransform = glm::translate( vec3( building.position, 0 ) );
+    buildingTransform = glm::rotate( buildingTransform, building.rotation, vec3( 0, 0, 1 ) );
 
     // Scale the walls upwards for multiple floors
-    mat4 wallTransform = glm::scale( buildingTransform, vec3( 1, 1, building.mFloors ) );
+    mat4 wallTransform = glm::scale( buildingTransform, vec3( 1, 1, building.floors ) );
     geom::SourceMods walls = *plan.wallMeshRef()->createSource() >> geom::Transform( wallTransform );
 
     // Move the roof up to the top of the walls
-    mat4 roofTransform = glm::translate( buildingTransform, vec3( 0, 0, building.mFloors * plan.floorHeight() ) );
+    mat4 roofTransform = glm::translate( buildingTransform, vec3( 0, 0, building.floors * plan.floorHeight() ) );
     geom::SourceMods roof = *plan.roofMeshRef()->createSource() >> geom::Transform( roofTransform );
 
     // Merge the roof an walls into one batch

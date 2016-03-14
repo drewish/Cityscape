@@ -12,7 +12,6 @@
 #include "cinder/params/Params.h"
 
 #include "CityView.h"
-#include "Options.h"
 
 class BaseMode;
 typedef std::shared_ptr<BaseMode> ModeRef;

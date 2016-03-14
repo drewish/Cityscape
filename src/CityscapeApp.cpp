@@ -126,8 +126,6 @@ void CityscapeApp::setup()
     mViewCameraUI = CameraUi( &mViewCamera );
     mViewCameraUI.enable( ! mIsEditing );
 
-    hideCursor();
-
     buildBackground();
 }
 

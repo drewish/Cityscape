@@ -440,6 +440,25 @@ protected:
     std::vector<uint32_t>   mIndices;
 };
 
+Shape2d shapeFrom( const PolyLine2f &polyline )
+{
+    const std::vector<vec2> &points = polyline.getPoints();
+    Shape2d result;
+
+    auto it = points.begin();
+    result.moveTo( *it );
+    while ( ++it != points.end() ) {
+        result.lineTo( *it );
+    }
+
+    // TODO: Not sure this is necessary...
+    if ( polyline.isClosed() ) {
+        result.close();
+    }
+
+    return result;
+}
+
 void BuildingPlan::makeMesh()
 {
     // Build the walls

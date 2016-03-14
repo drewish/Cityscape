@@ -2,6 +2,8 @@
 #include "CityData.h"
 #include "FlatShape.h"
 #include "RoadBuilder.h"
+#include "BlockSubdivider.h"
+#include "LotFiller.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -95,7 +97,7 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
     }, "key=2" );
     params->addButton( "Test 3", [&] {
         // Intentionally don't clear so we can combine with other shapes
-        mHighwayPoints = std::vector<ci::vec2>({
+        std::vector<ci::vec2> add({
             vec2(-9.6225,498.446),
             vec2(-519.615,-336.788),
             vec2(-519.615,-336.788),
@@ -103,11 +105,12 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
             vec2(533.087,-159.734),
             vec2(-9.6225,498.446),
         });
+        mHighwayPoints.insert( mHighwayPoints.end(), add.begin(), add.end() );
         layout();
     }, "key=3" );
     params->addButton( "Test 4", [&] {
         // Intentionally don't clear so we can combine with other shapes
-        mHighwayPoints = std::vector<ci::vec2>({
+        std::vector<ci::vec2> add({
             vec2( -576, 575 ),
             vec2( 573, 572 ),
             vec2( 573, 572 ),
@@ -117,6 +120,7 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
             vec2( -573, -578 ),
             vec2( -576, 575 ),
         });
+        mHighwayPoints.insert( mHighwayPoints.end(), add.begin(), add.end() );
         layout();
     }, "key=4" );
     params->addButton( "Test 5", [&] {
@@ -142,8 +146,12 @@ void CityMode::layout() {
     // Should have better way to partially update
     mModel = Cityscape::CityModel( mHighwayPoints );
     mModel.options = mOptions;
+    // TODO figure out how to mark progress so we can do this across a few
+    // frame updates instead of blocking
     Cityscape::buildHighwaysAndDistricts( mModel );
     Cityscape::buildStreetsAndBlocks( mModel );
+    Cityscape::subdivideBlocks( mModel );
+    Cityscape::fillLots( mModel );
 
     mCityView = CityView::create( mModel );
 }

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Mode.h"
-#include "Building.h"
-#include "CityData.h" // For Building
 
 class BuildingMode : public BaseMode
 {

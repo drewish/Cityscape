@@ -7,14 +7,52 @@
 //
 #pragma once
 
-#include "Options.h" // Should migrate all this into zoning
-
 // Should go someplace else...
-#include "Building.h"
 #include "BuildingPlan.h"
 
 class FlatShape;
 typedef std::shared_ptr<FlatShape>    	FlatShapeRef;
+
+
+struct RoadOptions {
+    ci::ColorA color = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
+    uint8_t highwayWidth = 40;
+    uint8_t sidestreetWidth = 20;
+    int16_t sidestreetAngle1 = 0; // -180 - +180 degrees
+    int16_t sidestreetAngle2 = 90; // -90 - +90 degrees
+    uint16_t blockHeight = 300;
+    uint16_t blockWidth = 200;
+};
+
+struct BlockOptions {
+    enum BlockDivision {
+        NO_BLOCK_DIVISION = 0,
+        BLOCK_DIVIDED = 1,
+    };
+
+    BlockDivision division = BLOCK_DIVIDED;
+    int16_t lotWidth = 40;
+};
+
+struct LotOptions {
+    enum BuildingPlacement {
+        BUILDING_IN_CENTER = 0,
+        BUILDING_FILL_LOT = 1,
+    };
+
+    BuildingPlacement buildingPlacement = BUILDING_IN_CENTER;
+};
+
+struct BuildingOptions {
+    int roofStyle = 1;
+};
+
+struct Options {
+    RoadOptions road;
+    BlockOptions block;
+    LotOptions lot;
+    BuildingOptions building;
+};
 
 namespace Cityscape {
     // Give relatively unique colors
@@ -38,6 +76,9 @@ namespace Cityscape {
     struct CityModel {
         CityModel() {}
         CityModel( const std::vector<ci::vec2> &highwayPoints );
+        // For debugging build a city from a small portion
+        CityModel( const BlockRef &block );
+        CityModel( const BuildingRef &lot );
 
         Options options;
 
@@ -124,14 +165,13 @@ namespace Cityscape {
     };
 
     struct Building {
-        static BuildingRef create( const BuildingPlan &plan, uint8_t floors = 1 )
+        static BuildingRef create( const BuildingPlan &plan, uint8_t floors = 1, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
         {
-            return BuildingRef( new Building( plan, floors ) );
+            return BuildingRef( new Building( plan, floors, position, rotation ) );
         }
 
         Building( const BuildingPlan &plan, uint8_t floors = 1, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
-            : plan( plan ), floors( floors ), position( position ), rotation( rotation )
-        {};
+            : plan( plan ), floors( floors ), position( position ), rotation( rotation ) {};
 
         BuildingPlan    plan;
         uint8_t         floors;
@@ -140,6 +180,10 @@ namespace Cityscape {
     };
 
     struct Tree {
+        static TreeRef create( const ci::vec3 &p, float d ) { return TreeRef( new Tree( p, d ) ); };
+
+        Tree( const ci::vec3 &position, float diameter ) : position( position ), diameter( diameter ) {};
+
         ci::vec3 position;
         float diameter;
     };

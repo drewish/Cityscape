@@ -30,5 +30,16 @@ CityModel::CityModel( const std::vector<ci::vec2> &highwayPoints )
     }
 }
 
+// For debugging build a city from a small portion
+CityModel::CityModel( const BlockRef &block )
+{
+assert( false );
+}
+
+CityModel::CityModel( const BuildingRef &building )
+{
+assert( false );
+}
+
 
 }

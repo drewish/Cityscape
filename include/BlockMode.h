@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Mode.h"
-#include "Block.h"
 
 class BlockMode : public BaseMode
 {
@@ -17,8 +16,8 @@ class BlockMode : public BaseMode
     virtual void movePoint( ci::vec2 from, ci::vec2 to ) override;
 
   private:
-    BlockRef        mBlock;
-    ci::PolyLine2f  mOutline;
+    Cityscape::BlockRef         mBlock;
+    ci::PolyLine2f              mOutline;
     std::vector<ci::PolyLine2f> mHoles;
 };
 

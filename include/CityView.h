@@ -38,7 +38,7 @@ public:
     CityView( const Cityscape::CityModel &model );
 
     ci::gl::BatchRef treeBatch( const ci::gl::GlslProgRef &shader, const std::vector<TreeInstance> &trees ) const;
-    ci::gl::BatchRef buildingBatch( const ci::gl::GlslProgRef &shader, const Building &building ) const;
+    ci::gl::BatchRef buildingBatch( const ci::gl::GlslProgRef &shader, const Cityscape::Building &building ) const;
 
     void draw( const Options &o ) const;
 

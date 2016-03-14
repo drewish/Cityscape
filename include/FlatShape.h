@@ -11,9 +11,25 @@
 #include "cinder/TriMesh.h"
 #include "CgalPolygon.h"
 
+class FlatShape;
+typedef std::shared_ptr<FlatShape>    	FlatShapeRef;
+
 class FlatShape {
   public:
     typedef std::vector<ci::PolyLine2f> PolyLine2fs;
+
+    static FlatShapeRef create( const ci::PolyLine2f &outline, const PolyLine2fs &holes = {} )
+    {
+        return FlatShapeRef( new FlatShape( outline, holes ) );
+    }
+
+    static FlatShapeRef create( const CGAL::Polygon_with_holes_2<ExactK> &pwh )
+    {
+        return FlatShapeRef( new FlatShape( pwh ) );
+    }
+
+    // * * *
+
 
     FlatShape( const FlatShape &s )
         : mOutline( s.mOutline ), mHoles( s.mHoles ), mMesh( s.mMesh ), mArea( s.mArea )

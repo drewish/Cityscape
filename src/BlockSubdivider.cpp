@@ -1,53 +1,54 @@
 //
-//  Block.cpp
+//  BlockSubdivider.cpp
 //  Cityscape
 //
-//  Created by andrew morton on 2/16/15.
+//  Created by Andrew Morton on 3/6/16.
 //
 //
 
-#include "cinder/Rand.h"
+#include "BlockSubdivider.h"
 
-#include "Block.h"
-#include "Lot.h"
-#include "GeometryHelpers.h"
-#include "CgalPolygon.h"
+#include "FlatShape.h"
+#include "CgalArrangement.h"
 #include "CgalStraightSkeleton.h"
+#include "GeometryHelpers.h"
 
 using namespace ci;
 
-typedef std::map<std::pair<float, float>, vec3> OffsetMap;
+namespace Cityscape {
 
-void Block::layout( const Options &options )
+void subdivideNotReally( BlockRef block, const Options &options );
+void subdivideSkeleton( BlockRef block, const Options &options );
+
+// in Blocks
+// out Lots
+void subdivideBlocks( CityModel &city )
 {
-    mLots.clear();
+    for ( const auto &district : city.districts ) {
+        for ( const auto &block : district->blocks ) {
 
-    // Don't bother dividing small blocks
-    if ( mShape.area() < 100 ) {
-        subdivideNotReally( options );
-    }
-    else if ( options.block.division == BlockOptions::BLOCK_DIVIDED ) {
-        subdivideSkeleton( options );
-    }
-    else { // BlockOptions::NO_BLOCK_DIVISION
-        subdivideNotReally( options );
-    }
-
-    for ( auto &lot : mLots ) {
-        lot.get()->layout( options );
+            // Don't bother dividing small blocks
+            if ( block->shape->area() < 100 ) {
+                subdivideNotReally( block, city.options );
+            }
+            else if ( city.options.block.division == BlockOptions::BLOCK_DIVIDED ) {
+                subdivideSkeleton( block, city.options );
+            }
+            else { // BlockOptions::NO_BLOCK_DIVISION
+                subdivideNotReally( block, city.options );
+            }
+        }
     }
 }
 
 // Use the entire block for a lot.
-void Block::subdivideNotReally( const Options &options )
+void subdivideNotReally( BlockRef block, const Options &options )
 {
-    // TODO we should invert the color so lots are differnt than blocks
-    LotRef lot = buildLot( mShape.polyLineWithConnectedHoles(), mColor, options.lot.buildingPlacement );
-    if ( lot ) mLots.push_back( lot );
+    block->lots.push_back( Lot::create( block->shape ) );
 }
 
 // TODO: This needs work to handle the holes correctly
-Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16_t lotWidth )
+Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotWidth )
 {
     Arrangement_2 arrangement;
 
@@ -59,11 +60,11 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( shape.polygonWithHoles<InexactK>() );
 //    // Avoid holes do we don't have to skip the face for the hole when reading out the lots
 //    SsPtr skel = CGAL::create_interior_straight_skeleton_2( shape.polygonWithConnectedHoles(), InexactK() );
-    mSkel = skel; // Save a copy so BlockMode can peek in.
 
     std::list<Segment_2> outlineSegments;
     std::list<Segment_2> skeletonSegments;
 
+    float dividerAngle = 0;
     float maxLength = 0;
 
     for ( auto edge = skel->halfedges_begin(); edge != skel->halfedges_end(); ++edge ) {
@@ -83,7 +84,7 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
             float length = glm::length2( vec );
             if ( length > maxLength ) {
                 // Find the perpendicular angle.
-                mDividerAngle = atan2( vec.y, -vec.x );
+                dividerAngle = atan2( vec.y, -vec.x );
                 maxLength = length;
             }
 
@@ -135,7 +136,7 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
 
     // Then start walking across the outline adding dividers.
     std::list<Segment_2> dividerSegments;
-    std::vector<vec2> dividers = computeDividers( shape.outline().getPoints(), mDividerAngle, lotWidth );
+    std::vector<vec2> dividers = computeDividers( shape.outline().getPoints(), dividerAngle, lotWidth );
     for ( const Segment_2 &divider : segmentsFrom( dividers ) ) {
         outlineSegments.push_back( divider );
 
@@ -159,11 +160,9 @@ Arrangement_2 Block::arrangementSubdividing( const FlatShape &shape, const int16
     return arrangement;
 }
 
-void Block::subdivideSkeleton( const Options &options )
+void subdivideSkeleton( BlockRef block, const Options &options )
 {
-    float hue = 0.0;
-
-    mArr = arrangementSubdividing( mShape, options.block.lotWidth );
+    Arrangement_2 mArr = arrangementSubdividing( *block->shape, options.block.lotWidth );
 
     // TODO: this doesn't exclude the faces that are holes in the initial shape
     for ( auto face = mArr.faces_begin(); face != mArr.faces_end(); ++face ) {
@@ -175,37 +174,10 @@ void Block::subdivideSkeleton( const Options &options )
                 lotOutline.push_back( vecFrom( he->target()->point() ) );
             } while ( ++cc != *j );
 
-            ColorA color( CM_HSV, hue, 1.0, 0.5, 0.5 );
-
-            LotRef l = buildLot( lotOutline, color, options.lot.buildingPlacement );
-            if ( l ) {
-                mLots.push_back( l );
-
-                hue += 0.17;
-                if (hue > 1) hue -= 1.0;
-            }
+            block->lots.push_back( Lot::create( FlatShape::create( lotOutline ) ) );
         }
     }
 }
 
-LotRef Block::buildLot( const ci::PolyLine2f &lotOutline, const ci::ColorA &color, const LotOptions::BuildingPlacement placement )
-{
-    FlatShape shape( lotOutline );
 
-    // Skip small lots
-    if ( shape.area() < 10 ) return nullptr;
-
-    // TODO these lot proportions should become an options
-    if ( randInt( 8 ) == 0 ) {
-        // Randomize the tree coverage
-        return LotRef( new ParkLot( shape, randFloat( 0.25, 0.75 ) ) );
-    }
-    if ( randInt( 16 ) == 0 ) {
-        return LotRef( new EmptyLot( shape, color ) );
-    }
-    // TODO these options need to be moved from lot to block and renamed
-    if ( placement == LotOptions::BUILDING_FILL_LOT ) {
-        return LotRef( new FilledLot( shape, color ) );
-    }
-    return LotRef( new SingleBuildingLot( shape, color ) );
-}
+} // Cityscape namespace

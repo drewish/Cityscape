@@ -2,6 +2,7 @@
 #include "CgalArrangement.h"
 #include "CgalStraightSkeleton.h"
 #include "GeometryHelpers.h"
+#include "FlatShape.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -93,12 +94,11 @@ void BlockMode::layout() {
     mBlock.reset();
     if ( mOutline.size() < 3 ) return;
 
-    mBlock = Block::create( FlatShape( mOutline, mHoles ), ci::ColorA( 0.3, 0.7, 0.4 ) );
-    mBlock->layout( mOptions );
+    mBlock = Cityscape::Block::create( FlatShape::create( mOutline, mHoles ) );
+//    mBlock->layout( mOptions );
 
-    RoadNetwork roads;
-    roads.mBlocks.push_back( *mBlock );
-    mCityView = CityView::create( roads.getPoints() );
+    Cityscape::CityModel city( mBlock );
+    mCityView = CityView::create( city );
 }
 
 void BlockMode::draw() {
@@ -109,7 +109,7 @@ void BlockMode::draw() {
     return;
 
     // * * *
-
+/*
     // This it only really helpful when debugging the CGAL arrangement.
 
     if ( false ) {
@@ -193,6 +193,7 @@ void BlockMode::draw() {
             gl::draw( shape );
         }
     }
+*/
 }
 
 std::vector<ci::vec2> BlockMode::getPoints()
