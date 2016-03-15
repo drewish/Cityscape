@@ -62,7 +62,7 @@ class CityscapeApp : public App {
     action              mEditAction;
 };
 
-// TODO: Consider making this a general purpose gradient generator.
+// TODO: move this into the CityView class... let it handle generating the sky and ground
 void CityscapeApp::buildBackground()
 {
     vector<vec3> positions;
@@ -320,7 +320,7 @@ void CityscapeApp::draw()
             gl::setMatrices( mViewCamera );
         }
 
-        {
+        { // Move this into CityView
             gl::ScopedColor scopedColor( Color8u(233, 203, 151) );
             mGroundBatch->draw();
         }

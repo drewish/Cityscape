@@ -17,32 +17,33 @@ using namespace ci;
 
 namespace Cityscape {
 
-void subdivideNotReally( BlockRef block, const Options &options );
-void subdivideSkeleton( BlockRef block, const Options &options );
+void subdivideNotReally( BlockRef block );
+void subdivideSkeleton( BlockRef block, const ZoningPlan::BlockOptions &options );
 
 // in Blocks
 // out Lots
 void subdivideBlocks( CityModel &city )
 {
     for ( const auto &district : city.districts ) {
-        for ( const auto &block : district->blocks ) {
+        ZoningPlanRef zoning = district->zoningPlan;
 
+        for ( const auto &block : district->blocks ) {
             // Don't bother dividing small blocks
             if ( block->shape->area() < 100 ) {
-                subdivideNotReally( block, city.options );
+                subdivideNotReally( block );
             }
-            else if ( city.options.block.division == BlockOptions::BLOCK_DIVIDED ) {
-                subdivideSkeleton( block, city.options );
+            else if ( zoning->block.lotDivision == ZoningPlan::LotDivision::SKELETON_LOT_DIVISION ) {
+                subdivideSkeleton( block, zoning->block );
             }
-            else { // BlockOptions::NO_BLOCK_DIVISION
-                subdivideNotReally( block, city.options );
+            else { // LotDivision::NO_LOT_DIVISION
+                subdivideNotReally( block );
             }
         }
     }
 }
 
 // Use the entire block for a lot.
-void subdivideNotReally( BlockRef block, const Options &options )
+void subdivideNotReally( BlockRef block )
 {
     block->lots.push_back( Lot::create( block->shape ) );
 }
@@ -160,9 +161,9 @@ Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotW
     return arrangement;
 }
 
-void subdivideSkeleton( BlockRef block, const Options &options )
+void subdivideSkeleton( BlockRef block, const ZoningPlan::BlockOptions &options )
 {
-    Arrangement_2 mArr = arrangementSubdividing( *block->shape, options.block.lotWidth );
+    Arrangement_2 mArr = arrangementSubdividing( *block->shape, options.lotWidth );
 
     // TODO: this doesn't exclude the faces that are holes in the initial shape
     for ( auto face = mArr.faces_begin(); face != mArr.faces_end(); ++face ) {

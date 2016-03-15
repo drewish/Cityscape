@@ -98,6 +98,7 @@ void BlockMode::layout() {
 //    mBlock->layout( mOptions );
 
     Cityscape::CityModel city( mBlock );
+    city.options = mOptions;
     mCityView = CityView::create( city );
 }
 

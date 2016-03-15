@@ -74,7 +74,7 @@ void buildHighwaysAndDistricts( CityModel &city )
             fs = FlatShape::create( s );
         }
 
-        city.districts.push_back( District::create( fs ) );
+        city.districts.push_back( District::create( fs, city.zoningPlans.front() ) );
     }
 }
 
@@ -83,11 +83,10 @@ void buildHighwaysAndDistricts( CityModel &city )
 void buildStreetsAndBlocks( CityModel &city )
 {
     for ( auto &district : city.districts ) {
-
-//        // No Block division
-//        district->blocks.push_back( Block::create( district->shape ) );
-//        continue;
-
+        if ( district->zoningPlan->district.streetDivision != ZoningPlan::StreetDivision::GRID_STREET_DIVIDED ) {
+            // No Block division
+            continue;
+        }
 
         const std::vector<vec2> outlinePoints = district->shape->outline().getPoints();
         vector<CGAL::Polygon_2<ExactK>> roads;

@@ -55,22 +55,8 @@ void BuildingMode::layout() {
 
 
 
-    Cityscape::CityModel data;
+    Cityscape::CityModel data( mBuilding );
     data.options = mOptions;
-    // Lots of bullshit to get everything into the tree.
-    FlatShapeRef fs = FlatShape::create( PolyLine2f( {
-        vec2( -600, -600 ), vec2(  600, -600 ),
-        vec2(  600,  600 ), vec2( -600,  600 )
-    } ) );
-    Cityscape::DistrictRef district = Cityscape::District::create( fs );
-    Cityscape::BlockRef    block    = Cityscape::Block::create( fs );
-    Cityscape::LotRef      lot      = Cityscape::Lot::create( fs );
-
-    data.districts.push_back( district );
-    district->blocks.push_back( block );
-    block->lots.push_back( lot );
-    lot->building = mBuilding;
-
     mCityView = CityView::create( data );
 }
 
