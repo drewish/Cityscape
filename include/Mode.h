@@ -35,6 +35,7 @@ class BaseMode
     virtual bool isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline ) { return false; }
 
     Options             mOptions;
+    Cityscape::CityModel  mModel;
     CityView::Options   mViewOptions;
     CityViewRef         mCityView;
 };

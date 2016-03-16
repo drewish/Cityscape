@@ -12,19 +12,31 @@ void BlockMode::setup() {
     mViewOptions.drawLots = true;
     mViewOptions.drawBuildings = false;
 
+    mModel = Cityscape::CityModel();
+    FlatShapeRef fs = FlatShape::create( PolyLine2f( {
+        vec2( -600, -600 ), vec2(  600, -600 ),
+        vec2(  600,  600 ), vec2( -600,  600 )
+    } ) );
+    Cityscape::DistrictRef district = Cityscape::District::create( fs, mModel.zoningPlans.front() );
+    district->blocks.push_back( mBlock );
+    mModel.districts.push_back( district );
+
     layout();
 }
 
 void BlockMode::addParams( ci::params::InterfaceGlRef params) {
-    params->addSeparator();
 
-    params->addParam( "Division", {"None", "Divided"}, (int*)&mOptions.block.division )
+    Cityscape::ZoningPlanRef plan = mModel.zoningPlans.front();
+
+    params->addSeparator("Block");
+
+    params->addParam( "Division", {"None", "Skeleton"}, (int*)&plan->block.lotDivision )
         .updateFn( std::bind( &BlockMode::layout, this ) );
-
-    params->addSeparator();
-
-    params->addParam( "lotWidth", &mOptions.block.lotWidth ).step( 5 )
+    params->addParam( "lotWidth", &plan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( std::bind( &BlockMode::layout, this ) );
+
+    params->addSeparator("Lot");
+
     params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
         .updateFn( std::bind( &BlockMode::layout, this ) );
 
@@ -97,9 +109,10 @@ void BlockMode::layout() {
     mBlock = Cityscape::Block::create( FlatShape::create( mOutline, mHoles ) );
 //    mBlock->layout( mOptions );
 
-    Cityscape::CityModel city( mBlock );
-    city.options = mOptions;
-    mCityView = CityView::create( city );
+    mModel.districts.front()->blocks.clear();
+    mModel.districts.front()->blocks.push_back( mBlock );
+
+    mCityView = CityView::create( mModel );
 }
 
 void BlockMode::draw() {

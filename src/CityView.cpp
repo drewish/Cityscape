@@ -32,7 +32,7 @@ CityView::CityView(const Cityscape::CityModel &model)
     );
 
     for ( const auto &shape : model.pavement ) {
-        auto mesh = shape->mesh() >> geom::Constant( geom::Attrib::COLOR, model.options.road.color );
+        auto mesh = shape->mesh() >> geom::Constant( geom::Attrib::COLOR, model.roadColor );
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
     }
 

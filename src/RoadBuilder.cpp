@@ -35,12 +35,15 @@ CGAL::Polygon_2<ExactK> roadOutline( const ci::vec2 &a, const ci::vec2 &b, uint8
 // out Districts and paved FlatShape
 void buildHighwaysAndDistricts( CityModel &city )
 {
+    city.pavement.clear();
+    city.districts.clear();
+
     // Collect all the road shapes so we can insert them at once.
     vector<CGAL::Polygon_2<ExactK>> roads;
     for ( auto &h : city.highways ) {
         // TODO: not properly handling the polylines, assuming only two points
         vector<vec2> points = h->centerline.getPoints();
-        roads.push_back( roadOutline( points[0], points[1], city.options.road.highwayWidth ) );
+        roads.push_back( roadOutline( points[0], points[1], city.highwayWidth ) );
     }
 
     CGAL::Polygon_set_2<ExactK> paved, unpaved;
@@ -83,7 +86,12 @@ void buildHighwaysAndDistricts( CityModel &city )
 void buildStreetsAndBlocks( CityModel &city )
 {
     for ( auto &district : city.districts ) {
-        if ( district->zoningPlan->district.streetDivision != ZoningPlan::StreetDivision::GRID_STREET_DIVIDED ) {
+
+        district->blocks.clear();
+
+        ZoningPlanRef plan = district->zoningPlan;
+
+        if ( plan->district.streetDivision != ZoningPlan::StreetDivision::GRID_STREET_DIVIDED ) {
             // No Block division
             continue;
         }
@@ -92,19 +100,19 @@ void buildStreetsAndBlocks( CityModel &city )
         vector<CGAL::Polygon_2<ExactK>> roads;
 
         // Create narrow roads to cover the bounding box
-        uint16_t angle = city.options.road.sidestreetAngle1;
-        vector<vec2> dividerPoints = computeDividers( outlinePoints, angle * M_PI / 180.0, city.options.road.blockHeight );
+        uint16_t angle = plan->district.grid.avenueAngle;
+        vector<vec2> dividerPoints = computeDividers( outlinePoints, angle * M_PI / 180.0, plan->district.grid.avenueSpacing );
         assert( dividerPoints.size() % 2 == 0 );
         for ( auto a = dividerPoints.cbegin(); a != dividerPoints.cend() ; ++a ) {
-            roads.push_back( roadOutline( *a, *( ++a ), city.options.road.sidestreetWidth) );
+            roads.push_back( roadOutline( *a, *( ++a ), plan->district.grid.roadWidth ) );
         }
 
         // TODO move duplicated logic to a function
-        angle += city.options.road.sidestreetAngle2;
-        dividerPoints = computeDividers( outlinePoints, angle * M_PI / 180.0, city.options.road.blockWidth );
+        angle += plan->district.grid.streetAngle;
+        dividerPoints = computeDividers( outlinePoints, angle * M_PI / 180.0, plan->district.grid.streetSpacing );
         assert( dividerPoints.size() % 2 == 0 );
         for ( auto a = dividerPoints.cbegin(); a != dividerPoints.cend() ; ++a ) {
-            roads.push_back( roadOutline( *a, *( ++a ), city.options.road.sidestreetWidth) );
+            roads.push_back( roadOutline( *a, *( ++a ), plan->district.grid.roadWidth ) );
         }
 
         auto districtWithHoles = district->shape->polygonWithHoles<ExactK>();
@@ -118,6 +126,8 @@ void buildStreetsAndBlocks( CityModel &city )
         list<CGAL::Polygon_with_holes_2<ExactK>> pavedShapes, unpavedShapes;
         paved.polygons_with_holes( back_inserter( pavedShapes ) );
         for ( auto &s : pavedShapes ) {
+// TODO: might be better for something else to collect up the streets from the
+// districts. then the districts have a clear way to remove their roads.
             city.pavement.push_back( FlatShape::create( s ) );
         }
 

@@ -13,27 +13,6 @@
 class FlatShape;
 typedef std::shared_ptr<FlatShape>    	FlatShapeRef;
 
-
-struct RoadOptions {
-    ci::ColorA color = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
-    uint8_t highwayWidth = 40;
-    uint8_t sidestreetWidth = 20;
-    int16_t sidestreetAngle1 = 0; // -180 - +180 degrees
-    int16_t sidestreetAngle2 = 90; // -90 - +90 degrees
-    uint16_t blockHeight = 300;
-    uint16_t blockWidth = 200;
-};
-
-struct BlockOptions {
-    enum BlockDivision {
-        NO_BLOCK_DIVISION = 0,
-        BLOCK_DIVIDED = 1,
-    };
-
-    BlockDivision division = BLOCK_DIVIDED;
-    int16_t lotWidth = 40;
-};
-
 struct LotOptions {
     enum BuildingPlacement {
         BUILDING_IN_CENTER = 0,
@@ -48,8 +27,6 @@ struct BuildingOptions {
 };
 
 struct Options {
-    RoadOptions road;
-    BlockOptions block;
     LotOptions lot;
     BuildingOptions building;
 };
@@ -94,15 +71,10 @@ namespace Cityscape {
 
         std::string name;
 
-        struct RoadOptions {
-            ci::ColorA color = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
-            uint8_t highwayWidth = 40;
-            uint8_t streetWidth = 20;
-        } road;
-
         struct DistrictOptions {
             StreetDivision streetDivision = GRID_STREET_DIVIDED;
             struct GridOptions {
+                uint8_t roadWidth = 20;
                 int16_t avenueAngle = 0; // -180 - +180 degrees
                 int16_t streetAngle = 90; // -90 - +90 degrees
                 uint16_t avenueSpacing = 200;
@@ -128,13 +100,12 @@ namespace Cityscape {
 
     struct CityModel {
         CityModel() {}
-        CityModel( const std::vector<ci::vec2> &highwayPoints );
-        // For debugging build a city from a small portion
-        CityModel( const BlockRef &block );
-        CityModel( const BuildingRef &lot );
 
         Options     options;
-        ci::Color   color = ci::Color8u(233, 203, 151);
+        ci::Color   groundColor = ci::Color8u(233, 203, 151);
+
+        ci::ColorA  roadColor = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
+        uint8_t highwayWidth = 40;
 
         std::vector<HighwayRef>     highways;
         std::vector<StreetRef>      streets;

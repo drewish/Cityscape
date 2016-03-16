@@ -17,36 +17,44 @@ void CityMode::setup() {
 }
 
 void CityMode::addParams( ci::params::InterfaceGlRef params) {
-    params->addSeparator();
+
+    Cityscape::ZoningPlanRef plan = mModel.zoningPlans.front();
 
     // TODO: Don't redo layout on every change, set a timer to update every half
     // second or so.
-    params->addParam( "highwayWidth", &mOptions.road.highwayWidth )
-        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "sidestreetWidth", &mOptions.road.sidestreetWidth )
-        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "sidestreetAngle1", &mOptions.road.sidestreetAngle1 )
-        .min( -180 ).max( 180 ).step( 5 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "sidestreetAngle2", &mOptions.road.sidestreetAngle2 )
-        .min( -90 ).max( 90 ).step( 15 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "blockWidth", &mOptions.road.blockWidth ).step( 5 )
-        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "blockHeight", &mOptions.road.blockHeight ).step( 5 )
-        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addSeparator("Road");
 
-    params->addSeparator();
+    params->addParam( "highwayWidth", &mModel.highwayWidth )
+        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "sidestreetWidth", &plan->district.grid.roadWidth )
+        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
 
-    params->addParam( "Division", {"None", "Divided"}, (int*)&mOptions.block.division )
+    params->addSeparator("District");
+
+    params->addParam( "Division", {"None", "Grid"}, (int*)&plan->district.streetDivision )
         .updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "Avenue Angle", &plan->district.grid.avenueAngle )
+        .min( -180 ).max( 180 ).step( 5 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "Street Angle", &plan->district.grid.streetAngle )
+        .min( -90 ).max( 90 ).step( 15 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "Avenue Spacing", &plan->district.grid.avenueSpacing ).step( 5 )
+        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "Street Spacing", &plan->district.grid.streetSpacing ).step( 5 )
+        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
 
-    params->addSeparator();
+    params->addSeparator("Block");
 
-    params->addParam( "lotWidth", &mOptions.block.lotWidth ).step( 5 )
+    params->addParam( "Division", {"None", "Skeleton"}, (int*)&plan->block.lotDivision )
+        .updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "lotWidth", &plan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+
+    params->addSeparator("Lot");
+
     params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
         .updateFn( std::bind( &CityMode::layout, this ) );
 
-    params->addSeparator();
+    params->addSeparator("Building");
 
     params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mOptions.building.roofStyle )
         .keyDecr( "[" ).keyIncr( "]" )
@@ -143,8 +151,13 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 }
 
 void CityMode::layout() {
+    // Translate from RoadNetwork into Highways
+    mModel.highways.clear();
+    for ( size_t i = 1, size = mHighwayPoints.size(); i < size; i += 2 ) {
+        mModel.highways.push_back( Cityscape::Highway::create( mHighwayPoints[i - 1], mHighwayPoints[i] ) );
+    }
+
     // Should have better way to partially update
-    mModel = Cityscape::CityModel( mHighwayPoints );
     mModel.options = mOptions;
     // TODO figure out how to mark progress so we can do this across a few
     // frame updates instead of blocking

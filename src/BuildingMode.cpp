@@ -7,6 +7,19 @@ using namespace ci::app;
 
 void BuildingMode::setup() {
     mViewOptions.drawBuildings = true;
+
+    mModel = Cityscape::CityModel();
+    FlatShapeRef fs = FlatShape::create( PolyLine2f( {
+        vec2( -600, -600 ), vec2(  600, -600 ),
+        vec2(  600,  600 ), vec2( -600,  600 )
+    } ) );
+    Cityscape::DistrictRef district = Cityscape::District::create( fs, mModel.zoningPlans.front() );
+    Cityscape::BlockRef    block    = Cityscape::Block::create( fs );
+    Cityscape::LotRef      lot      = Cityscape::Lot::create( fs );
+    mModel.districts.push_back( district );
+    district->blocks.push_back( block );
+    block->lots.push_back( lot );
+
     setOutline( BuildingPlan::lshape() );
 }
 
@@ -53,11 +66,8 @@ void BuildingMode::layout() {
 
     mBuilding = Cityscape::Building::create( BuildingPlan( mOutline, static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle ) ), mFloors );
 
-
-
-    Cityscape::CityModel data( mBuilding );
-    data.options = mOptions;
-    mCityView = CityView::create( data );
+    mModel.districts.front()->blocks.front()->lots.front()->building = mBuilding;
+    mCityView = CityView::create( mModel );
 }
 
 void BuildingMode::draw() {
