@@ -26,11 +26,11 @@ void BuildingMode::setup() {
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
     params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mOptions.building.roofStyle )
         .keyDecr( "[" ).keyIncr( "]" )
-        .updateFn( std::bind( &BuildingMode::layout, this ) );
+        .updateFn( [this] { requestLayout(); } );
     params->addParam( "Floors", &mFloors)
         .min( 1 ).max( 5 )
         .keyDecr( "-" ).keyIncr( "=" )
-        .updateFn( std::bind( &BuildingMode::layout, this ) );
+        .updateFn( [this] { requestLayout(); } );
 
     params->addSeparator();
 

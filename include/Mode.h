@@ -26,6 +26,16 @@ class BaseMode
     virtual void setup() {}
     virtual void layout() {}
     virtual void draw() {}
+    void update()
+    {
+        // TODO: Don't redo layout on every change, set a timer to update every
+        // half second or so.
+        if ( mLayoutNeeded ) {
+            layout();
+            mLayoutNeeded = false;
+        }
+    }
+    void requestLayout() { mLayoutNeeded = true; }
 
     virtual std::vector<ci::vec2> getPoints() { return {}; }
     virtual void addPoint( ci::vec2 point ) {}
@@ -34,6 +44,7 @@ class BaseMode
 
     virtual bool isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline ) { return false; }
 
+    bool                mLayoutNeeded = true;
     Options             mOptions;
     Cityscape::CityModel  mModel;
     CityView::Options   mViewOptions;

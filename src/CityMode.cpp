@@ -20,54 +20,52 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 
     Cityscape::ZoningPlanRef plan = mModel.zoningPlans.front();
 
-    // TODO: Don't redo layout on every change, set a timer to update every half
-    // second or so.
     params->addSeparator("Road");
 
-    params->addParam( "highwayWidth", &mModel.highwayWidth )
-        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
-    params->addParam( "sidestreetWidth", &plan->district.grid.roadWidth )
-        .min( 10 ).max( 50 ).step( 1 ).updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "Highway Width", &mModel.highwayWidth )
+        .min( 10 ).max( 50 ).step( 1 ).updateFn( [this] { requestLayout(); } );
+    params->addParam( "Sidestreet Width", &plan->district.grid.roadWidth )
+        .min( 10 ).max( 50 ).step( 1 ).updateFn( [this] { requestLayout(); } );
 
     params->addSeparator("District");
 
-    params->addParam( "Division", {"None", "Grid"}, (int*)&plan->district.streetDivision )
-        .updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "Street Division", {"None", "Grid"}, (int*)&plan->district.streetDivision )
+        .updateFn( [this] { requestLayout(); } );
     params->addParam( "Avenue Angle", &plan->district.grid.avenueAngle )
-        .min( -180 ).max( 180 ).step( 5 ).updateFn( std::bind( &CityMode::layout, this ) );
+        .min( -180 ).max( 180 ).step( 5 ).updateFn( [this] { requestLayout(); } );
     params->addParam( "Street Angle", &plan->district.grid.streetAngle )
-        .min( -90 ).max( 90 ).step( 15 ).updateFn( std::bind( &CityMode::layout, this ) );
+        .min( -90 ).max( 90 ).step( 15 ).updateFn( [this] { requestLayout(); } );
     params->addParam( "Avenue Spacing", &plan->district.grid.avenueSpacing ).step( 5 )
-        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+        .min( 15 ).max( 400 ).updateFn( [this] { requestLayout(); } );
     params->addParam( "Street Spacing", &plan->district.grid.streetSpacing ).step( 5 )
-        .min( 15 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+        .min( 15 ).max( 400 ).updateFn( [this] { requestLayout(); } );
 
     params->addSeparator("Block");
 
-    params->addParam( "Division", {"None", "Skeleton"}, (int*)&plan->block.lotDivision )
-        .updateFn( std::bind( &CityMode::layout, this ) );
+    params->addParam( "Lot Division", {"None", "Skeleton"}, (int*)&plan->block.lotDivision )
+        .updateFn( [this] { requestLayout(); } );
     params->addParam( "lotWidth", &plan->block.lotWidth ).step( 5 )
-        .min( 10 ).max( 400 ).updateFn( std::bind( &CityMode::layout, this ) );
+        .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
 
     params->addSeparator("Lot");
 
     params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
-        .updateFn( std::bind( &CityMode::layout, this ) );
+        .updateFn( [this] { requestLayout(); } );
 
     params->addSeparator("Building");
 
     params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mOptions.building.roofStyle )
         .keyDecr( "[" ).keyIncr( "]" )
-        .updateFn( std::bind( &CityMode::layout, this ) );
+        .updateFn( [this] { requestLayout(); } );
 
     params->addSeparator();
 
-    params->addParam( "Roads",    &mViewOptions.drawRoads,     "key=a" );
-    params->addParam( "District", &mViewOptions.drawDistricts, "key=s" );
-    params->addParam( "Block",    &mViewOptions.drawBlocks,    "key=d" );
-    params->addParam( "Lot",      &mViewOptions.drawLots,      "key=f" );
-    params->addParam( "Trees",    &mViewOptions.drawTrees,     "key=z" );
-    params->addParam( "Building", &mViewOptions.drawBuildings, "key=x" );
+    params->addParam( "Draw Roads",    &mViewOptions.drawRoads,     "key=a" );
+    params->addParam( "Draw District", &mViewOptions.drawDistricts, "key=s" );
+    params->addParam( "Draw Block",    &mViewOptions.drawBlocks,    "key=d" );
+    params->addParam( "Draw Lot",      &mViewOptions.drawLots,      "key=f" );
+    params->addParam( "Draw Trees",    &mViewOptions.drawTrees,     "key=z" );
+    params->addParam( "Draw Building", &mViewOptions.drawBuildings, "key=x" );
 
     params->addSeparator();
 

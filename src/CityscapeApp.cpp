@@ -157,11 +157,7 @@ void CityscapeApp::resize()
 
 void CityscapeApp::update()
 {
-}
-
-void CityscapeApp::layout()
-{
-    if ( mModeRef ) mModeRef->layout();
+    if ( mModeRef ) mModeRef->update();
 }
 
 void CityscapeApp::keyUp( KeyEvent event )

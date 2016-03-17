@@ -31,23 +31,23 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
     params->addSeparator("Block");
 
     params->addParam( "Division", {"None", "Skeleton"}, (int*)&plan->block.lotDivision )
-        .updateFn( std::bind( &BlockMode::layout, this ) );
+        .updateFn( [this] { requestLayout(); } );
     params->addParam( "lotWidth", &plan->block.lotWidth ).step( 5 )
-        .min( 10 ).max( 400 ).updateFn( std::bind( &BlockMode::layout, this ) );
+        .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
 
     params->addSeparator("Lot");
 
     params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
-        .updateFn( std::bind( &BlockMode::layout, this ) );
+        .updateFn( [this] { requestLayout(); } );
 
     params->addSeparator();
 
-    params->addParam( "Roads",    &mViewOptions.drawRoads,     "key=a" );
-    params->addParam( "District", &mViewOptions.drawDistricts, "key=s" );
-    params->addParam( "Block",    &mViewOptions.drawBlocks,    "key=d" );
-    params->addParam( "Lot",      &mViewOptions.drawLots,      "key=f" );
-    params->addParam( "Trees",    &mViewOptions.drawTrees,     "key=z" );
-    params->addParam( "Building", &mViewOptions.drawBuildings, "key=x" );
+    params->addParam( "Draw Roads",    &mViewOptions.drawRoads,     "key=a" );
+    params->addParam( "Draw District", &mViewOptions.drawDistricts, "key=s" );
+    params->addParam( "Draw Block",    &mViewOptions.drawBlocks,    "key=d" );
+    params->addParam( "Draw Lot",      &mViewOptions.drawLots,      "key=f" );
+    params->addParam( "Draw Trees",    &mViewOptions.drawTrees,     "key=z" );
+    params->addParam( "Draw Building", &mViewOptions.drawBuildings, "key=x" );
 
     params->addButton( "Clear Points", [&] {
         mOutline = PolyLine2f();
