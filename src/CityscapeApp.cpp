@@ -51,8 +51,6 @@ class CityscapeApp : public App {
     ModeRef             mModeRef;
     ci::params::InterfaceGlRef mParams;
     ci::gl::BatchRef    mSkyBatch;
-    ci::gl::BatchRef    mGroundBatch;
-    ci::vec3            mCenter = vec3( 0, 0, 0 );
     // These names aren't great but it's for seeing where the mouse would
     // intersect with the ground plane.
     bool                mIsMouseOnPlane;
@@ -99,13 +97,6 @@ void CityscapeApp::buildBackground()
     gl::GlslProgRef shader = gl::getStockShader( gl::ShaderDef().color() );
 
     mSkyBatch = gl::Batch::create( mesh, shader );
-
-    geom::Plane plane = geom::Plane()
-        .size( vec2( 1200 ) )
-        .origin( mCenter - vec3( 0, 0, 0.1 ) )
-        .axes( vec3( 1, 0, 0 ), vec3( 0, 1, 0 ) );
-
-    mGroundBatch = gl::Batch::create( plane, shader );
 }
 
 void CityscapeApp::setup()
@@ -117,12 +108,12 @@ void CityscapeApp::setup()
     setupModeParams( ModeRef( new CityMode() ) );
 
     mEditCamera.setPerspective( 60.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
-    mEditCamera.lookAt( mCenter + vec3( 0, 0, 1000 ), mCenter, vec3( 0, 1, 0 ) );
+    mEditCamera.lookAt( vec3( 0, 0, 1000 ), vec3( 0 ), vec3( 0, 1, 0 ) );
     mEditCameraUI = CameraUi( &mEditCamera );
     mViewCameraUI.enable( mIsEditing );
 
     mViewCamera.setPerspective( 40.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
-    mViewCamera.lookAt( vec3( 0, -800, 300 ), mCenter, vec3( 0, 0, 1 ) );
+    mViewCamera.lookAt( vec3( 0, -800, 300 ), vec3( 0 ), vec3( 0, 0, 1 ) );
     mViewCameraUI = CameraUi( &mViewCamera );
     mViewCameraUI.enable( ! mIsEditing );
 
@@ -314,11 +305,6 @@ void CityscapeApp::draw()
             drawCursor();
         } else {
             gl::setMatrices( mViewCamera );
-        }
-
-        { // Move this into CityView
-            gl::ScopedColor scopedColor( Color8u(233, 203, 151) );
-            mGroundBatch->draw();
         }
 
         if ( mModeRef ) mModeRef->draw();

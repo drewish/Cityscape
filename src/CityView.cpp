@@ -31,6 +31,12 @@ CityView::CityView(const Cityscape::CityModel &model)
        app::loadResource( RES_TREE_FRAG )
     );
 
+    geom::Plane plane = geom::Plane()
+        .size( model.dimensions.getSize() )
+        .origin( vec3( 0, 0, -0.10 ) )
+        .axes( vec3( 1, 0, 0 ), vec3( 0, 1, 0 ) );
+    ground = gl::Batch::create( plane >> geom::Constant( geom::Attrib::COLOR, model.groundColor ), colorShader );
+
     for ( const auto &shape : model.pavement ) {
         auto mesh = shape->mesh() >> geom::Constant( geom::Attrib::COLOR, model.roadColor );
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
@@ -108,6 +114,7 @@ gl::BatchRef CityView::buildingBatch( const gl::GlslProgRef &shader, const Citys
 
 void CityView::draw( const Options &options ) const
 {
+    ground->draw();
     if ( options.drawRoads ) {
         for ( const auto &batch : roads ) batch->draw();
     }

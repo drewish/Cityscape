@@ -42,6 +42,7 @@ public:
 
     void draw( const Options &o ) const;
 
+    ci::gl::BatchRef              ground;
     std::vector<ci::gl::BatchRef> roads;
     std::vector<ci::gl::BatchRef> districts;
     std::vector<ci::gl::BatchRef> blocks;

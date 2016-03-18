@@ -102,6 +102,7 @@ namespace Cityscape {
         CityModel() {}
 
         Options     options;
+        ci::Rectf   dimensions = ci::Rectf( -600, -600, 600, 600 );
         ci::Color   groundColor = ci::Color8u(233, 203, 151);
 
         ci::ColorA  roadColor = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
