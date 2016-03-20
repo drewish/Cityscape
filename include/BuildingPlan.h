@@ -39,19 +39,19 @@ public:
     static ci::PolyLine2f tee();
     static ci::PolyLine2f randomOutline();
 
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof, float overhang = 0.0f )
+    static BuildingPlanRef create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof, uint8_t floors = 1, float overhang = 0.0f )
     {
-        return BuildingPlanRef( new BuildingPlan( outline, roof, overhang ) );
+        return BuildingPlanRef( new BuildingPlan( outline, roof, floors, overhang ) );
     }
     static BuildingPlanRef createRandom()
     {
-        return BuildingPlanRef( new BuildingPlan( randomOutline(), RANDOM_ROOF ) );
+        return BuildingPlanRef( new BuildingPlan( randomOutline(), RANDOM_ROOF, 1 ) );
     }
 
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.
-    BuildingPlan( const ci::PolyLine2f &outline, const RoofStyle roof = FLAT_ROOF, float overhang = 0.0f )
-        : mOutline( outline ), mRoof( roof ), mOverhang( overhang )
+    BuildingPlan( const ci::PolyLine2f &outline, RoofStyle roof = FLAT_ROOF, uint8_t floors = 1, float overhang = 0.0f )
+        : mOutline( outline ), mRoof( roof ), mFloors( floors ), mOverhang( overhang )
     {
         assert( mOutline.size() > 0 );
 
@@ -64,12 +64,15 @@ public:
         makeMesh();
     };
     BuildingPlan( const BuildingPlan &s )
-        : mOutline(s.mOutline), mRoof(s.mRoof), mRoofMeshRef(s.mRoofMeshRef), mWallMeshRef(s.mWallMeshRef)
-    { };
+        : mOutline( s.mOutline ), mRoof( s.mRoof ), mFloors( s.mFloors ), mGeometry( s.mGeometry )
+    {
+        // TODO: should be able to delete this copy constructor now that everything is by BuildingPlanRef
+        assert( false );
+    };
 
-    const ci::gl::VboMeshRef roofMeshRef() const { return mRoofMeshRef; };
-    const ci::gl::VboMeshRef wallMeshRef() const { return mWallMeshRef; };
-    const ci::PolyLine2f outline(const ci::vec2 offset = glm::zero<ci::vec2>(), const float rotation = 0.0) const;
+    const ci::geom::SourceMods &geometry() const { return mGeometry; };
+    const ci::PolyLine2f outline( const ci::vec2 offset = ci::vec2( 0 ), const float rotation = 0.0 ) const;
+    const uint8_t floors() const { return mFloors; }
     const float floorHeight() const { return mFloorHeight; }
 
 private:
@@ -79,6 +82,6 @@ private:
     RoofStyle       mRoof;
     float           mOverhang;
     const float     mFloorHeight = 10.0;
-    ci::gl::VboMeshRef mRoofMeshRef;
-    ci::gl::VboMeshRef mWallMeshRef;
+    const uint8_t   mFloors = 1;
+    ci::geom::SourceMods mGeometry;
 };

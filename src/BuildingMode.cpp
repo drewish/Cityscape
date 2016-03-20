@@ -64,7 +64,10 @@ void BuildingMode::layout() {
 
 // TODO: need to ensure the outline is in counterclockwise order
 
-    mBuilding = Cityscape::Building::create( BuildingPlan( mOutline, static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle ) ), mFloors );
+    auto roof = static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle );
+    mBuilding = Cityscape::Building::create(
+        BuildingPlan::create( mOutline, roof, mFloors )
+    );
 
     mModel.districts.front()->blocks.front()->lots.front()->building = mBuilding;
     mCityView = CityView::create( mModel );

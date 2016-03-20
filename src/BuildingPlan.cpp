@@ -461,9 +461,14 @@ Shape2d shapeFrom( const PolyLine2f &polyline )
 
 void BuildingPlan::makeMesh()
 {
-    // Build the walls
-    mWallMeshRef = gl::VboMesh::create( geom::Extrude( shapeFrom( mOutline ), mFloorHeight, 1.0f ).caps( false ) >> geom::Translate( vec3( 0, 0, mFloorHeight / 2.0 ) ) );
+    float height = mFloorHeight * mFloors;
 
-    // Build roof
-    mRoofMeshRef = gl::VboMesh::create( RoofMesh( mOutline, mRoof, mOverhang ) );
+    // Extrude centers on the origin so half the walls will be below ground
+    geom::SourceMods walls = geom::Extrude( shapeFrom( mOutline ), height, 1.0f ).caps( false )
+        >> geom::Translate( vec3( 0, 0, height / 2.0f ) );
+
+    geom::SourceMods roof = RoofMesh( mOutline, mRoof, mOverhang )
+        >> geom::Translate( vec3( 0, 0, height ) );
+
+    mGeometry = roof & walls;
 }

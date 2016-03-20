@@ -13,9 +13,6 @@
 #include "BlockMode.h"
 #include "BuildingMode.h"
 
-#include "Block.h"
-#include "BuildingPlan.h"
-
 using namespace ci;
 using namespace ci::app;
 using namespace std;

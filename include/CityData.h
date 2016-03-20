@@ -186,16 +186,15 @@ namespace Cityscape {
     };
 
     struct Building {
-        static BuildingRef create( const BuildingPlan &plan, uint8_t floors = 1, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
+        static BuildingRef create( const BuildingPlanRef &plan, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
         {
-            return BuildingRef( new Building( plan, floors, position, rotation ) );
+            return BuildingRef( new Building( plan, position, rotation ) );
         }
 
-        Building( const BuildingPlan &plan, uint8_t floors = 1, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
-            : plan( plan ), floors( floors ), position( position ), rotation( rotation ) {};
+        Building( const BuildingPlanRef &plan, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
+            : plan( plan ), position( position ), rotation( rotation ) {};
 
-        BuildingPlan    plan;
-        uint8_t         floors;
+        BuildingPlanRef plan;
         ci::vec2        position;
         float           rotation; // radians
     };

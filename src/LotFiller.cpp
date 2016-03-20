@@ -19,8 +19,7 @@ void placeSingleBuilding( LotRef lot, const CityModel &city )
     int floors = 1 + randInt(2);
 
     lot->building = Building::create(
-        BuildingPlan( BuildingPlan::randomOutline(), BuildingPlan::RANDOM_ROOF ),
-        floors,
+        BuildingPlan::create( BuildingPlan::randomOutline(), BuildingPlan::RANDOM_ROOF, floors),
         // TODO: just placing it in the center for now. would be good to take
         // the street into consideration.
         lot->shape->centroid(),
@@ -31,7 +30,7 @@ void placeSingleBuilding( LotRef lot, const CityModel &city )
     // Remove the building goes outside the lot
 // TODO: try moving it around?
     std::vector<PolyLine2f> a = { lot->shape->outline() },
-        b = { lot->building->plan.outline() },
+        b = { lot->building->plan->outline() },
         diff = PolyLine2f::calcDifference( b, a );
     if ( diff.size() != 0 ) {
         lot->building.reset();
@@ -46,7 +45,8 @@ void fillLotWithBuilding( LotRef lot, const CityModel &city )
     int floors = 1 + (int) ( sqrt( area ) / 20 ) + ci::randInt( 6 );
 
     if ( area > 100 ) {
-        lot->building = Building::create( BuildingPlan( lot->shape->outline(), static_cast<BuildingPlan::RoofStyle>( city.options.building.roofStyle ) ), floors );
+        BuildingPlan::RoofStyle roof = static_cast<BuildingPlan::RoofStyle>( city.options.building.roofStyle );
+        lot->building = Building::create( BuildingPlan::create( lot->shape->outline(), roof, floors ) );
     }
     else {
         lot->building.reset();
