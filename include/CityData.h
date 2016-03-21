@@ -7,11 +7,11 @@
 //
 #pragma once
 
-// Should go someplace else...
-#include "BuildingPlan.h"
-
 class FlatShape;
-typedef std::shared_ptr<FlatShape> FlatShapeRef;
+typedef std::shared_ptr<FlatShape>      FlatShapeRef;
+
+class BuildingPlan;
+typedef std::shared_ptr<BuildingPlan>   BuildingPlanRef;
 
 namespace Cityscape {
     // Give relatively unique colors

@@ -8,6 +8,7 @@
 
 #include "CityData.h"
 #include "FlatShape.h"
+#include "BuildingPlan.h"
 
 #include "cinder/Rand.h" // Not needed once the LotDeveloper stuff moves out
 

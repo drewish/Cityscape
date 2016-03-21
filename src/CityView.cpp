@@ -8,6 +8,7 @@
 
 #include "CityView.h"
 #include "FlatShape.h"
+#include "BuildingPlan.h"
 #include "Resources.h"
 
 using namespace ci;
