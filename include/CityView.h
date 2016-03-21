@@ -15,8 +15,8 @@ typedef std::shared_ptr<CityView>   CityViewRef;
 
 class CityView {
 public:
-    struct TreeInstance {
-        TreeInstance( const ci::mat4 &mv ) : modelView( mv ) {};
+    struct InstanceData {
+        InstanceData( const ci::mat4 &mv ) : modelView( mv ) {};
 
         ci::mat4 modelView;
     };
@@ -37,8 +37,7 @@ public:
 
     CityView( const Cityscape::CityModel &model );
 
-    ci::gl::BatchRef treeBatch( const ci::gl::GlslProgRef &shader, const std::vector<TreeInstance> &trees ) const;
-    ci::gl::BatchRef buildingBatch( const ci::gl::GlslProgRef &shader, const Cityscape::Building &building ) const;
+    ci::gl::BatchRef buildBatch( const ci::gl::GlslProgRef &shader, const ci::geom::SourceMods &geometry, const std::vector<InstanceData> &instances ) const;
 
     void draw( const Options &o ) const;
 

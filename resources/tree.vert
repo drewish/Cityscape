@@ -10,6 +10,6 @@ out lowp vec4 Color;
 
 void main( void )
 {
-    gl_Position	= ciModelViewProjection * vInstanceModelMatrix * ciPosition;
-    Color 		= ciColor;
+    gl_Position = ciModelViewProjection * vInstanceModelMatrix * ciPosition;
+    Color       = ciColor;
 }

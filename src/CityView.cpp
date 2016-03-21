@@ -13,7 +13,7 @@
 using namespace ci;
 
 
-CityView::CityView(const Cityscape::CityModel &model)
+CityView::CityView( const Cityscape::CityModel &model )
 {
     gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
 
@@ -42,7 +42,8 @@ CityView::CityView(const Cityscape::CityModel &model)
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
     }
 
-    std::vector<TreeInstance> treeData;
+    std::vector<InstanceData> treeData;
+    std::map<BuildingPlanRef, std::vector<InstanceData>> buildingData;
 
     for ( const auto &district : model.districts ) {
         auto mesh = district->shape->mesh()
@@ -64,43 +65,42 @@ CityView::CityView(const Cityscape::CityModel &model)
 
                 for ( const auto &tree : lot->trees ) {
                     mat4 modelView = glm::scale( glm::translate( tree->position ), vec3( tree->diameter ) );
-                    treeData.push_back( TreeInstance( modelView ) );
+                    treeData.push_back( InstanceData( modelView ) );
                 }
 
-                if ( lot->building ) {
-                    buildings.push_back( InstanceBatch( buildingBatch( buildingShader, *lot->building ), 1 ) );
+                if ( lot->building && lot->building->plan ) {
+                    mat4 modelView = glm::translate( vec3( lot->building->position, 0 ) );
+                    modelView = glm::rotate( modelView, lot->building->rotation, vec3( 0, 0, 1 ) );
+                    buildingData[ lot->building->plan ].push_back( InstanceData( modelView ) );
                 }
             }
         }
     }
-    trees.push_back( InstanceBatch( treeBatch( treeShader, treeData ), treeData.size() ) );
+
+    trees.push_back( InstanceBatch( buildBatch( treeShader,  geom::Sphere().subdivisions( 12 ), treeData ), treeData.size() ) );
+
+    for ( auto &pair : buildingData ) {
+        auto plan = pair.first;
+        auto instances = pair.second;
+        buildings.push_back( InstanceBatch( buildBatch( buildingShader, plan->geometry(), instances ), instances.size() ) );
+    }
 }
 
-gl::BatchRef CityView::treeBatch( const gl::GlslProgRef &shader, const std::vector<TreeInstance> &trees ) const
+gl::BatchRef CityView::buildBatch( const gl::GlslProgRef &shader, const geom::SourceMods &geometry, const std::vector<InstanceData> &instances ) const
 {
-    size_t stride = sizeof( TreeInstance );
+    size_t stride = sizeof( InstanceData );
 
     // create the VBO which will contain per-instance (rather than per-vertex) data
-    gl::VboRef instanceDataVbo = gl::Vbo::create( GL_ARRAY_BUFFER, trees.size() * stride, trees.data(), GL_STATIC_DRAW );
+    gl::VboRef vbo = gl::Vbo::create( GL_ARRAY_BUFFER, instances.size() * stride, instances.data(), GL_STATIC_DRAW );
 
     // we need a geom::BufferLayout to describe this data as mapping to the CUSTOM_0 semantic, and the 1 (rather than 0) as the last param indicates per-instance (rather than per-vertex)
-    geom::BufferLayout instanceDataLayout;
-    instanceDataLayout.append( geom::Attrib::CUSTOM_0, stride / sizeof( float ), stride, 0, 1 );
+    geom::BufferLayout layout;
+    layout.append( geom::Attrib::CUSTOM_0, stride / sizeof( float ), stride, 0, 1 );
 
-    gl::VboMeshRef mesh = gl::VboMesh::create( geom::Sphere().subdivisions( 12 ) );
-    mesh->appendVbo( instanceDataLayout, instanceDataVbo );
+    gl::VboMeshRef mesh = gl::VboMesh::create( geometry );
+    mesh->appendVbo( layout, vbo );
 
     return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstanceModelMatrix" } } );
-}
-
-gl::BatchRef CityView::buildingBatch( const gl::GlslProgRef &shader, const Cityscape::Building &building ) const
-{
-    mat4 buildingTransform = glm::translate( vec3( building.position, 0 ) );
-    buildingTransform = glm::rotate( buildingTransform, building.rotation, vec3( 0, 0, 1 ) );
-
-    // Merge the roof an walls into one batch
-// TODO move the transform matrix into an instance variable passed to the shader
-    return gl::Batch::create( building.plan->geometry() >> geom::Transform( buildingTransform ), shader );
 }
 
 void CityView::draw( const Options &options ) const

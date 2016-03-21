@@ -70,7 +70,7 @@ class SingleFamilyHomeDeveloper : public LotDeveloper {
     virtual void buildIn( LotRef &lot ) const override
     {
         // Pick a random plan
-        auto plan = mPlans[ randInt( 0, mPlans.size() - 1) ];
+        auto plan = mPlans[ randInt( 0, mPlans.size() ) ];
 
         // TODO: just placing it in the center for now. would be good to take
         // the street into consideration for setback and orientation.
@@ -128,8 +128,11 @@ CityModel::CityModel()
 
     plan->lotUsages.push_back( ZoningPlan::LotUsage( nullptr, 1 ) );
     plan->lotUsages.push_back( ZoningPlan::LotUsage( LotDeveloperRef( new SingleFamilyHomeDeveloper( {
+            BuildingPlan::create( BuildingPlan::rectangle( 30, 10 ), BuildingPlan::HIPPED_ROOF ),
+            BuildingPlan::create( BuildingPlan::rectangle( 30, 10 ), BuildingPlan::GABLED_ROOF ),
             BuildingPlan::create( BuildingPlan::lshape(), BuildingPlan::HIPPED_ROOF ),
             BuildingPlan::create( BuildingPlan::lshape(), BuildingPlan::GABLED_ROOF )
+
         } ) ), 30 ) );
     plan->lotUsages.push_back( ZoningPlan::LotUsage( LotDeveloperRef( new ParkDeveloper() ), 2 ) );
 

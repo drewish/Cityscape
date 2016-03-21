@@ -38,14 +38,14 @@ ci::PolyLine2f BuildingPlan::square()
     return rectangle( 20, 20 );
 }
 
-ci::PolyLine2f BuildingPlan::rectangle( const uint16_t width, const uint16_t height )
+ci::PolyLine2f BuildingPlan::rectangle( const uint16_t width, const uint16_t depth )
 {
     float w = width / 2.0;
-    float h = height / 2.0;
+    float d = depth / 2.0;
     ci::PolyLine2f result( {
-        ci::vec2(w, -h), ci::vec2(w, h),
-        ci::vec2(-w, h), ci::vec2(-w, -h),
-        ci::vec2(w, -h) // closure
+        ci::vec2(  w, -d ), ci::vec2(  w,  d ),
+        ci::vec2( -w,  d ), ci::vec2( -w, -d ),
+        ci::vec2(  w, -d ) // closure
     } );
     result.setClosed();
     return result;

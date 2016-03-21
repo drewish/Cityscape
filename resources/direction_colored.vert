@@ -5,6 +5,7 @@ uniform mat4    ciModelViewProjection;
 
 in vec4         ciPosition;
 in vec4         ciColor;
+in mat4         vInstanceModelMatrix; // per-instance position variable
 out vec3        eyespacePosition;
 
 void main()
@@ -12,5 +13,5 @@ void main()
     eyespacePosition = (ciModelView * ciPosition).xyz;
 
 //    gl_FrontColor = gl_Color * gl_Color;
-    gl_Position = ciModelViewProjection * ciPosition;
+    gl_Position = ciModelViewProjection * vInstanceModelMatrix * ciPosition;
 }
