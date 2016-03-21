@@ -93,6 +93,7 @@ void buildStreetsAndBlocks( CityModel &city )
 
         if ( plan->district.streetDivision != ZoningPlan::StreetDivision::GRID_STREET_DIVIDED ) {
             // No Block division
+            district->blocks.push_back( Block::create( district->shape ) );
             continue;
         }
 
