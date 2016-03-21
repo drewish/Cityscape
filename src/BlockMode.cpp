@@ -35,10 +35,11 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
     params->addParam( "lotWidth", &plan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
 
-    params->addSeparator("Lot");
-
-    params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
-        .updateFn( [this] { requestLayout(); } );
+// TODO: should alter zoning
+//    params->addSeparator("Lot");
+//
+//    params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
+//        .updateFn( [this] { requestLayout(); } );
 
     params->addSeparator();
 
@@ -116,8 +117,6 @@ void BlockMode::layout() {
 }
 
 void BlockMode::draw() {
-    if ( !mBlock ) return;
-
     if ( mCityView ) mCityView->draw( mViewOptions );
 
     return;

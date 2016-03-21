@@ -24,7 +24,7 @@ void BuildingMode::setup() {
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
-    params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mOptions.building.roofStyle )
+    params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mRoof )
         .keyDecr( "[" ).keyIncr( "]" )
         .updateFn( [this] { requestLayout(); } );
     params->addParam( "Floors", &mFloors)
@@ -64,10 +64,7 @@ void BuildingMode::layout() {
 
 // TODO: need to ensure the outline is in counterclockwise order
 
-    auto roof = static_cast<BuildingPlan::RoofStyle>( mOptions.building.roofStyle );
-    mBuilding = Cityscape::Building::create(
-        BuildingPlan::create( mOutline, roof, mFloors )
-    );
+    mBuilding = Cityscape::Building::create( BuildingPlan::create( mOutline, mRoof, mFloors ) );
 
     mModel.districts.front()->blocks.front()->lots.front()->building = mBuilding;
     mCityView = CityView::create( mModel );

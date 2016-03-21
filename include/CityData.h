@@ -11,30 +11,13 @@
 #include "BuildingPlan.h"
 
 class FlatShape;
-typedef std::shared_ptr<FlatShape>    	FlatShapeRef;
-
-struct LotOptions {
-    enum BuildingPlacement {
-        BUILDING_IN_CENTER = 0,
-        BUILDING_FILL_LOT = 1,
-    };
-
-    BuildingPlacement buildingPlacement = BUILDING_IN_CENTER;
-};
-
-struct BuildingOptions {
-    int roofStyle = 1;
-};
-
-struct Options {
-    LotOptions lot;
-    BuildingOptions building;
-};
+typedef std::shared_ptr<FlatShape> FlatShapeRef;
 
 namespace Cityscape {
     // Give relatively unique colors
     ci::ColorA colorWheel();
 
+    class  LotDeveloper;
     struct ZoningPlan;
     struct Highway;
     struct Street;
@@ -44,14 +27,25 @@ namespace Cityscape {
     struct Building;
     struct Tree;
 
-    typedef std::shared_ptr<ZoningPlan> ZoningPlanRef;
-    typedef std::shared_ptr<Highway>    HighwayRef;
-    typedef std::shared_ptr<Street>     StreetRef;
-    typedef std::shared_ptr<District>   DistrictRef;
-    typedef std::shared_ptr<Block>      BlockRef;
-    typedef std::shared_ptr<Lot>        LotRef;
-    typedef std::shared_ptr<Building>   BuildingRef;
-    typedef std::shared_ptr<Tree>    	TreeRef;
+    typedef std::shared_ptr<LotDeveloper>   LotDeveloperRef;
+    typedef std::shared_ptr<ZoningPlan>     ZoningPlanRef;
+    typedef std::shared_ptr<Highway>        HighwayRef;
+    typedef std::shared_ptr<Street>         StreetRef;
+    typedef std::shared_ptr<District>       DistrictRef;
+    typedef std::shared_ptr<Block>      	BlockRef;
+    typedef std::shared_ptr<Lot>        	LotRef;
+    typedef std::shared_ptr<Building>   	BuildingRef;
+    typedef std::shared_ptr<Tree>    		TreeRef;
+
+
+    class LotDeveloper {
+      public:
+        virtual ~LotDeveloper() {};
+
+        virtual const std::string name() const { return "Un-developer"; }
+        virtual bool isValidFor( LotRef &lot ) const { return false; }
+        virtual void buildIn( LotRef &lot ) const {};
+    };
 
     struct ZoningPlan {
         static ZoningPlanRef create( const std::string &name ) {
@@ -87,21 +81,23 @@ namespace Cityscape {
             int16_t lotWidth = 40;
         } block;
 
-        //- lotTypes (array of LotType)
-        //    - ObjectType/Name: This might needs to be a class or reference to a class so it can have more high level behavior, e.g. a park that has options for tree coverage, reducing the Lot’s outline to create setbacks, etc.
-        //    - Probability
-
-        //- buildingPlans (array of BuildingPlan)
-        //    - ObjectType/Name: This might needs to be a class or reference to a class so we can have look at the Lot and figure out where to place ourselves. Also should probably handle creating the actual mesh.
-        //    - Probability
+        // TODO Think of a better name for this
+        struct LotUsage {
+            // No developer means empty lot
+            LotUsage( const LotDeveloperRef &developer, uint8_t ratio = 1 )
+                : developer( developer ), ratio( ratio ) {};
+            LotDeveloperRef developer;
+            uint8_t         ratio = 1;
+        };
+        std::vector<LotUsage> lotUsages;
     };
 
     // * * *
 
     struct CityModel {
-        CityModel() {}
+        CityModel();
+        CityModel( const std::vector<ZoningPlanRef> &zoning) : zoningPlans( zoning ) {}
 
-        Options     options;
         ci::Rectf   dimensions = ci::Rectf( -600, -600, 600, 600 );
         ci::Color   groundColor = ci::Color8u(233, 203, 151);
 
@@ -112,7 +108,7 @@ namespace Cityscape {
         std::vector<StreetRef>      streets;
         std::vector<FlatShapeRef>   pavement;
 
-        std::vector<ZoningPlanRef>  zoningPlans = { ZoningPlan::create( "default" ) };
+        std::vector<ZoningPlanRef>  zoningPlans;
         std::vector<DistrictRef>    districts;
     };
 

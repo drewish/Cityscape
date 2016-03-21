@@ -19,6 +19,7 @@ class BuildingMode : public BaseMode
 
   private:
     Cityscape::BuildingRef mBuilding;
+    BuildingPlan::RoofStyle mRoof = BuildingPlan::RoofStyle::FLAT_ROOF;
     ci::PolyLine2f mOutline;
     int32_t mFloors = 1;
 };

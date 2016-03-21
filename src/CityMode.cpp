@@ -47,17 +47,6 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
     params->addParam( "lotWidth", &plan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
 
-    params->addSeparator("Lot");
-
-    params->addParam( "Placement", {"Center", "Fill"}, (int*)&mOptions.lot.buildingPlacement )
-        .updateFn( [this] { requestLayout(); } );
-
-    params->addSeparator("Building");
-
-    params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mOptions.building.roofStyle )
-        .keyDecr( "[" ).keyIncr( "]" )
-        .updateFn( [this] { requestLayout(); } );
-
     params->addSeparator();
 
     params->addParam( "Draw Roads",    &mViewOptions.drawRoads,     "key=a" );
@@ -155,9 +144,8 @@ void CityMode::layout() {
         mModel.highways.push_back( Cityscape::Highway::create( mHighwayPoints[i - 1], mHighwayPoints[i] ) );
     }
 
-    // Should have better way to partially update
-    mModel.options = mOptions;
-    // TODO figure out how to mark progress so we can do this across a few
+    // TODO: Should have better way to partially update
+    // figure out how to mark progress so we can do this across a few
     // frame updates instead of blocking
     Cityscape::buildHighwaysAndDistricts( mModel );
     Cityscape::buildStreetsAndBlocks( mModel );
