@@ -144,38 +144,38 @@ namespace Cityscape {
     // * * *
 
     // TODO Need a better name for this
-    struct _Ground {
-        _Ground( const FlatShapeRef &s ) : shape( s ), color( colorWheel() ) {};
+    struct Ground {
+        Ground( const FlatShapeRef &s ) : shape( s ), color( colorWheel() ) {};
 
         FlatShapeRef    shape;
         ci::ColorA      color;
     };
 
-    struct District : public _Ground {
+    struct District : public Ground {
         static DistrictRef create( const FlatShapeRef &s, const ZoningPlanRef &zp )
         {
             return DistrictRef( new District( s, zp ) );
         };
 
-        using _Ground::_Ground;
-        District( const FlatShapeRef &s, const ZoningPlanRef &zp ) : _Ground( s ), zoningPlan( zp ) {};
+        using Ground::Ground;
+        District( const FlatShapeRef &s, const ZoningPlanRef &zp ) : Ground( s ), zoningPlan( zp ) {};
 
         ZoningPlanRef           zoningPlan;
         std::vector<BlockRef>   blocks;
     };
 
-    struct Block : public _Ground {
+    struct Block : public Ground {
         static BlockRef create( const FlatShapeRef &s ) { return BlockRef( new Block( s ) ); };
 
-        using _Ground::_Ground;
+        using Ground::Ground;
 
         std::vector<LotRef>     lots;
     };
 
-    struct Lot : public _Ground {
+    struct Lot : public Ground {
         static LotRef create( const FlatShapeRef &s ) { return LotRef( new Lot( s ) ); };
 
-        using _Ground::_Ground;
+        using Ground::Ground;
 
         std::vector<TreeRef>    trees;
         BuildingRef             building;
