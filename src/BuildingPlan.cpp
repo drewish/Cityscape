@@ -118,12 +118,12 @@ const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float ro
 
 // * * *
 
-// Build walls
+// Build side faces of the roof
 //
 // We're building the walls using individual triangles (rather than strip) so we
 // can use Cinder's triangulator to build the roof.
 //
-void buildWallsFromOutlineAndTopOffsets(const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight, vector<vec3> &verts, vector<uint32_t> &indices)
+void buildSidesFromOutlineAndTopOffsets(const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight, vector<vec3> &verts, vector<uint32_t> &indices)
 {
     uint32_t base = verts.size();
     for ( auto i = outline.begin(); i != outline.end(); ++i ) {
@@ -178,14 +178,14 @@ void buildRoofFaceFromOutlineAndOffsets( const PolyLine2f &outline, const Offset
 }
 
 // Compute vertex height based off distance from incident edges
-OffsetMap heightOfSkeleton( const SsPtr &skel )
+OffsetMap heightOfSkeleton( const SsPtr &skel, float slope )
 {
     OffsetMap heightMap;
     for( auto vert = skel->vertices_begin(); vert != skel->vertices_end(); ++vert ) {
         if (vert->is_contour()) { continue; }
 
         InexactK::Point_2 p = vert->point();
-        heightMap[ std::make_pair( p.x(), p.y() ) ] = vec3( 0, 0, vert->time() );
+        heightMap[ std::make_pair( p.x(), p.y() ) ] = vec3( 0, 0, vert->time() * slope );
     }
     return heightMap;
 }
@@ -216,7 +216,7 @@ void buildFlatRoof( const PolyLine2f &wallOutline, float overhang, vector<vec3> 
     buildRoofFaceFromOutlineAndOffsets( roofOutline, {}, verts, indices );
 }
 
-void buildHippedRoof( const PolyLine2f &wallOutline, float overhang, vector<vec3> &verts, vector<uint32_t> &indices )
+void buildHippedRoof( const PolyLine2f &wallOutline, float slope, float overhang, vector<vec3> &verts, vector<uint32_t> &indices )
 {
     CGAL::Polygon_2<InexactK> roofOutline = polygonFrom<InexactK>( wallOutline );
 
@@ -228,13 +228,13 @@ void buildHippedRoof( const PolyLine2f &wallOutline, float overhang, vector<vec3
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( roofOutline, InexactK() );
 
     // - compute vertex height based off distance from incident edges
-    OffsetMap offsetMap = heightOfSkeleton( skel );
+    OffsetMap offsetMap = heightOfSkeleton( skel, slope );
 
     // - triangulate roof faces and add to mesh
     buildRoofFromSkeletonAndOffsets(skel, offsetMap, verts, indices);
 }
 
-void buildGabledRoof( const PolyLine2f &wallOutline, float overhang, vector<vec3> &verts, vector<uint32_t> &indices )
+void buildGabledRoof( const PolyLine2f &wallOutline, float slope, float overhang, vector<vec3> &verts, vector<uint32_t> &indices )
 {
     CGAL::Polygon_2<InexactK> roofOutline = polygonFrom<InexactK>( wallOutline );
 
@@ -244,7 +244,7 @@ void buildGabledRoof( const PolyLine2f &wallOutline, float overhang, vector<vec3
         // roof face into the gable face--the roof doesn't align with the walls.
         // Need to figure out how to remove the face, move the point, then
         // create new gables along the wall outline (probably using
-        // buildWallsFromOutlineAndTopOffsets).
+        // buildSidesFromOutlineAndTopOffsets()).
         roofOutline = *expandPolygon( overhang, roofOutline );
     }
 
@@ -252,7 +252,7 @@ void buildGabledRoof( const PolyLine2f &wallOutline, float overhang, vector<vec3
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( roofOutline, InexactK() );
 
     // - compute vertex height based off distance from incident edges
-    OffsetMap offsetMap = heightOfSkeleton( skel );
+    OffsetMap offsetMap = heightOfSkeleton( skel, slope );
 
     // - find faces with 3 edges: 1 skeleton and 2 contour
     for( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
@@ -292,7 +292,7 @@ void buildGabledRoof( const PolyLine2f &wallOutline, float overhang, vector<vec3
 //   longest side of the outline and use that to define the roof plane. another
 //   would be passing in an angle.
 // - get a proper formula for determining height
-void buildShedRoof( const PolyLine2f &wallOutline, float overhang, float slope, vector<vec3> &verts, vector<uint32_t> &indices )
+void buildShedRoof( const PolyLine2f &wallOutline, float slope, float overhang, vector<vec3> &verts, vector<uint32_t> &indices )
 {
     PolyLine2f roofOutline = wallOutline;
     if ( overhang > 0.0 ) {
@@ -319,7 +319,7 @@ void buildShedRoof( const PolyLine2f &wallOutline, float overhang, float slope, 
 
     // - triangulate roof faces and add to mesh
     buildRoofFaceFromOutlineAndOffsets( roofOutline, offsetMap, verts, indices );
-    buildWallsFromOutlineAndTopOffsets( wallOutline, offsetMap, 0.0, verts, indices );
+    buildSidesFromOutlineAndTopOffsets( wallOutline, offsetMap, 0.0, verts, indices );
 }
 
 // TODO:
@@ -378,35 +378,30 @@ void buildSawtoothRoof( const PolyLine2f &outline, float upWidth, float height, 
             PolyLine2f faceOutline( polyLineFrom( *j ).reversed() );
 
             buildRoofFaceFromOutlineAndOffsets( faceOutline, offsets, verts, indices );
-            buildWallsFromOutlineAndTopOffsets( faceOutline, offsets, 0.0, verts, indices );
+            buildSidesFromOutlineAndTopOffsets( faceOutline, offsets, 0.0, verts, indices );
         }
     }
 }
 
 class RoofMesh : public Source {
 public:
-    RoofMesh( const PolyLine2f &outline, BuildingPlan::RoofStyle roof, float overhang = 0.0f )
+    RoofMesh( const PolyLine2f &outline, BuildingPlan::RoofStyle roof, float slope = 0.8, float overhang = 0.0f )
     {
-        if ( roof == BuildingPlan::RANDOM_ROOF ) {
-            roof = static_cast<BuildingPlan::RoofStyle>(ci::randInt(5));
-        };
-
         switch ( roof ) {
             case BuildingPlan::FLAT_ROOF:
                 buildFlatRoof( outline, overhang, mPositions, mIndices );
                 break;
             case BuildingPlan::HIPPED_ROOF:
-                buildHippedRoof( outline, overhang, mPositions, mIndices );
+                buildHippedRoof( outline, slope, overhang, mPositions, mIndices );
                 break;
             case BuildingPlan::GABLED_ROOF:
-                buildGabledRoof( outline, overhang, mPositions, mIndices );
+                buildGabledRoof( outline, slope, overhang, mPositions, mIndices );
                 break;
             case BuildingPlan::SAWTOOTH_ROOF:
                 buildSawtoothRoof( outline, 10, 3, 5, mPositions, mIndices );
                 break;
             case BuildingPlan::SHED_ROOF:
-                // Make slope configurable... might be good for other angled roofs.
-                buildShedRoof( outline, overhang, 0.2, mPositions, mIndices );
+                buildShedRoof( outline, slope, overhang, mPositions, mIndices );
                 break;
 //            case BuildingPlan::GAMBREL_ROOF:
 //                // probably based off GABLED with an extra division of the faces to give it the barn look
@@ -467,7 +462,7 @@ void BuildingPlan::makeMesh()
     geom::SourceMods walls = geom::Extrude( shapeFrom( mOutline ), height, 1.0f ).caps( false )
         >> geom::Translate( vec3( 0, 0, height / 2.0f ) );
 
-    geom::SourceMods roof = RoofMesh( mOutline, mRoof, mOverhang )
+    geom::SourceMods roof = RoofMesh( mOutline, mRoof, mRoofSlope, mRoofOverhang )
         >> geom::Translate( vec3( 0, 0, height ) );
 
     mGeometry = roof & walls;

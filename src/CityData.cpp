@@ -110,7 +110,7 @@ class FullLotDeveloper : public LotDeveloper {
 
         if ( area > 100 ) {
             int floors = 1 + (int) ( sqrt( area ) / 20 ) + ci::randInt( 6 );
-            lot->building = Building::create( BuildingPlan::create( lot->shape->outline(), mRoof, floors ) );
+            lot->building = Building::create( BuildingPlan::create( lot->shape->outline(), floors, mRoof ) );
         }
         else {
             lot->building.reset();
@@ -129,10 +129,10 @@ CityModel::CityModel()
 
     plan->lotUsages.push_back( ZoningPlan::LotUsage( nullptr, 1 ) );
     plan->lotUsages.push_back( ZoningPlan::LotUsage( LotDeveloperRef( new SingleFamilyHomeDeveloper( {
-            BuildingPlan::create( BuildingPlan::rectangle( 30, 10 ), BuildingPlan::HIPPED_ROOF ),
-            BuildingPlan::create( BuildingPlan::rectangle( 30, 10 ), BuildingPlan::GABLED_ROOF ),
-            BuildingPlan::create( BuildingPlan::lshape(), BuildingPlan::HIPPED_ROOF ),
-            BuildingPlan::create( BuildingPlan::lshape(), BuildingPlan::GABLED_ROOF )
+            BuildingPlan::create( BuildingPlan::rectangle( 30, 10 ), 1, BuildingPlan::HIPPED_ROOF ),
+            BuildingPlan::create( BuildingPlan::rectangle( 30, 10 ), 1, BuildingPlan::GABLED_ROOF ),
+            BuildingPlan::create( BuildingPlan::lshape(), 1, BuildingPlan::HIPPED_ROOF ),
+            BuildingPlan::create( BuildingPlan::lshape(), 1, BuildingPlan::GABLED_ROOF )
 
         } ) ), 30 ) );
     plan->lotUsages.push_back( ZoningPlan::LotUsage( LotDeveloperRef( new ParkDeveloper() ), 2 ) );

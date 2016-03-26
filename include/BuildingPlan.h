@@ -17,8 +17,7 @@ class BuildingPlan {
 public:
     // http://www.johnriebli.com/roof-types--house-styles.html
     enum RoofStyle {
-        RANDOM_ROOF = 0,
-        FLAT_ROOF,
+        FLAT_ROOF = 0,
         HIPPED_ROOF,
         GABLED_ROOF,
         SAWTOOTH_ROOF,
@@ -28,7 +27,7 @@ public:
 
     static const std::vector<std::string> roofStyleNames()
     {
-        return std::vector<std::string>({ "Random", "Flat", "Hipped", "Gabled", "Sawtooth", "Shed" /*, "Gambrel"*/ });
+        return std::vector<std::string>({ "Flat", "Hipped", "Gabled", "Sawtooth", "Shed" /*, "Gambrel"*/ });
     }
 
     static ci::PolyLine2f triangle();
@@ -39,19 +38,17 @@ public:
     static ci::PolyLine2f tee();
     static ci::PolyLine2f randomOutline();
 
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, const BuildingPlan::RoofStyle roof, uint8_t floors = 1, float overhang = 0.0f )
+    static BuildingPlanRef create( const ci::PolyLine2f &outline, uint8_t floors = 1,
+        const RoofStyle roof = FLAT_ROOF, float slope = 0.5, float overhang = 0.0f )
     {
-        return BuildingPlanRef( new BuildingPlan( outline, roof, floors, overhang ) );
-    }
-    static BuildingPlanRef createRandom()
-    {
-        return BuildingPlanRef( new BuildingPlan( randomOutline(), RANDOM_ROOF, 1 ) );
+        return BuildingPlanRef( new BuildingPlan( outline, floors, roof, slope, overhang ) );
     }
 
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.
-    BuildingPlan( const ci::PolyLine2f &outline, RoofStyle roof = FLAT_ROOF, uint8_t floors = 1, float overhang = 0.0f )
-        : mOutline( outline ), mRoof( roof ), mFloors( floors ), mOverhang( overhang )
+    BuildingPlan( const ci::PolyLine2f &outline, uint8_t floors = 1,
+        RoofStyle roof = FLAT_ROOF, float slope = 0.5, float overhang = 0.0f )
+        : mOutline( outline ), mRoof( roof ), mFloors( floors ), mRoofOverhang( overhang )
     {
         assert( mOutline.size() > 0 );
 
@@ -62,12 +59,6 @@ public:
         }
 
         makeMesh();
-    };
-    BuildingPlan( const BuildingPlan &s )
-        : mOutline( s.mOutline ), mRoof( s.mRoof ), mFloors( s.mFloors ), mGeometry( s.mGeometry )
-    {
-        // TODO: should be able to delete this copy constructor now that everything is by BuildingPlanRef
-        assert( false );
     };
 
     const ci::geom::SourceMods &geometry() const { return mGeometry; };
@@ -80,8 +71,9 @@ private:
 
     ci::PolyLine2f  mOutline;
     RoofStyle       mRoof;
-    float           mOverhang;
+    float           mRoofOverhang;
+    float           mRoofSlope = 0.5;
+    uint8_t         mFloors = 1;
     const float     mFloorHeight = 10.0;
-    const uint8_t   mFloors = 1;
     ci::geom::SourceMods mGeometry;
 };
