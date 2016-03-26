@@ -307,6 +307,16 @@ void CityscapeApp::draw()
         if ( mModeRef ) mModeRef->draw();
     }
 
+    // Little indicator for when the FPS drops too low
+    if ( App::getAverageFps() < 50.0 ) {
+        gl::ScopedColor scopedColor( Color( 1, 0, 0 ) );
+        gl::ScopedModelMatrix scopedMatrix;
+
+        gl::translate( vec2( getWindowWidth() - 50, 50 ) );
+        gl::rotate( M_PI / 8.0 );
+        gl::drawSolidCircle( vec2( 0 ), 25.0, 8 );
+    }
+
 	mParams->draw();
 }
 
