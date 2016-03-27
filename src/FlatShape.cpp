@@ -11,6 +11,7 @@
 #include "cinder/Triangulate.h"
 #include <CGAL/linear_least_squares_fitting_2.h>
 #include <CGAL/connect_holes.h>
+#include "GeometryHelpers.h"
 
 using namespace ci;
 
@@ -50,7 +51,7 @@ bool FlatShape::contains( const ci::vec2 point ) const
     return true;
 }
 
-const TriMesh FlatShape::makeMesh()
+TriMesh FlatShape::makeMesh() const
 {
     // TODO might be good to lazily create this when they first ask for the mesh.
     Triangulator triangulator( mOutline );
@@ -82,4 +83,40 @@ ci::PolyLine2f FlatShape::polyLineWithConnectedHoles() const
     CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
 
     return polyLineFrom<ExactK>( points );
+}
+
+std::vector<seg2> FlatShape::dividerSeg2s( float angle, float spacing ) const
+{
+    std::vector<seg2> results;
+
+    for ( const auto &segment : dividerSegment_2s( angle, spacing ) ) {
+        results.push_back( seg2( vecFrom( segment.source() ), vecFrom( segment.target() ) ) );
+    }
+
+    return results;
+}
+
+std::vector<Segment_2> FlatShape::dividerSegment_2s( float angle, float spacing ) const
+{
+    std::vector<Segment_2> results;
+
+    // TODO: Need to handle holes in the shape
+    std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( mOutline.getPoints() );
+
+    // Walking across the shape and find the portion of the divider that is
+    // inside the shape.
+    for ( const seg2 &divider : computeDividers( mOutline.getPoints(), angle, spacing ) ) {
+        outlineSegments.push_back( Segment_2( pointFrom( divider.first ), pointFrom( divider.second ) ) );
+
+        // The intersection points come back in a sorted order so we can just
+        // create a series of segments from those points.
+        std::vector<Point_2> dividerPoints;
+        CGAL::compute_intersection_points( outlineSegments.begin(), outlineSegments.end(), std::back_inserter( dividerPoints ) );
+        std::list<Segment_2> segments = segmentsFrom( dividerPoints );
+        results.insert( results.end(), segments.begin(), segments.end() );
+
+        outlineSegments.pop_back();
+    }
+
+    return results;
 }

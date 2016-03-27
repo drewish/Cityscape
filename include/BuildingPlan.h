@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "cinder/gl/Vbo.h"
-
 class BuildingPlan;
 typedef std::shared_ptr<BuildingPlan> BuildingPlanRef;
 

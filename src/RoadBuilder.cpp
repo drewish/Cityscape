@@ -102,18 +102,16 @@ void buildStreetsAndBlocks( CityModel &city )
 
         // Create narrow roads to cover the bounding box
         uint16_t angle = plan->district.grid.avenueAngle;
-        vector<vec2> dividerPoints = computeDividers( outlinePoints, angle * M_PI / 180.0, plan->district.grid.avenueSpacing );
-        assert( dividerPoints.size() % 2 == 0 );
-        for ( auto a = dividerPoints.cbegin(); a != dividerPoints.cend() ; ++a ) {
-            roads.push_back( roadOutline( *a, *( ++a ), plan->district.grid.roadWidth ) );
+        vector<seg2> dividers = computeDividers( outlinePoints, angle * M_PI / 180.0, plan->district.grid.avenueSpacing );
+        for ( auto &a : dividers ) {
+            roads.push_back( roadOutline( a.first, a.second, plan->district.grid.roadWidth ) );
         }
 
         // TODO move duplicated logic to a function
         angle += plan->district.grid.streetAngle;
-        dividerPoints = computeDividers( outlinePoints, angle * M_PI / 180.0, plan->district.grid.streetSpacing );
-        assert( dividerPoints.size() % 2 == 0 );
-        for ( auto a = dividerPoints.cbegin(); a != dividerPoints.cend() ; ++a ) {
-            roads.push_back( roadOutline( *a, *( ++a ), plan->district.grid.roadWidth ) );
+        dividers = computeDividers( outlinePoints, angle * M_PI / 180.0, plan->district.grid.streetSpacing );
+        for ( auto &a : dividers ) {
+            roads.push_back( roadOutline( a.first, a.second, plan->district.grid.roadWidth ) );
         }
 
         auto districtWithHoles = district->shape->polygonWithHoles<ExactK>();

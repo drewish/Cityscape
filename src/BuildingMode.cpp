@@ -70,10 +70,6 @@ void BuildingMode::layout() {
     mCityView = CityView::create( mModel );
 }
 
-void BuildingMode::draw() {
-    if ( mCityView ) mCityView->draw( mViewOptions );
-}
-
 void BuildingMode::setOutline( const ci::PolyLine2f &outline ) {
     mOutline = outline;
     layout();

@@ -10,9 +10,12 @@
 
 #include "cinder/TriMesh.h"
 #include "CgalPolygon.h"
+#include "CgalArrangement.h"
 
 class FlatShape;
 typedef std::shared_ptr<FlatShape>    	FlatShapeRef;
+
+typedef std::pair<ci::vec2, ci::vec2> seg2;
 
 class FlatShape {
   public:
@@ -88,9 +91,14 @@ class FlatShape {
     const CGAL::Polygon_2<InexactK> polygonWithConnectedHoles() const;
     ci::PolyLine2f polyLineWithConnectedHoles() const;
 
+    // Create a set of parallel lines that cross the shape, returns the segments
+    // that overlap.
+    std::vector<seg2>       dividerSeg2s( float angle, float spacing ) const;
+    std::vector<Segment_2>  dividerSegment_2s( float angle, float spacing ) const;
+
   private:
 
-    const ci::TriMesh makeMesh();
+    ci::TriMesh makeMesh() const;
 
     ci::PolyLine2f mOutline;
     PolyLine2fs mHoles;

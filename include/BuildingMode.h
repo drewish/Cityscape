@@ -9,7 +9,6 @@ class BuildingMode : public BaseMode
     virtual void setup() override;
     virtual void addParams( ci::params::InterfaceGlRef params ) override;
     virtual void layout() override;
-    virtual void draw() override;
 
     virtual std::vector<ci::vec2> getPoints() override;
     virtual void addPoint( ci::vec2 point ) override;

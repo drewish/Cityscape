@@ -37,16 +37,6 @@ namespace Cityscape {
     typedef std::shared_ptr<Building>   	BuildingRef;
     typedef std::shared_ptr<Tree>    		TreeRef;
 
-
-    class LotDeveloper {
-      public:
-        virtual ~LotDeveloper() {};
-
-        virtual const std::string name() const { return "Un-developer"; }
-        virtual bool isValidFor( LotRef &lot ) const { return false; }
-        virtual void buildIn( LotRef &lot ) const {};
-    };
-
     struct ZoningPlan {
         static ZoningPlanRef create( const std::string &name ) {
             return ZoningPlanRef( new ZoningPlan( name ) );
@@ -176,6 +166,9 @@ namespace Cityscape {
         static LotRef create( const FlatShapeRef &s ) { return LotRef( new Lot( s ) ); };
 
         using Ground::Ground;
+
+        void plantTree( float diameter );
+        void plantTree( float diameter, ci::vec2 at );
 
         std::vector<TreeRef>    trees;
         BuildingRef             building;

@@ -17,6 +17,7 @@ class BlockMode : public BaseMode
 
   private:
     Cityscape::BlockRef         mBlock;
+    Cityscape::ZoningPlanRef    mPlan;
     ci::PolyLine2f              mOutline;
     std::vector<ci::PolyLine2f> mHoles;
 };

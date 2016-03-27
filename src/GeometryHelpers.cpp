@@ -3,7 +3,7 @@
 using namespace ci;
 
 // Gives back pairs of points to divide the shape with lines of a given angle.
-std::vector<vec2> computeDividers( const std::vector<vec2> &outline, const float angle, const float width )
+std::vector<seg2> computeDividers( const std::vector<vec2> &outline, const float angle, const float width )
 {
     // Rotate the shape to the desired angle and find the bounding box...
     glm::mat3 matrix = rotate( glm::mat3(), angle );
@@ -24,11 +24,10 @@ std::vector<vec2> computeDividers( const std::vector<vec2> &outline, const float
 
     // ...then step across from left to right creating "vertical" dividers. Skip
     // over the first since it'll just fall on the edge.
-    std::vector<vec2> result;
+    std::vector<seg2> result;
     for ( float distance = width; distance < bounds.getWidth(); distance += width ) {
         vec2 step = direction * distance;
-        result.push_back( step + topLeft );
-        result.push_back( step + bottomLeft );
+        result.push_back( seg2( topLeft + step, bottomLeft + step ) );
     }
     return result;
 }

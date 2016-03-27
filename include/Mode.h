@@ -25,7 +25,7 @@ class BaseMode
     virtual void addParams( ci::params::InterfaceGlRef params) {}
     virtual void setup() {}
     virtual void layout() {}
-    virtual void draw() {}
+    virtual void draw() { if ( mCityView ) mCityView->draw( mViewOptions ); }
     void update()
     {
         // TODO: Don't redo layout on every change, set a timer to update every

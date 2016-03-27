@@ -4,6 +4,10 @@
 #include "GeometryHelpers.h"
 #include "FlatShape.h"
 
+#include "RoadBuilder.h"
+#include "BlockSubdivider.h"
+#include "LotFiller.h"
+
 using namespace ci;
 using namespace ci::app;
 
@@ -13,11 +17,14 @@ void BlockMode::setup() {
     mViewOptions.drawBuildings = false;
 
     mModel = Cityscape::CityModel();
+
+    mPlan = mModel.zoningPlans.back();
+
     FlatShapeRef fs = FlatShape::create( PolyLine2f( {
         vec2( -600, -600 ), vec2(  600, -600 ),
         vec2(  600,  600 ), vec2( -600,  600 )
     } ) );
-    Cityscape::DistrictRef district = Cityscape::District::create( fs, mModel.zoningPlans.front() );
+    Cityscape::DistrictRef district = Cityscape::District::create( fs, mPlan );
     district->blocks.push_back( mBlock );
     mModel.districts.push_back( district );
 
@@ -26,13 +33,11 @@ void BlockMode::setup() {
 
 void BlockMode::addParams( ci::params::InterfaceGlRef params) {
 
-    Cityscape::ZoningPlanRef plan = mModel.zoningPlans.front();
-
     params->addSeparator("Block");
 
-    params->addParam( "Division", {"None", "Skeleton"}, (int*)&plan->block.lotDivision )
+    params->addParam( "Division", {"None", "Skeleton"}, (int*)&mPlan->block.lotDivision )
         .updateFn( [this] { requestLayout(); } );
-    params->addParam( "lotWidth", &plan->block.lotWidth ).step( 5 )
+    params->addParam( "lotWidth", &mPlan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
 
 // TODO: should alter zoning
@@ -62,6 +67,7 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
             vec2( 209, 170 ),
             vec2( 84, 0 ),
             vec2( 243, -123 ),
+            vec2( -153, -213 ),
         });
         mHoles = {};
         layout();
@@ -104,14 +110,15 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
 }
 
 void BlockMode::layout() {
-    mBlock.reset();
-    if ( mOutline.size() < 3 ) return;
-
     mBlock = Cityscape::Block::create( FlatShape::create( mOutline, mHoles ) );
-//    mBlock->layout( mOptions );
 
-    mModel.districts.front()->blocks.clear();
-    mModel.districts.front()->blocks.push_back( mBlock );
+    auto district = mModel.districts.front();
+    district->blocks.clear();
+    district->blocks.push_back( mBlock );
+
+//    Cityscape::buildStreetsAndBlocks( mModel );
+    Cityscape::subdivideBlocks( mModel );
+    Cityscape::fillLots( mModel );
 
     mCityView = CityView::create( mModel );
 }

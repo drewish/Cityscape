@@ -78,7 +78,7 @@ CityView::CityView( const Cityscape::CityModel &model )
         }
     }
 
-    trees.push_back( InstanceBatch( buildBatch( treeShader,  geom::Sphere().subdivisions( 12 ), treeData ), treeData.size() ) );
+    trees.push_back( InstanceBatch( buildBatch( treeShader,  geom::Sphere().subdivisions( 10 ), treeData ), treeData.size() ) );
 
     for ( auto &pair : buildingData ) {
         auto plan = pair.first;

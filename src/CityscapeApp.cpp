@@ -102,7 +102,7 @@ void CityscapeApp::setup()
 
     mParams = params::InterfaceGl::create( "Cityscape", ivec2( 350, 700 ) );
     mParams->minimize();
-    setupModeParams( ModeRef( new CityMode() ) );
+    setupModeParams( ModeRef( new BlockMode() ) );
 
     mEditCamera.setPerspective( 60.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
     mEditCamera.lookAt( vec3( 0, 0, 1000 ), vec3( 0 ), vec3( 0, 1, 0 ) );
@@ -110,7 +110,7 @@ void CityscapeApp::setup()
     mViewCameraUI.enable( mIsEditing );
 
     mViewCamera.setPerspective( 40.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
-    mViewCamera.lookAt( vec3( 0, -800, 300 ), vec3( 0 ), vec3( 0, 0, 1 ) );
+    mViewCamera.lookAt( vec3( 0, -600, 200 ), vec3( 0, 0, 0 ), vec3( 0, 0, 1 ) );
     mViewCameraUI = CameraUi( &mViewCamera );
     mViewCameraUI.enable( ! mIsEditing );
 
@@ -267,9 +267,8 @@ void CityscapeApp::draw()
     {
         // Fill the screen with our sky... at some point it should probably
         // become a skybox since the gradient moves witht the camera right now.
-        vec2 window = getWindowSize();
         gl::ScopedMatrices matrixScope;
-
+        vec2 window = getWindowSize();
         gl::setMatricesWindow( window );
         gl::translate( window.x / 2.0, 0.5 * window.y );
         gl::scale( window.x, window.y, 1 );
@@ -285,26 +284,30 @@ void CityscapeApp::draw()
             gl::ScopedColor scopedColor( Color::white() );
             gl::setMatrices( mEditCamera );
 
-            PolyLine2f  hoverOutline;
-            if ( mModeRef && mModeRef->isOverOutline( mMouseOnPlaneAt, hoverOutline ) ) {
-                gl::draw( hoverOutline );
-            }
+            if ( mModeRef ) {
+                mModeRef->draw();
 
-            if ( mModeRef && mModeRef->getPoints().size() ) {
-                for ( const vec2 &p : mModeRef->getPoints() ) {
-                    gl::drawSolidCircle( p, 8.0f, 12 );
+                PolyLine2f  hoverOutline;
+                if ( mModeRef->isOverOutline( mMouseOnPlaneAt, hoverOutline ) ) {
+                    gl::draw( hoverOutline );
                 }
-                // Draw a second outline for the last point since additions will
-                // follow it.
-                gl::drawStrokedCircle( mModeRef->getPoints().back(), 12.0f, 4.0f, 12 );
+
+                if ( mModeRef->getPoints().size() ) {
+                    for ( const vec2 &p : mModeRef->getPoints() ) {
+                        gl::drawSolidCircle( p, 8.0f, 12 );
+                    }
+                    // Draw a second outline for the last point since additions will
+                    // follow it.
+                    gl::drawStrokedCircle( mModeRef->getPoints().back(), 12.0f, 4.0f, 12 );
+                }
             }
 
             drawCursor();
+
         } else {
             gl::setMatrices( mViewCamera );
+            if ( mModeRef ) mModeRef->draw();
         }
-
-        if ( mModeRef ) mModeRef->draw();
     }
 
     // Little indicator for when the FPS drops too low

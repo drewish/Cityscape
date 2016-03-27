@@ -155,10 +155,6 @@ void CityMode::layout() {
     mCityView = CityView::create( mModel );
 }
 
-void CityMode::draw() {
-    if ( mCityView ) mCityView->draw( mViewOptions );
-}
-
 std::vector<ci::vec2> CityMode::getPoints()
 {
     return mHighwayPoints;

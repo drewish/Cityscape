@@ -59,8 +59,6 @@ Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotW
     // Build straight skeleton...
     // Create with holes
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( shape.polygonWithHoles<InexactK>() );
-//    // Avoid holes do we don't have to skip the face for the hole when reading out the lots
-//    SsPtr skel = CGAL::create_interior_straight_skeleton_2( shape.polygonWithConnectedHoles(), InexactK() );
 
     std::list<Segment_2> outlineSegments;
     std::list<Segment_2> skeletonSegments;
@@ -136,21 +134,7 @@ Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotW
     // - create lots in specific size ranges (avoid tiny or mega lots)
 
     // Then start walking across the outline adding dividers.
-    std::list<Segment_2> dividerSegments;
-    std::vector<vec2> dividers = computeDividers( shape.outline().getPoints(), dividerAngle, lotWidth );
-    for ( const Segment_2 &divider : segmentsFrom( dividers ) ) {
-        outlineSegments.push_back( divider );
-
-        // The intersection points come back in a sorted order so we can just
-        // create a series of segments from those points.
-        std::vector<Point_2> dividerPoints;
-        CGAL::compute_intersection_points( outlineSegments.begin(), outlineSegments.end(), std::back_inserter( dividerPoints ) );
-        for ( const Segment_2 &dividerChunk : segmentsFrom( dividerPoints ) ) {
-            dividerSegments.push_back( dividerChunk );
-        }
-
-        outlineSegments.pop_back();
-    }
+    std::vector<Segment_2> dividerSegments = shape.dividerSegment_2s( dividerAngle, lotWidth );
 
     // Put the outline, adjusted skeleton, and new dividers into the the
     // arrangment.
