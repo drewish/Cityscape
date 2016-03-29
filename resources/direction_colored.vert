@@ -4,8 +4,8 @@ uniform mat4    ciModelView;
 uniform mat4    ciModelViewProjection;
 
 in vec4         ciPosition;
-in vec4         ciColor;
 in mat4         vInstanceModelMatrix; // per-instance position variable
+in vec4         vInstanceColor; // ignored
 out vec3        eyespacePosition;
 
 void main()

@@ -66,13 +66,13 @@ CityView::CityView( const Cityscape::CityModel &model )
 
                 for ( const auto &tree : lot->trees ) {
                     mat4 modelView = glm::scale( glm::translate( tree->position ), vec3( tree->diameter ) );
-                    treeData.push_back( InstanceData( modelView ) );
+                    treeData.push_back( InstanceData( modelView, ColorA( 0.41f, 0.60f, 0.22f, 0.75f ) ) );
                 }
 
                 if ( lot->building && lot->building->plan ) {
                     mat4 modelView = glm::translate( vec3( lot->building->position, 0 ) );
                     modelView = glm::rotate( modelView, lot->building->rotation, vec3( 0, 0, 1 ) );
-                    buildingData[ lot->building->plan ].push_back( InstanceData( modelView ) );
+                    buildingData[ lot->building->plan ].push_back( InstanceData( modelView, ColorA::white() ) );
                 }
             }
         }
@@ -96,12 +96,16 @@ gl::BatchRef CityView::buildBatch( const gl::GlslProgRef &shader, const geom::So
 
     // we need a geom::BufferLayout to describe this data as mapping to the CUSTOM_0 semantic, and the 1 (rather than 0) as the last param indicates per-instance (rather than per-vertex)
     geom::BufferLayout layout;
-    layout.append( geom::Attrib::CUSTOM_0, stride / sizeof( float ), stride, 0, 1 );
+    // Doing all this the long way so it's easier to debug later.
+    uint8_t matrixDim = sizeof( ci::mat4 ) / sizeof( float );
+    uint8_t colorDim = sizeof( ci::vec4 ) / sizeof( float );
+    layout.append( geom::Attrib::CUSTOM_0, matrixDim, stride, 0, 1 );
+    layout.append( geom::Attrib::COLOR, colorDim, stride, sizeof( ci::mat4 ), 1 );
 
     gl::VboMeshRef mesh = gl::VboMesh::create( geometry );
     mesh->appendVbo( layout, vbo );
 
-    return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstanceModelMatrix" } } );
+    return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstanceModelMatrix" }, { geom::Attrib::COLOR, "vInstanceColor" } } );
 }
 
 void CityView::draw( const Options &options ) const
@@ -122,8 +126,6 @@ void CityView::draw( const Options &options ) const
     if ( options.drawTrees ) {
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
         for ( const auto &treebits : trees ) {
-            // TODO move the color into the instance settings
-            gl::ScopedColor scopedColor( ColorA8u( 0x69, 0x98, 0x38, 0xC0 ) );
             treebits.first->drawInstanced( treebits.second );
         }
     }

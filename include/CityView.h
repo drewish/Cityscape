@@ -16,9 +16,11 @@ typedef std::shared_ptr<CityView>   CityViewRef;
 class CityView {
 public:
     struct InstanceData {
-        InstanceData( const ci::mat4 &mv ) : modelView( mv ) {};
+        InstanceData( const ci::mat4 &mv, const ci::vec4 &c )
+            : modelView( mv ), color( c ) {};
 
         ci::mat4 modelView;
+        ci::vec4 color;
     };
 
     // Batch has mesh, instanced data, shader, size is number of instances to render.
