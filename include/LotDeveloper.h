@@ -34,7 +34,8 @@ class ParkDeveloper : public LotDeveloper {
 
 class SingleFamilyHomeDeveloper : public LotDeveloper {
   public:
-    SingleFamilyHomeDeveloper( const std::vector<BuildingPlanRef> &plans ): mPlans( plans ) {};
+    SingleFamilyHomeDeveloper( const std::vector<BuildingPlanRef> &plans )
+        : mPlans( plans ) {};
 
     virtual const std::string name() const override { return "Home Builder"; }
     virtual bool isValidFor( LotRef &lot ) const override;
@@ -57,9 +58,18 @@ class FullLotDeveloper : public LotDeveloper {
 };
 
 class FarmOrchardDeveloper : public LotDeveloper {
+  public:
+    FarmOrchardDeveloper( float angle = 0.0, float spacing = 13.0, float diameter = 5.0f )
+        : mAngle( angle ), mTreeSpacing( spacing ), mDiameter( diameter ) {};
+
     virtual const std::string name() const override { return "Orchard Builder"; }
     virtual bool isValidFor( LotRef &lot )  const override { return true; }
     virtual void buildIn( LotRef &lot ) const override;
+
+  private:
+    float mAngle;
+    float mTreeSpacing;
+    float mDiameter;
 };
 
 class FarmFieldDeveloper : public LotDeveloper {

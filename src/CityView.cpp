@@ -35,7 +35,7 @@ CityView::CityView( const Cityscape::CityModel &model )
     geom::Plane plane = geom::Plane()
         .size( model.dimensions.getSize() )
         .origin( vec3( 0, 0, -0.10 ) )
-        .axes( vec3( 1, 0, 0 ), vec3( 0, 1, 0 ) );
+        .axes( vec3( 1, 0, 0 ), vec3( 0, -1, 0 ) );
     ground = gl::Batch::create( plane >> geom::Constant( geom::Attrib::COLOR, model.groundColor ), colorShader );
 
     for ( const auto &shape : model.pavement ) {
@@ -43,7 +43,7 @@ CityView::CityView( const Cityscape::CityModel &model )
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
     }
 
-    std::vector<InstanceData> treeData;
+    std::map<Cityscape::TreeFamily, std::vector<InstanceData>> treeData;
     std::map<BuildingPlanRef, std::vector<InstanceData>> buildingData;
 
     for ( const auto &district : model.districts ) {
@@ -66,7 +66,7 @@ CityView::CityView( const Cityscape::CityModel &model )
 
                 for ( const auto &tree : lot->trees ) {
                     mat4 modelView = glm::scale( glm::translate( tree->position ), vec3( tree->diameter ) );
-                    treeData.push_back( InstanceData( modelView, ColorA( 0.41f, 0.60f, 0.22f, 0.75f ) ) );
+                    treeData[ tree->family ].push_back( InstanceData( modelView, tree->color ) );
                 }
 
                 if ( lot->building && lot->building->plan ) {
@@ -78,7 +78,17 @@ CityView::CityView( const Cityscape::CityModel &model )
         }
     }
 
-    trees.push_back( InstanceBatch( buildBatch( treeShader,  geom::Sphere().subdivisions( 10 ), treeData ), treeData.size() ) );
+    for ( auto &pair : treeData ) {
+        auto type = pair.first;
+        auto instances = pair.second;
+        ci::geom::SourceMods geom;
+        if ( type == Cityscape::TreeFamily::CONIFER_TREE ) {
+            geom = geom::Cone().subdivisionsAxis( 10 ).height( 3.0 ).direction( vec3( 0, 0, 1 ) );
+        } else {
+            geom = geom::Sphere().subdivisions( 10 );
+        }
+        trees.push_back( InstanceBatch( buildBatch( treeShader, geom, instances ), instances.size() ) );
+    }
 
     for ( auto &pair : buildingData ) {
         auto plan = pair.first;
@@ -110,7 +120,10 @@ gl::BatchRef CityView::buildBatch( const gl::GlslProgRef &shader, const geom::So
 
 void CityView::draw( const Options &options ) const
 {
+    gl::ScopedBlendAlpha scopedAlpha;
+
     ground->draw();
+
     if ( options.drawRoads ) {
         for ( const auto &batch : roads ) batch->draw();
     }

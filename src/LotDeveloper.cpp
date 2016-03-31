@@ -96,23 +96,24 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
 
 void FarmOrchardDeveloper::buildIn( LotRef &lot ) const
 {
-    float angle = 0.0;
-    float rowSpacing = 20.0;
-    float treeSpacing = 10.0;
+    // TODO: either shrink the lot size before creating dividers or shrink
+    // bounding box so we don't go outside it.
+    std::vector<seg2> dividers = lot->shape->dividerSeg2s( mAngle, mTreeSpacing );
 
-    std::vector<seg2> dividers = lot->shape->dividerSeg2s( angle, rowSpacing );
-
-    // Walk along each segment and plant trees
+    // Walk along each segment and plant trees. Orchards often use a quincunx
+    // pattern so every other row should start halfway between. Note: holes in
+    // the lot will cause glitches with this simple algorithm.
+    bool even = true;
     for ( const seg2 &divider : dividers ) {
         vec2 v = divider.second - divider.first;
         float length = glm::length( v );
-        vec2 unitVector = v / length * treeSpacing;
-        size_t treeCount = length / treeSpacing;
-        // Skip the ends to avoid tree's hanging over the edges
-        for ( size_t i = 2; i < treeCount; ++i ) {
-            vec2 jitter = vec2( randFloat( -1, +1 ), randFloat( -1, +1 ) );
-            lot->plantTree( 5 + randFloat( 1.0 ), divider.first + ( unitVector * (float)( i - 0.5 ) ) + jitter );
+        vec2 unitVector = v / length * mTreeSpacing;
+        size_t treeCount = length / mTreeSpacing;
+        for ( size_t i = 1; i < treeCount; ++i ) {
+            vec2 at = divider.first + unitVector * ( i + ( even ? 0.0f : 0.5f ) );
+            lot->plantTree( mDiameter + randFloat( 1.0 ), at + randVec2(), CIRCULAR_TREE );
         }
+        even = !even;
     }
 }
 

@@ -32,9 +32,18 @@ void Lot::plantTree( float diameter )
     plantTree( diameter, shape->randomPoint() );
 }
 
-void Lot::plantTree( float diameter, ci::vec2 at )
+void Lot::plantTree( float diameter, const ci::vec2 &at, TreeFamily f )
 {
-    trees.push_back( Tree::create( ci::vec3( at, diameter + 3 ), diameter ) );
+    vec3 position = vec3( at, 3 );
+    ColorA color;
+    if ( f == CIRCULAR_TREE ) {
+        color = ColorA( 0.41f, 0.60f, 0.22f, 0.75f );
+        position += ci::vec3( 0, 0, diameter );
+    } else {
+        color = ColorA( 0.41f, 0.60f, 0.22f, 1.0f );
+    }
+    trees.push_back( Tree::create( position, diameter, color, f ) );
+
 }
 
 // * * *

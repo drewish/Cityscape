@@ -37,6 +37,11 @@ namespace Cityscape {
     typedef std::shared_ptr<Building>   	BuildingRef;
     typedef std::shared_ptr<Tree>    		TreeRef;
 
+    enum TreeFamily {
+        CIRCULAR_TREE = 0, // There's a better name than this.
+        CONIFER_TREE = 1,
+    };
+
     struct ZoningPlan {
         static ZoningPlanRef create( const std::string &name ) {
             return ZoningPlanRef( new ZoningPlan( name ) );
@@ -168,7 +173,7 @@ namespace Cityscape {
         using Ground::Ground;
 
         void plantTree( float diameter );
-        void plantTree( float diameter, ci::vec2 at );
+        void plantTree( float diameter, const ci::vec2 &at, TreeFamily f = CIRCULAR_TREE );
 
         std::vector<TreeRef>    trees;
         BuildingRef             building;
@@ -189,12 +194,18 @@ namespace Cityscape {
     };
 
     struct Tree {
-        static TreeRef create( const ci::vec3 &p, float d ) { return TreeRef( new Tree( p, d ) ); };
+        static TreeRef create( const ci::vec3 &p, float d, const ci::ColorA &c, TreeFamily f = CIRCULAR_TREE )
+        {
+            return TreeRef( new Tree( p, d, c, f ) );
+        };
 
-        Tree( const ci::vec3 &position, float diameter ) : position( position ), diameter( diameter ) {};
+        Tree( const ci::vec3 &position, float diameter, const ci::ColorA &c, TreeFamily f = CIRCULAR_TREE )
+            : position( position ), diameter( diameter ), color( c ), family( f ) {};
 
         ci::vec3 position;
         float diameter;
+        ci::ColorA color;
+        TreeFamily family;
     };
     typedef std::shared_ptr<Tree>   TreeRef;
 
