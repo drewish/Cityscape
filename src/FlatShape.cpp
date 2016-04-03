@@ -11,9 +11,20 @@
 #include "cinder/Triangulate.h"
 #include <CGAL/linear_least_squares_fitting_2.h>
 #include <CGAL/connect_holes.h>
+#include <CGAL/arrange_offset_polygons_2.h>
+#include <CGAL/create_offset_polygons_from_polygon_with_holes_2.h>
 #include "GeometryHelpers.h"
 
+
 using namespace ci;
+
+void FlatShape::fixOrientation()
+{
+    if ( mOutline.isClockwise() ) mOutline.reverse();
+    for ( auto &hole : mHoles ) {
+        if ( hole.isCounterClockwise() ) hole.reverse();
+    }
+}
 
 vec2 FlatShape::centroid() const
 {
@@ -51,18 +62,28 @@ bool FlatShape::contains( const ci::vec2 point ) const
     return true;
 }
 
-TriMesh FlatShape::makeMesh() const
+const ci::TriMeshRef FlatShape::mesh() const
 {
-    // TODO might be good to lazily create this when they first ask for the mesh.
+    if ( mMesh ) return mMesh;
+
     Triangulator triangulator( mOutline );
-    for( auto it = mHoles.begin(); it != mHoles.end(); ++it ) {
-        triangulator.addPolyLine( *it );
+    for( const auto &hole : mHoles ) {
+        triangulator.addPolyLine( hole );
     }
 
-    return triangulator.calcMesh();
+    return mMesh = triangulator.createMesh();
 }
 
-const CGAL::Polygon_2<InexactK> FlatShape::polygonWithConnectedHoles() const
+float FlatShape::calcArea() const
+{
+    float area = mOutline.calcArea();
+    for ( const auto &hole : mHoles ) {
+        area -= hole.calcArea();
+    }
+    return area;
+}
+
+CGAL::Polygon_2<InexactK> FlatShape::polygonWithConnectedHoles() const
 {
     std::vector<ExactK::Point_2> points;
 
@@ -72,7 +93,6 @@ const CGAL::Polygon_2<InexactK> FlatShape::polygonWithConnectedHoles() const
     for ( auto &p : points ) {
         result.push_back( InexactK::Point_2( p.x().floatValue(), p.y().floatValue() ) );
     }
-    std::cout << "is simple" << result.is_simple() << "\n";
     return result;
 }
 
@@ -100,8 +120,11 @@ std::vector<Segment_2> FlatShape::dividerSegment_2s( float angle, float spacing 
 {
     std::vector<Segment_2> results;
 
-    // TODO: Need to handle holes in the shape
     std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( mOutline.getPoints() );
+    for ( const auto &hole : mHoles ) {
+        auto holeSegments = contiguousSegmentsFrom( hole.getPoints() );
+        outlineSegments.insert( outlineSegments.end(), holeSegments.begin(), holeSegments.end() );
+    }
 
     // Walking across the shape and find the portion of the divider that is
     // inside the shape.
@@ -119,4 +142,17 @@ std::vector<Segment_2> FlatShape::dividerSegment_2s( float angle, float spacing 
     }
 
     return results;
+}
+
+typedef CGAL::Polygon_with_holes_2<InexactK> PolyWithHoles;
+typedef boost::shared_ptr<PolyWithHoles> PolyPtr;
+
+FlatShape FlatShape::contract( double offset ) const
+{
+    if ( mOutline.size() < 3 ) return *this;
+
+    PolyWithHoles input = polygonWithHoles<InexactK>();
+    printPolygon( input );
+    std::vector<PolyPtr> outline = CGAL::create_interior_skeleton_and_offset_polygons_with_holes_2( offset, input );
+    return FlatShape( *outline.back() );
 }

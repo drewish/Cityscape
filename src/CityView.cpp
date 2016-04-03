@@ -39,7 +39,7 @@ CityView::CityView( const Cityscape::CityModel &model )
     ground = gl::Batch::create( plane >> geom::Constant( geom::Attrib::COLOR, model.groundColor ), colorShader );
 
     for ( const auto &shape : model.pavement ) {
-        auto mesh = shape->mesh() >> geom::Constant( geom::Attrib::COLOR, model.roadColor );
+        auto mesh = *shape->mesh() >> geom::Constant( geom::Attrib::COLOR, model.roadColor );
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
     }
 
@@ -47,19 +47,19 @@ CityView::CityView( const Cityscape::CityModel &model )
     std::map<BuildingPlanRef, std::vector<InstanceData>> buildingData;
 
     for ( const auto &district : model.districts ) {
-        auto mesh = district->shape->mesh()
+        auto mesh = *district->shape->mesh()
             >> geom::Constant( geom::Attrib::COLOR, district->color )
             >> geom::Translate( vec3( 0, 0, -0.03 ) );
         districts.push_back( gl::Batch::create( mesh, colorShader ) );
 
         for ( const auto &block : district->blocks ) {
-            auto mesh = block->shape->mesh()
+            auto mesh = *block->shape->mesh()
                 >> geom::Constant( geom::Attrib::COLOR, block->color )
                 >> geom::Translate( vec3( 0, 0, -0.02 ) );
             blocks.push_back( gl::Batch::create( mesh, colorShader ) );
 
             for ( const auto &lot : block->lots ) {
-                auto mesh = lot->shape->mesh()
+                auto mesh = *lot->shape->mesh()
                     >> geom::Constant( geom::Attrib::COLOR, lot->color )
                     >> geom::Translate( vec3( 0, 0, -0.01 ) );
                 lots.push_back( gl::Batch::create( mesh, colorShader ) );

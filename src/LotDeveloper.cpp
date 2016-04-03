@@ -96,9 +96,7 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
 
 void FarmOrchardDeveloper::buildIn( LotRef &lot ) const
 {
-    // TODO: either shrink the lot size before creating dividers or shrink
-    // bounding box so we don't go outside it.
-    std::vector<seg2> dividers = lot->shape->dividerSeg2s( mAngle, mTreeSpacing );
+    std::vector<seg2> dividers = lot->shape->contract( 5 ).dividerSeg2s( mAngle, mTreeSpacing );
 
     // Walk along each segment and plant trees. Orchards often use a quincunx
     // pattern so every other row should start halfway between. Note: holes in
