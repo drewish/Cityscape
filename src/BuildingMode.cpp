@@ -58,15 +58,13 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
 }
 
 void BuildingMode::layout() {
-    mBuilding.reset();
+    auto lot = mModel.districts.front()->blocks.front()->lots.front();
+    lot->buildings.clear();
 
     if ( mOutline.size() < 3 ) return;
 
-// TODO: need to ensure the outline is in counterclockwise order
-
-    mBuilding = Cityscape::Building::create( BuildingPlan::create( mOutline, mFloors, mRoof, 0.4 ) );
-
-    mModel.districts.front()->blocks.front()->lots.front()->building = mBuilding;
+    auto building = Cityscape::Building::create( BuildingPlan::create( mOutline, mFloors, mRoof, 0.4 ) );
+    lot->buildings.push_back( building );
     mCityView = CityView::create( mModel );
 }
 

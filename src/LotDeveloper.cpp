@@ -50,22 +50,25 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
 
     // TODO: just placing it in the center for now. would be good to take
     // the street into consideration for setback and orientation.
-    lot->building = Building::create( plan, lot->shape->centroid() );
-    if ( !lot->building ) { return; }
-
-    // Remove the building goes outside the lot
-    // TODO: try moving it around?
-    std::vector<PolyLine2f> a = { lot->shape->outline() },
-        b = { lot->building->plan->outline( lot->building->position, lot->building->rotation ) },
-        diff = PolyLine2f::calcDifference( b, a );
-    if ( diff.size() != 0 ) {
-        lot->building.reset();
+    BuildingRef building = Building::create( plan, lot->shape->centroid() );
+    if ( building ) {
+        // Remove the building goes outside the lot
+        // TODO: try moving and/or rotating it around?
+        std::vector<PolyLine2f> a = { lot->shape->outline() },
+            b = { building->plan->outline( building->position, building->rotation ) },
+            diff = PolyLine2f::calcDifference( b, a );
+        if ( diff.size() != 0 ) {
+            building.reset();
+        }
+    }
+    if ( building ) {
+        lot->buildings.push_back( building );
     }
 
     // TODO: like the idea of planting trees but doesn't take tree diameter
     // into account
     vec2 treeAt = lot->shape->randomPoint();
-    if ( !lot->building || !lot->building->plan->outline().contains( treeAt ) ) {
+    if ( !building || !building->plan->outline().contains( treeAt ) ) {
         lot->plantTree( randFloat( 5, 12 ), treeAt );
     }
 }
@@ -83,12 +86,11 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
     // TODO: would be interesting to make taller buildings on smaller lots
     float area = lot->shape->area();
 
+    lot->buildings.clear();
+
     if ( area > 100 ) {
         int floors = 1 + (int) ( sqrt( area ) / 20 ) + ci::randInt( 6 );
-        lot->building = Building::create( BuildingPlan::create( lot->shape->outline(), floors, mRoof ) );
-    }
-    else {
-        lot->building.reset();
+        lot->buildings.push_back( Building::create( BuildingPlan::create( lot->shape->outline(), floors, mRoof ) ) );
     }
 }
 

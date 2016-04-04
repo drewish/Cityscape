@@ -69,10 +69,12 @@ CityView::CityView( const Cityscape::CityModel &model )
                     treeData[ tree->family ].push_back( InstanceData( modelView, tree->color ) );
                 }
 
-                if ( lot->building && lot->building->plan ) {
-                    mat4 modelView = glm::translate( vec3( lot->building->position, 0 ) );
-                    modelView = glm::rotate( modelView, lot->building->rotation, vec3( 0, 0, 1 ) );
-                    buildingData[ lot->building->plan ].push_back( InstanceData( modelView, ColorA::white() ) );
+                for ( const auto &building : lot->buildings ) {
+                    if ( building->plan ) {
+                        mat4 modelView = glm::translate( vec3( building->position, 0 ) );
+                        modelView = glm::rotate( modelView, building->rotation, vec3( 0, 0, 1 ) );
+                        buildingData[ building->plan ].push_back( InstanceData( modelView, ColorA::white() ) );
+                    }
                 }
             }
         }

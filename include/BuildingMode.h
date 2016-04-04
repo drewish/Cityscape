@@ -18,7 +18,6 @@ class BuildingMode : public BaseMode
     void setOutline( const ci::PolyLine2f &outline );
 
   private:
-    Cityscape::BuildingRef mBuilding;
     BuildingPlan::RoofStyle mRoof = BuildingPlan::RoofStyle::FLAT_ROOF;
     ci::PolyLine2f mOutline;
     int32_t mFloors = 1;

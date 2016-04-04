@@ -175,8 +175,8 @@ namespace Cityscape {
         void plantTree( float diameter );
         void plantTree( float diameter, const ci::vec2 &at, TreeFamily f = CIRCULAR_TREE );
 
-        std::vector<TreeRef>    trees;
-        BuildingRef             building;
+        std::vector<TreeRef>        trees;
+        std::vector<BuildingRef>    buildings;
     };
 
     struct Building {
