@@ -158,13 +158,13 @@
 				494BE6AC1C8B9D9100E50477 /* CityData.cpp */,
 				49FC372F1C87EA3F00FD5ECB /* CityView.cpp */,
 				497D933F1C588C82001323D2 /* Modes */,
+				5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */,
+				497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */,
 				494BE6A91C8B866500E50477 /* RoadBuilder.cpp */,
 				49AA4E3C1C8D5325008ADC8B /* BlockSubdivider.cpp */,
 				49AA4E3F1C8E4B11008ADC8B /* LotFiller.cpp */,
 				5F005E0F1CA797E2007B2A99 /* LotDeveloper.cpp */,
 				5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */,
-				5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */,
-				497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -228,13 +228,13 @@
 				49FC372E1C87E9FE00FD5ECB /* CityData.h */,
 				49FC37301C87EA3F00FD5ECB /* CityView.h */,
 				497D933E1C588C71001323D2 /* Modes */,
+				5F5C2D831B0D9FF200541E95 /* FlatShape.h */,
+				497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */,
 				494BE6AA1C8B866500E50477 /* RoadBuilder.h */,
 				49AA4E3D1C8D5325008ADC8B /* BlockSubdivider.h */,
 				49AA4E401C8E4B11008ADC8B /* LotFiller.h */,
 				5F005E0E1CA797CA007B2A99 /* LotDeveloper.h */,
 				5FA1B5331B26ADC6006047DE /* BuildingPlan.h */,
-				5F5C2D831B0D9FF200541E95 /* FlatShape.h */,
-				497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */,
 			);
 			name = Headers;
 			path = ../include;

@@ -20,8 +20,18 @@ using namespace ci::geom;
 using namespace std;
 
 
-typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
+PolyLine2f Blueprint::outline( const vec2 offset, const float rotation ) const
+{
+    glm::mat3 matrix = rotate( translate( glm::mat3(), offset ), rotation );
+    PolyLine2f ret = PolyLine2f();
+    for ( const auto &it : mOutline ) {
+        ret.push_back( vec2( matrix * vec3( it, 1 ) ) );
+    }
+    return ret;
+}
+
+// * * *
 
 ci::PolyLine2f BuildingPlan::triangle()
 {
@@ -105,18 +115,9 @@ ci::PolyLine2f BuildingPlan::randomOutline()
     }
 }
 
-const ci::PolyLine2f BuildingPlan::outline(const ci::vec2 offset, const float rotation) const
-{
-    glm::mat3 matrix = rotate( translate( glm::mat3(), offset ), rotation );
-    PolyLine2f ret = PolyLine2f();
-    for ( const auto &it : mOutline ) {
-        ret.push_back( vec2( matrix * vec3( it, 1 ) ) );
-    }
-    return ret;
-}
-
-
 // * * *
+
+typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 
 // Build side faces of the roof
 //
@@ -454,7 +455,7 @@ Shape2d shapeFrom( const PolyLine2f &polyline )
     return result;
 }
 
-void BuildingPlan::makeMesh()
+void BuildingPlan::buildGeometry()
 {
     float height = mFloorHeight * mFloors;
 

@@ -44,7 +44,7 @@ CityView::CityView( const Cityscape::CityModel &model )
     }
 
     std::map<Cityscape::TreeFamily, std::vector<InstanceData>> treeData;
-    std::map<BuildingPlanRef, std::vector<InstanceData>> buildingData;
+    std::map<BlueprintRef, std::vector<InstanceData>> buildingData;
 
     for ( const auto &district : model.districts ) {
         auto mesh = *district->shape->mesh()

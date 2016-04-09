@@ -34,7 +34,7 @@ class ParkDeveloper : public LotDeveloper {
 
 class SingleFamilyHomeDeveloper : public LotDeveloper {
   public:
-    SingleFamilyHomeDeveloper( const std::vector<BuildingPlanRef> &plans )
+    SingleFamilyHomeDeveloper( const std::vector<BlueprintRef> &plans )
         : mPlans( plans ) {};
 
     virtual const std::string name() const override { return "Home Builder"; }
@@ -42,7 +42,7 @@ class SingleFamilyHomeDeveloper : public LotDeveloper {
     virtual void buildIn( LotRef &lot ) const override;
 
   private:
-    std::vector<BuildingPlanRef> mPlans;
+    std::vector<BlueprintRef> mPlans;
 };
 
 class FullLotDeveloper : public LotDeveloper {

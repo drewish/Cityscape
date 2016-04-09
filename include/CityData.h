@@ -8,10 +8,10 @@
 #pragma once
 
 class FlatShape;
-typedef std::shared_ptr<FlatShape>      FlatShapeRef;
+typedef std::shared_ptr<FlatShape>  FlatShapeRef;
 
-class BuildingPlan;
-typedef std::shared_ptr<BuildingPlan>   BuildingPlanRef;
+class Blueprint;
+typedef std::shared_ptr<Blueprint>  BlueprintRef;
 
 namespace Cityscape {
     // Give relatively unique colors
@@ -180,15 +180,15 @@ namespace Cityscape {
     };
 
     struct Building {
-        static BuildingRef create( const BuildingPlanRef &plan, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
+        static BuildingRef create( const BlueprintRef &blueprint, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
         {
-            return BuildingRef( new Building( plan, position, rotation ) );
+            return BuildingRef( new Building( blueprint, position, rotation ) );
         }
 
-        Building( const BuildingPlanRef &plan, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
-            : plan( plan ), position( position ), rotation( rotation ) {};
+        Building( const BlueprintRef &blueprint, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
+            : plan( blueprint ), position( position ), rotation( rotation ) {};
 
-        BuildingPlanRef plan;
+        BlueprintRef    plan;
         ci::vec2        position;
         float           rotation; // radians
     };

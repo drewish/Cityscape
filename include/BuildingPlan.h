@@ -8,11 +8,26 @@
 
 #pragma once
 
-class BuildingPlan;
-typedef std::shared_ptr<BuildingPlan> BuildingPlanRef;
+class Blueprint;
+typedef std::shared_ptr<Blueprint>  BlueprintRef;
 
-class BuildingPlan {
-public:
+class Blueprint {
+  public:
+    Blueprint( const ci::PolyLine2f &outline ) : mOutline( outline ) {};
+
+    // 2d footprint of the structure. The optional params can be used to
+    // tranform the outline to reflect the position in the lot.
+    ci::PolyLine2f outline( const ci::vec2 offset = ci::vec2( 0 ), const float rotation = 0.0 ) const;
+    // 3d view of the structure
+    const ci::geom::SourceMods &geometry() const { return mGeometry; };
+
+  protected:
+    ci::PolyLine2f          mOutline;
+    ci::geom::SourceMods    mGeometry;
+};
+
+class BuildingPlan : public Blueprint {
+  public:
     // http://www.johnriebli.com/roof-types--house-styles.html
     enum RoofStyle {
         FLAT_ROOF = 0,
@@ -36,17 +51,17 @@ public:
     static ci::PolyLine2f tee();
     static ci::PolyLine2f randomOutline();
 
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, uint8_t floors = 1,
+    static BlueprintRef create( const ci::PolyLine2f &outline, uint8_t floors = 1,
         const RoofStyle roof = FLAT_ROOF, float slope = 0.5, float overhang = 0.0f )
     {
-        return BuildingPlanRef( new BuildingPlan( outline, floors, roof, slope, overhang ) );
+        return BlueprintRef( new BuildingPlan( outline, floors, roof, slope, overhang ) );
     }
 
     // Outline's coords should be centered around the origin so we can transform
     // it to fit on the lot.
     BuildingPlan( const ci::PolyLine2f &outline, uint8_t floors = 1,
         RoofStyle roof = FLAT_ROOF, float slope = 0.5, float overhang = 0.0f )
-        : mOutline( outline ), mRoof( roof ), mFloors( floors ), mRoofOverhang( overhang )
+        : Blueprint( outline ), mRoof( roof ), mFloors( floors ), mRoofOverhang( overhang )
     {
         assert( mOutline.size() > 0 );
 
@@ -56,22 +71,51 @@ public:
             mOutline.push_back( mOutline.getPoints().front() );
         }
 
-        makeMesh();
+        buildGeometry();
     };
 
-    const ci::geom::SourceMods &geometry() const { return mGeometry; };
-    const ci::PolyLine2f outline( const ci::vec2 offset = ci::vec2( 0 ), const float rotation = 0.0 ) const;
-    const uint8_t floors() const { return mFloors; }
-    const float floorHeight() const { return mFloorHeight; }
+    uint8_t floors() const { return mFloors; }
+    float floorHeight() const { return mFloorHeight; }
 
-private:
-    void makeMesh();
+  private:
+    void buildGeometry();
 
-    ci::PolyLine2f  mOutline;
     RoofStyle       mRoof;
     float           mRoofOverhang;
     float           mRoofSlope = 0.5;
     uint8_t         mFloors = 1;
     const float     mFloorHeight = 10.0;
-    ci::geom::SourceMods mGeometry;
+};
+
+class OilTank : public Blueprint {
+  public:
+
+    static BlueprintRef create( float radius = 20.0, float height = 10.0 )
+    {
+        return BlueprintRef( new OilTank( radius, height ) );
+    }
+
+    OilTank( float radius, float height, u_int8_t subdivisions = 12 )
+        : Blueprint( polylineCircle( radius, subdivisions ) )
+    {
+        mGeometry = ci::geom::Cylinder().radius( radius ).height( height )
+            .subdivisionsAxis( subdivisions ).direction( ci::vec3( 0, 0, 1 ) );
+    }
+
+    // This is structured so it can move out of the class if something else
+    // needs to use it.
+    ci::PolyLine2f polylineCircle( float radius, u_int8_t subdivisions ) {
+        ci::PolyLine2f result;
+        const ci::vec2 center( 0 );
+        // iterate the segments
+        const float tDelta = 1 / (float) subdivisions * 2.0f * M_PI;
+        float t = 0;
+        for( int s = 0; s <= subdivisions; s++ ) {
+            ci::vec2 unit( ci::math<float>::cos( t ), ci::math<float>::sin( t ) );
+            result.push_back( center + unit * radius );
+            t += tDelta;
+        }
+
+        return result;
+    }
 };
