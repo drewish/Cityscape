@@ -33,9 +33,9 @@ brew install cgal
 ```
 
 
-Install cinder 0.9.0 (as a sibling directory):
+Install my fork of Cinder (so we get #1034, #1411, #1412) as a sibling directory:
 ```
 cd ../
-git clone --recursive --branch release_v0.9.0 https://github.com/cinder/Cinder.git
+git clone --recursive --branch all-my-polyline-changes https://github.com/drewish/Cinder.git
 Cinder/xcode/fullbuild.sh
 ```
