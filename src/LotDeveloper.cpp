@@ -90,7 +90,31 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
 
     if ( area > 100 ) {
         int floors = 1 + (int) ( sqrt( area ) / 20 ) + ci::randInt( 6 );
-        lot->buildings.push_back( Building::create( BuildingPlan::create( lot->shape->outline(), floors, mRoof ) ) );
+        lot->build( BuildingPlan::create( lot->shape->outline(), floors, mRoof ) );
+    }
+}
+
+// * * *
+
+bool SquareGridDeveloper::isValidFor( LotRef &lot ) const
+{
+    float area = lot->shape->area();
+    return area > mRowSpacing * mStructureSpacing * 2;
+}
+void SquareGridDeveloper::buildIn( LotRef &lot ) const
+{
+    float setback = math<float>::max( mRowSpacing, mStructureSpacing ) / 2;
+    std::vector<seg2> dividers = lot->shape->contract( setback ).dividerSeg2s( mAngle, mRowSpacing );
+
+    for ( const seg2 &divider : dividers ) {
+        vec2 v = divider.second - divider.first;
+        float length = glm::length( v );
+        vec2 unitVector = v / length * mStructureSpacing;
+        size_t count = length / mStructureSpacing;
+        for ( size_t i = 0; i < count; ++i ) {
+            vec2 at = divider.first + unitVector * ( i + 0.5f );
+            lot->build( mStructure, at );
+        }
     }
 }
 

@@ -150,6 +150,7 @@ typedef boost::shared_ptr<PolyWithHoles> PolyPtr;
 FlatShape FlatShape::contract( double offset ) const
 {
     if ( mOutline.size() < 3 ) return *this;
+    if ( offset <= 0 ) return *this;
 
     PolyWithHoles input = polygonWithHoles<InexactK>();
     printPolygon( input );

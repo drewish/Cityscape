@@ -43,7 +43,11 @@ void Lot::plantTree( float diameter, const ci::vec2 &at, TreeFamily f )
         color = ColorA( 0.41f, 0.60f, 0.22f, 1.0f );
     }
     trees.push_back( Tree::create( position, diameter, color, f ) );
+}
 
+void Lot::build( const BlueprintRef &blueprint, const ci::vec2 &position, float rotation )
+{
+    buildings.push_back( Building::create( blueprint, position, rotation ) );
 }
 
 // * * *

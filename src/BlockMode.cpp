@@ -14,7 +14,7 @@ using namespace ci::app;
 void BlockMode::setup() {
     mViewOptions.drawBlocks = false;
     mViewOptions.drawLots = true;
-    mViewOptions.drawBuildings = false;
+    mViewOptions.drawBuildings = true;
 
     mModel = Cityscape::CityModel();
 

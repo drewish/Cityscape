@@ -57,6 +57,21 @@ class FullLotDeveloper : public LotDeveloper {
     BuildingPlan::RoofStyle mRoof;
 };
 
+class SquareGridDeveloper : public LotDeveloper {
+  public:
+    SquareGridDeveloper( const BlueprintRef &structure, float rowSpacing, float structureSpacing, float angle = 0.0 )
+        :mStructure( structure ), mRowSpacing( rowSpacing ), mStructureSpacing( structureSpacing ), mAngle( angle ) {};
+
+    virtual bool isValidFor( LotRef &lot )  const override;
+    virtual void buildIn( LotRef &lot ) const override;
+
+  private:
+    const BlueprintRef mStructure;
+    float mAngle;
+    float mRowSpacing;
+    float mStructureSpacing;
+};
+
 class FarmOrchardDeveloper : public LotDeveloper {
   public:
     FarmOrchardDeveloper( float angle = 0.0, float spacing = 13.0, float diameter = 5.0f )

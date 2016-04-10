@@ -174,18 +174,19 @@ namespace Cityscape {
 
         void plantTree( float diameter );
         void plantTree( float diameter, const ci::vec2 &at, TreeFamily f = CIRCULAR_TREE );
+        void build( const BlueprintRef &blueprint, const ci::vec2 &position = ci::vec2( 0, 0 ), float rotation = 0 );
 
         std::vector<TreeRef>        trees;
         std::vector<BuildingRef>    buildings;
     };
 
     struct Building {
-        static BuildingRef create( const BlueprintRef &blueprint, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
+        static BuildingRef create( const BlueprintRef &blueprint, const ci::vec2 &position = ci::vec2( 0, 0 ), float rotation = 0 )
         {
             return BuildingRef( new Building( blueprint, position, rotation ) );
         }
 
-        Building( const BlueprintRef &blueprint, ci::vec2 position = ci::vec2( 0, 0 ), float rotation = 0 )
+        Building( const BlueprintRef &blueprint, const ci::vec2 &position = ci::vec2( 0, 0 ), float rotation = 0 )
             : plan( blueprint ), position( position ), rotation( rotation ) {};
 
         BlueprintRef    plan;
