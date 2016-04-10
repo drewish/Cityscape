@@ -81,10 +81,15 @@ namespace Cityscape {
             // No developer means empty lot
             LotUsage( const LotDeveloperRef &developer, uint8_t ratio = 1 )
                 : developer( developer ), ratio( ratio ) {};
+
             LotDeveloperRef developer;
             uint8_t         ratio = 1;
         };
         std::vector<LotUsage> lotUsages;
+
+        void addUsage( const LotDeveloperRef &developer, uint8_t ratio = 1 ) {
+            lotUsages.push_back( LotUsage( developer, ratio ) );
+        }
     };
 
     // * * *

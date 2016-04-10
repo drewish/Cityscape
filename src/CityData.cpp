@@ -56,23 +56,26 @@ void Lot::build( const BlueprintRef &blueprint, const ci::vec2 &position, float 
 CityModel::CityModel()
 {
     ZoningPlanRef majesticheights = ZoningPlan::create( "default" );
-    majesticheights->lotUsages.push_back( ZoningPlan::LotUsage( nullptr, 1 ) );
-    majesticheights->lotUsages.push_back( ZoningPlan::LotUsage( LotDeveloperRef( new SingleFamilyHomeDeveloper( {
+    majesticheights->addUsage( nullptr, 1 );
+    majesticheights->addUsage( LotDeveloperRef( new SingleFamilyHomeDeveloper( {
             BuildingPlan::create( BuildingPlan::rectangle( 30, 10 ), 1, BuildingPlan::HIPPED_ROOF ),
             BuildingPlan::create( BuildingPlan::rectangle( 30, 10 ), 1, BuildingPlan::GABLED_ROOF ),
             BuildingPlan::create( BuildingPlan::lshape(), 1, BuildingPlan::HIPPED_ROOF ),
             BuildingPlan::create( BuildingPlan::lshape(), 1, BuildingPlan::GABLED_ROOF )
-
-        } ) ), 30 ) );
-    majesticheights->lotUsages.push_back( ZoningPlan::LotUsage( LotDeveloperRef( new ParkDeveloper() ), 2 ) );
+        } ) ), 30 );
+    majesticheights->addUsage( LotDeveloperRef( new ParkDeveloper() ), 2 );
 
     ZoningPlanRef farm = ZoningPlan::create( "farm" );
     farm->district.streetDivision = ZoningPlan::StreetDivision::NO_STREET_DIVISION;
     farm->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
-    farm->lotUsages.push_back( ZoningPlan::LotUsage( LotDeveloperRef( new FarmOrchardDeveloper() ), 2 ) );
+    farm->addUsage( LotDeveloperRef( new FarmOrchardDeveloper() ), 2 );
 
+    ZoningPlanRef industry = ZoningPlan::create( "industry" );
+//    industry->district.streetDivision = ZoningPlan::StreetDivision::NO_STREET_DIVISION;
+    industry->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
+    industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create(), 50, 50, 0.0 ) ), 1 );
 
-    zoningPlans = { majesticheights, farm };
+    zoningPlans = { majesticheights, farm, industry };
 }
 
 }
