@@ -17,14 +17,13 @@ class LotDeveloper {
   public:
     virtual ~LotDeveloper() {};
 
-    virtual const std::string name() const { return "Un-developer"; }
+    virtual const std::string name() const { return "Why can't I delete this line?"; }
     virtual bool isValidFor( LotRef &lot ) const { return false; }
     virtual void buildIn( LotRef &lot ) const {};
 };
 
 class ParkDeveloper : public LotDeveloper {
   public:
-    virtual const std::string name() const override { return "Park Builder"; }
     virtual bool isValidFor( LotRef &lot )  const override { return true; }
     virtual void buildIn( LotRef &lot ) const override;
 
@@ -37,7 +36,6 @@ class SingleFamilyHomeDeveloper : public LotDeveloper {
     SingleFamilyHomeDeveloper( const std::vector<BlueprintRef> &plans )
         : mPlans( plans ) {};
 
-    virtual const std::string name() const override { return "Home Builder"; }
     virtual bool isValidFor( LotRef &lot ) const override;
     virtual void buildIn( LotRef &lot ) const override;
 
@@ -49,7 +47,6 @@ class FullLotDeveloper : public LotDeveloper {
   public:
     FullLotDeveloper( BuildingPlan::RoofStyle roof ): mRoof( roof ) {};
 
-    virtual const std::string name() const override { return "City Builder"; }
     virtual bool isValidFor( LotRef &lot ) const override;
     virtual void buildIn( LotRef &lot ) const override;
 
@@ -77,7 +74,6 @@ class FarmOrchardDeveloper : public LotDeveloper {
     FarmOrchardDeveloper( float angle = 0.0, float spacing = 13.0, float diameter = 5.0f )
         : mAngle( angle ), mTreeSpacing( spacing ), mDiameter( diameter ) {};
 
-    virtual const std::string name() const override { return "Orchard Builder"; }
     virtual bool isValidFor( LotRef &lot )  const override { return true; }
     virtual void buildIn( LotRef &lot ) const override;
 
