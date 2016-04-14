@@ -51,13 +51,10 @@ void subdivideNotReally( BlockRef block )
 // TODO: This needs work to handle the holes correctly
 Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotWidth )
 {
-    Arrangement_2 arrangement;
-
     // TODO: find out why 4? because it's closed?
-    if (shape.outline().size() < 4) return arrangement;
+    if (shape.outline().size() < 4) return Arrangement_2();
 
-    // Build straight skeleton...
-    // Create with holes
+    // Build straight skeleton with holes
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( shape.polygonWithHoles<InexactK>() );
 
     std::list<Segment_2> outlineSegments;
@@ -73,7 +70,7 @@ Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotW
 
         if ( edge->is_border() ) {
             // Use the skeleton's outline since, unlike mOutline, will always
-            // be a closed polygon.
+            // be a closed polygon and in the correct orientation.
             outlineSegments.push_back( seg );
         }
 
@@ -99,8 +96,11 @@ Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotW
         }
     }
 
-    // Adjust the skeleton so it intersects with the outline rather than doing
-    // it's normal split thing.
+    // Rather than two      |  |  |  We want one segment    |  |  |
+    // segments forking out |  *  |  going to the outline:  |  *  |
+    // to the corners:      | / \ |                         |  |  |
+    //                      |/   \|                         |  |  |
+    //                      *-----*                         *--*--*
 
     // Find faces with 3 edges: 1 skeleton and 2 contour
     for ( auto face = skel->faces_begin(); face != skel->faces_end(); ++face ) {
@@ -138,10 +138,10 @@ Arrangement_2 arrangementSubdividing( const FlatShape &shape, const int16_t lotW
 
     // Put the outline, adjusted skeleton, and new dividers into the the
     // arrangment.
+    Arrangement_2 arrangement;
     insert_empty( arrangement, outlineSegments.begin(), outlineSegments.end() );
     insert( arrangement, skeletonSegments.begin(), skeletonSegments.end() );
     insert( arrangement, dividerSegments.begin(), dividerSegments.end() );
-
     return arrangement;
 }
 
