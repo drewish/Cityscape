@@ -31,3 +31,11 @@ std::vector<seg2> computeDividers( const std::vector<vec2> &outline, const float
     }
     return result;
 }
+
+PolyLine2f rectangleFrom( const ci::vec2 &a, const ci::vec2 &b, uint8_t width )
+{
+    ci::vec2 perpendicular = glm::normalize( ci::vec2( b.y - a.y, -( b.x - a.x ) ) );
+    ci::vec2 offset = perpendicular * ci::vec2( width / 2.0 );
+
+    return PolyLine2f( { b + offset, b - offset, a - offset, a + offset } );
+};

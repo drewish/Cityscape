@@ -19,15 +19,14 @@ namespace Cityscape {
 
 CGAL::Polygon_2<ExactK> roadOutline( const ci::vec2 &a, const ci::vec2 &b, uint8_t width = 10 )
 {
-    // It's faster to do this math outside of CGAL's exact kernel.
-    ci::vec2 perpendicular = glm::normalize( ci::vec2( b.y - a.y, -( b.x - a.x ) ) );
-    ci::vec2 offset = perpendicular * ci::vec2( width / 2.0 );
+    // It's much faster to do this math outside of CGAL's exact kernel.
+    const std::vector<ci::vec2> &points = rectangleFrom( a, b, width ).getPoints();
 
     CGAL::Polygon_2<ExactK> results;
-    results.push_back( pointFrom<ExactK>( b + offset ) );
-    results.push_back( pointFrom<ExactK>( b - offset ) );
-    results.push_back( pointFrom<ExactK>( a - offset ) );
-    results.push_back( pointFrom<ExactK>( a + offset ) );
+    results.push_back( pointFrom<ExactK>( points[0] ) );
+    results.push_back( pointFrom<ExactK>( points[1] ) );
+    results.push_back( pointFrom<ExactK>( points[2] ) );
+    results.push_back( pointFrom<ExactK>( points[3] ) );
     return results;
 };
 
