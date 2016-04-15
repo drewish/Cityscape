@@ -147,6 +147,18 @@ std::vector<Segment_2> FlatShape::dividerSegment_2s( float angle, float spacing 
 typedef CGAL::Polygon_with_holes_2<InexactK> PolyWithHoles;
 typedef boost::shared_ptr<PolyWithHoles> PolyPtr;
 
+// TODO: For concave shapes contraction might split the shape into multiple
+// smaller shapes:
+// +-----+
+//  \    |   +-+
+//   \   |    \|
+//    \  |
+//    /  |
+//   /   |    /|
+//  /    |   +-+
+// +-----+
+// This just returns one of those shapes. We need to figure out how to return
+// multiple shapes.
 FlatShape FlatShape::contract( double offset ) const
 {
     if ( mOutline.size() < 3 ) return *this;
