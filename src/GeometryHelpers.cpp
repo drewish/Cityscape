@@ -39,3 +39,19 @@ PolyLine2f rectangleFrom( const ci::vec2 &a, const ci::vec2 &b, uint8_t width )
 
     return PolyLine2f( { b + offset, b - offset, a - offset, a + offset } );
 };
+
+ci::PolyLine2f polylineCircle( float radius, u_int8_t subdivisions )
+{
+    ci::PolyLine2f result;
+    const ci::vec2 center( 0 );
+    // iterate the segments
+    const float tDelta = 1 / (float) subdivisions * 2.0f * M_PI;
+    float t = 0;
+    for( int s = 0; s <= subdivisions; s++ ) {
+        ci::vec2 unit( ci::math<float>::cos( t ), ci::math<float>::sin( t ) );
+        result.push_back( center + unit * radius );
+        t += tDelta;
+    }
+
+    return result;
+}

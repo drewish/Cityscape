@@ -155,6 +155,8 @@
 			children = (
 				25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */,
 				49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */,
+				5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */,
+				497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */,
 				494BE6AC1C8B9D9100E50477 /* CityData.cpp */,
 				49FC372F1C87EA3F00FD5ECB /* CityView.cpp */,
 				497D933F1C588C82001323D2 /* Modes */,
@@ -225,6 +227,8 @@
 				49DC254B1B4C65B1003AD4B2 /* CgalArrangement.h */,
 				49DC254C1B4C65D3003AD4B2 /* CgalStraightSkeleton.h */,
 				495222581C7ED78700FC88B7 /* CgalPolygon.h */,
+				5F5C2D831B0D9FF200541E95 /* FlatShape.h */,
+				497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */,
 				49FC372E1C87E9FE00FD5ECB /* CityData.h */,
 				49FC37301C87EA3F00FD5ECB /* CityView.h */,
 				497D933E1C588C71001323D2 /* Modes */,

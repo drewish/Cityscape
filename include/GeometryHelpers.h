@@ -8,3 +8,7 @@ std::vector<seg2> computeDividers( const std::vector<ci::vec2> &outline,
 
 // Expand a line into rectangle with a thickness.
 ci::PolyLine2f rectangleFrom( const ci::vec2 &start, const ci::vec2 &end, uint8_t width = 10 );
+
+
+// Create circle (or simpler shape if you use a low number of subdivisons)
+ci::PolyLine2f polylineCircle( float radius, u_int8_t subdivisions );

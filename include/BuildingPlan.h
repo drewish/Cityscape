@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "GeometryHelpers.h"
+
 class Blueprint;
 typedef std::shared_ptr<Blueprint>  BlueprintRef;
 
@@ -101,21 +103,20 @@ class OilTank : public Blueprint {
         mGeometry = ci::geom::Cylinder().radius( radius ).height( height )
             .subdivisionsAxis( subdivisions ).direction( ci::vec3( 0, 0, 1 ) );
     }
+};
 
-    // This is structured so it can move out of the class if something else
-    // needs to use it.
-    ci::PolyLine2f polylineCircle( float radius, u_int8_t subdivisions ) {
-        ci::PolyLine2f result;
-        const ci::vec2 center( 0 );
-        // iterate the segments
-        const float tDelta = 1 / (float) subdivisions * 2.0f * M_PI;
-        float t = 0;
-        for( int s = 0; s <= subdivisions; s++ ) {
-            ci::vec2 unit( ci::math<float>::cos( t ), ci::math<float>::sin( t ) );
-            result.push_back( center + unit * radius );
-            t += tDelta;
-        }
+class SmokeStack : public Blueprint {
+  public:
 
-        return result;
+    static BlueprintRef create( float radius = 4.0, float height = 40.0 )
+    {
+        return BlueprintRef( new SmokeStack( radius, height ) );
+    }
+
+    SmokeStack( float radius, float height, u_int8_t subdivisions = 12 )
+        : Blueprint( polylineCircle( radius, subdivisions ) )
+    {
+        mGeometry = ci::geom::Cone().base( radius ).height( height ).apex( radius * 0.8 )
+            .subdivisionsAxis( subdivisions ).direction( ci::vec3( 0, 0, 1 ) );
     }
 };
