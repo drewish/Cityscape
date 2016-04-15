@@ -7,6 +7,7 @@
 //
 
 #include "LotFiller.h"
+#include "LotDeveloper.h"
 #include "FlatShape.h"
 #include "cinder/Rand.h"
 

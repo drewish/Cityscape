@@ -16,8 +16,6 @@ namespace Cityscape {
 class LotDeveloper {
   public:
     virtual ~LotDeveloper() {};
-
-    virtual const std::string name() const { return "Why can't I delete this line?"; }
     virtual bool isValidFor( LotRef &lot ) const { return false; }
     virtual void buildIn( LotRef &lot ) const {};
 };
