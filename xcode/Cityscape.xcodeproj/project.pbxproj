@@ -37,6 +37,7 @@
 		5F39BA061C228ACE0006F986 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA041C228ACE0006F986 /* libgmp.10.dylib */; };
 		5F39BA071C228ACE0006F986 /* libmpfr.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA051C228ACE0006F986 /* libmpfr.4.dylib */; };
 		5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */; };
+		5F88E73C1CC49959002A663E /* Scenery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F88E73B1CC49959002A663E /* Scenery.cpp */; };
 		5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */; };
 		5FA88B2D1C48B871008C1A4A /* CityMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B2C1C48B871008C1A4A /* CityMode.cpp */; };
 		5FA88B311C48B9CA008C1A4A /* BlockMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */; };
@@ -96,6 +97,8 @@
 		5F4CBE921B31310800440011 /* Mode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mode.h; sourceTree = "<group>"; };
 		5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatShape.cpp; path = ../src/FlatShape.cpp; sourceTree = "<group>"; };
 		5F5C2D831B0D9FF200541E95 /* FlatShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlatShape.h; sourceTree = "<group>"; };
+		5F88E73A1CC4994A002A663E /* Scenery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scenery.h; sourceTree = "<group>"; };
+		5F88E73B1CC49959002A663E /* Scenery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scenery.cpp; path = ../src/Scenery.cpp; sourceTree = "<group>"; };
 		5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuildingPlan.cpp; path = ../src/BuildingPlan.cpp; sourceTree = "<group>"; };
 		5FA1B5331B26ADC6006047DE /* BuildingPlan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildingPlan.h; sourceTree = "<group>"; };
 		5FA88B2B1C48B866008C1A4A /* CityMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityMode.h; sourceTree = "<group>"; };
@@ -155,8 +158,6 @@
 			children = (
 				25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */,
 				49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */,
-				5F5C2D821B0D9FF200541E95 /* FlatShape.cpp */,
-				497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */,
 				494BE6AC1C8B9D9100E50477 /* CityData.cpp */,
 				49FC372F1C87EA3F00FD5ECB /* CityView.cpp */,
 				497D933F1C588C82001323D2 /* Modes */,
@@ -167,6 +168,7 @@
 				49AA4E3F1C8E4B11008ADC8B /* LotFiller.cpp */,
 				5F005E0F1CA797E2007B2A99 /* LotDeveloper.cpp */,
 				5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */,
+				5F88E73B1CC49959002A663E /* Scenery.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -227,8 +229,6 @@
 				49DC254B1B4C65B1003AD4B2 /* CgalArrangement.h */,
 				49DC254C1B4C65D3003AD4B2 /* CgalStraightSkeleton.h */,
 				495222581C7ED78700FC88B7 /* CgalPolygon.h */,
-				5F5C2D831B0D9FF200541E95 /* FlatShape.h */,
-				497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */,
 				49FC372E1C87E9FE00FD5ECB /* CityData.h */,
 				49FC37301C87EA3F00FD5ECB /* CityView.h */,
 				497D933E1C588C71001323D2 /* Modes */,
@@ -239,6 +239,7 @@
 				49AA4E401C8E4B11008ADC8B /* LotFiller.h */,
 				5F005E0E1CA797CA007B2A99 /* LotDeveloper.h */,
 				5FA1B5331B26ADC6006047DE /* BuildingPlan.h */,
+				5F88E73A1CC4994A002A663E /* Scenery.h */,
 			);
 			name = Headers;
 			path = ../include;
@@ -374,6 +375,7 @@
 			files = (
 				5FA88B331C48B9D6008C1A4A /* BuildingMode.cpp in Sources */,
 				5F5C2D841B0D9FF200541E95 /* FlatShape.cpp in Sources */,
+				5F88E73C1CC49959002A663E /* Scenery.cpp in Sources */,
 				494BE6AB1C8B866500E50477 /* RoadBuilder.cpp in Sources */,
 				49AA4E3E1C8D5325008ADC8B /* BlockSubdivider.cpp in Sources */,
 				49FC37311C87EA3F00FD5ECB /* CityView.cpp in Sources */,

@@ -43,8 +43,8 @@ CityView::CityView( const Cityscape::CityModel &model )
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
     }
 
-    std::map<Cityscape::TreeFamily, std::vector<InstanceData>> treeData;
     std::map<BlueprintRef, std::vector<InstanceData>> buildingData;
+    std::map<SceneryRef, std::vector<InstanceData>> plantData;
 
     for ( const auto &district : model.districts ) {
         auto mesh = *district->shape->mesh()
@@ -64,11 +64,6 @@ CityView::CityView( const Cityscape::CityModel &model )
                     >> geom::Translate( vec3( 0, 0, -0.01 ) );
                 lots.push_back( gl::Batch::create( mesh, colorShader ) );
 
-                for ( const auto &tree : lot->trees ) {
-                    mat4 modelView = glm::scale( glm::translate( tree->position ), vec3( tree->diameter ) );
-                    treeData[ tree->family ].push_back( InstanceData( modelView, tree->color ) );
-                }
-
                 for ( const auto &building : lot->buildings ) {
                     if ( building->plan ) {
                         mat4 modelView = glm::translate( vec3( building->position, 0 ) );
@@ -76,20 +71,18 @@ CityView::CityView( const Cityscape::CityModel &model )
                         buildingData[ building->plan ].push_back( InstanceData( modelView, ColorA::white() ) );
                     }
                 }
+
+                for ( const auto &instance : lot->plants ) {
+                    plantData[ instance->plan ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
+                }
             }
         }
     }
 
-    for ( auto &pair : treeData ) {
-        auto type = pair.first;
+    for ( auto &pair : plantData ) {
+        auto plan = pair.first;
         auto instances = pair.second;
-        ci::geom::SourceMods geom;
-        if ( type == Cityscape::TreeFamily::CONIFER_TREE ) {
-            geom = geom::Cone().subdivisionsAxis( 10 ).height( 3.0 ).direction( vec3( 0, 0, 1 ) );
-        } else {
-            geom = geom::Sphere().subdivisions( 10 );
-        }
-        trees.push_back( InstanceBatch( buildBatch( treeShader, geom, instances ), instances.size() ) );
+        plants.push_back( InstanceBatch( buildBatch( treeShader, plan->geometry(), instances ), instances.size() ) );
     }
 
     for ( auto &pair : buildingData ) {
@@ -140,8 +133,8 @@ void CityView::draw( const Options &options ) const
     }
     if ( options.drawTrees ) {
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
-        for ( const auto &treebits : trees ) {
-            treebits.first->drawInstanced( treebits.second );
+        for ( const auto &plant : plants ) {
+            plant.first->drawInstanced( plant.second );
         }
     }
     if ( options.drawBuildings ) {

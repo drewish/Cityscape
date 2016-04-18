@@ -27,24 +27,6 @@ ColorA colorWheel()
 
 // * * *
 
-void Lot::plantTree( float diameter )
-{
-    plantTree( diameter, shape->randomPoint() );
-}
-
-void Lot::plantTree( float diameter, const ci::vec2 &at, TreeFamily f )
-{
-    vec3 position = vec3( at, 3 );
-    ColorA color;
-    if ( f == CIRCULAR_TREE ) {
-        color = ColorA( 0.41f, 0.60f, 0.22f, 0.75f );
-        position += ci::vec3( 0, 0, diameter );
-    } else {
-        color = ColorA( 0.41f, 0.60f, 0.22f, 1.0f );
-    }
-    trees.push_back( Tree::create( position, diameter, color, f ) );
-}
-
 void Lot::build( const BlueprintRef &blueprint, const ci::vec2 &position, float rotation )
 {
     buildings.push_back( Building::create( blueprint, position, rotation ) );

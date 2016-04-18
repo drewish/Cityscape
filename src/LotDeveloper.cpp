@@ -11,28 +11,33 @@
 
 #include "cinder/Rand.h"
 #include "GeometryHelpers.h" // used to contract lot size to avoid overflow
+#include "Scenery.h"
 
 using namespace ci;
 
 namespace Cityscape {
 
+ConeTreeRef coneTree = ConeTree::create();
+SphereTreeRef sphereTree = SphereTree::create();
+
 void ParkDeveloper::buildIn( LotRef &lot ) const
 {
-    float area = lot->shape->area();
-    float treeCoverage = randFloat( 0.25, 0.75 );
-    float totalTreeArea = 0.0;
+    // Shrink the area so trees don't hang out of the sides
+    for ( const FlatShape &shape : lot->shape->contract( 5 ) ) {
+        float area = shape.area();
+        float treeCoverage = randFloat( 0.25, 0.75 );
+        float totalTreeArea = 0.0;
 
-    while ( totalTreeArea / area < treeCoverage ) {
-        // Bigger areas should get bigger trees (speeds up the generation).
-        // TODO: come up with a better formula for this
-        float diameter = area < 10000 ? randFloat( 4, 12 ) : randFloat( 10, 20 );
+        while ( totalTreeArea / area < treeCoverage ) {
+            // Bigger areas should get bigger trees (speeds up the generation).
+            // TODO: come up with a better formula for this
+            float diameter = area < 10000 ? randFloat( 4, 12 ) : randFloat( 10, 20 );
 
-        // TODO would be good to avoid random points by the edges so the trees
-        // didn't go out of their lots.
-        lot->plantTree( diameter, lot->shape->randomPoint() );
+            lot->plants.push_back( sphereTree->createInstace( shape.randomPoint(), diameter ) );
 
-        // Treat it as a square for faster math and less dense coverage.
-        totalTreeArea += diameter * diameter;
+            // Treat it as a square for faster math and less dense coverage.
+            totalTreeArea += diameter * diameter;
+        }
     }
 }
 
@@ -65,11 +70,13 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
         lot->buildings.push_back( building );
     }
 
-    // TODO: like the idea of planting trees but doesn't take tree diameter
+    // TODO: like the idea of planting trees but the intersection check doesn't take tree diameter
     // into account
     vec2 treeAt = lot->shape->randomPoint();
     if ( !building || !building->plan->outline().contains( treeAt ) ) {
-        lot->plantTree( randFloat( 5, 12 ), treeAt );
+        float ratio = randFloat( 1, 3 );
+        float diameter = randFloat( 5, 10 );
+        lot->plants.push_back( coneTree->createInstace( treeAt, diameter, diameter * ratio ) );
     }
 }
 
@@ -99,21 +106,24 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
 bool SquareGridDeveloper::isValidFor( LotRef &lot ) const
 {
     float area = lot->shape->area();
-    return area > mRowSpacing * mStructureSpacing * 2;
+    return area > mRowSpacing * mStructureSpacing;
 }
 void SquareGridDeveloper::buildIn( LotRef &lot ) const
 {
     float setback = math<float>::max( mRowSpacing, mStructureSpacing ) / 2;
-    std::vector<seg2> dividers = lot->shape->contract( setback ).dividerSeg2s( mAngle, mRowSpacing );
 
-    for ( const seg2 &divider : dividers ) {
-        vec2 v = divider.second - divider.first;
-        float length = glm::length( v );
-        vec2 unitVector = v / length * mStructureSpacing;
-        size_t count = length / mStructureSpacing;
-        for ( size_t i = 0; i < count; ++i ) {
-            vec2 at = divider.first + unitVector * ( i + 0.5f );
-            lot->build( mStructure, at );
+    for ( const FlatShape &shape : lot->shape->contract( setback ) ) {
+        std::vector<seg2> dividers = shape.dividerSeg2s( mAngle, mRowSpacing );
+
+        for ( const seg2 &divider : dividers ) {
+            vec2 v = divider.second - divider.first;
+            float length = glm::length( v );
+            vec2 unitVector = v / length * mStructureSpacing;
+            size_t count = length / mStructureSpacing;
+            for ( size_t i = 0; i < count; ++i ) {
+                vec2 at = divider.first + unitVector * ( i + 0.5f );
+                lot->build( mStructure, at );
+            }
         }
     }
 }
@@ -122,22 +132,24 @@ void SquareGridDeveloper::buildIn( LotRef &lot ) const
 
 void FarmOrchardDeveloper::buildIn( LotRef &lot ) const
 {
-    std::vector<seg2> dividers = lot->shape->contract( 5 ).dividerSeg2s( mAngle, mTreeSpacing );
+    for ( const FlatShape &shape : lot->shape->contract( mDiameter / 2.0 ) ) {
+        std::vector<seg2> dividers = shape.dividerSeg2s( mAngle, mTreeSpacing );
 
-    // Walk along each segment and plant trees. Orchards often use a quincunx
-    // pattern so every other row should start halfway between. Note: holes in
-    // the lot will cause glitches with this simple algorithm.
-    bool even = true;
-    for ( const seg2 &divider : dividers ) {
-        vec2 v = divider.second - divider.first;
-        float length = glm::length( v );
-        vec2 unitVector = v / length * mTreeSpacing;
-        size_t treeCount = length / mTreeSpacing;
-        for ( size_t i = 1; i < treeCount; ++i ) {
-            vec2 at = divider.first + unitVector * ( i + ( even ? 0.0f : 0.5f ) );
-            lot->plantTree( mDiameter + randFloat( 1.0 ), at + randVec2(), CIRCULAR_TREE );
+        // Walk along each segment and plant trees. Orchards often use a quincunx
+        // pattern so every other row should start halfway between. Note: holes in
+        // the lot will cause glitches with this simple algorithm.
+        bool even = true;
+        for ( const seg2 &divider : dividers ) {
+            vec2 v = divider.second - divider.first;
+            float length = glm::length( v );
+            vec2 unitVector = v / length * mTreeSpacing;
+            size_t treeCount = length / mTreeSpacing;
+            for ( size_t i = 1; i < treeCount; ++i ) {
+                vec2 at = divider.first + unitVector * ( i + ( even ? 0.0f : 0.5f ) );
+                lot->plants.push_back( sphereTree->createInstace( at + randVec2(), mDiameter + randFloat( 1.0 ) ) );
+            }
+            even = !even;
         }
-        even = !even;
     }
 }
 

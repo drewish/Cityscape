@@ -13,6 +13,53 @@ typedef std::shared_ptr<FlatShape>  FlatShapeRef;
 class Blueprint;
 typedef std::shared_ptr<Blueprint>  BlueprintRef;
 
+class Scenery;
+typedef std::shared_ptr<Scenery>  SceneryRef;
+
+class Scenery : public std::enable_shared_from_this<Scenery> {
+  public:
+    Scenery( const ci::PolyLine2f &footprint, const ci::geom::SourceMods &geometry )
+        : mFootprint( footprint ), mGeometry( geometry ) {};
+
+    // 2d view of the object for collsion detection
+    const ci::PolyLine2f footprint() const { return mFootprint; };
+    // 3d view of the object for display
+    const ci::geom::SourceMods &geometry() const { return mGeometry; };
+
+
+    struct Instance {
+        Instance( const SceneryRef &plan, const ci::vec3 &position, float rotation = 0, ci::ColorA color = ci::ColorA::white() )
+            : plan( plan ), position( position ), rotation( rotation ), color( color )
+        {};
+
+        virtual ci::mat4 modelViewMatrix() const
+        {
+            return glm::rotate( glm::translate( position ), rotation, ci::vec3( 0, 0, 1 ) );
+        }
+
+        // Footprint of the Scenery in its position on the lot
+        ci::PolyLine2f footprint() const
+        {
+            glm::mat4 matrix = modelViewMatrix();
+            ci::PolyLine2f result;
+            for ( const auto &it : plan->footprint() ) {
+                result.push_back( ci::vec2( matrix * ci::vec4( it, 1, 1 ) ) );
+            }
+            return result;
+        }
+
+        const SceneryRef    plan;
+        ci::vec3            position;
+        float               rotation; // radians
+        ci::ColorA          color;
+    };
+    typedef std::shared_ptr<Instance>  InstanceRef;
+
+  protected:
+    ci::PolyLine2f          mFootprint;
+    ci::geom::SourceMods    mGeometry;
+};
+
 namespace Cityscape {
     // Give relatively unique colors
     ci::ColorA colorWheel();
@@ -35,12 +82,6 @@ namespace Cityscape {
     typedef std::shared_ptr<Block>      	BlockRef;
     typedef std::shared_ptr<Lot>        	LotRef;
     typedef std::shared_ptr<Building>   	BuildingRef;
-    typedef std::shared_ptr<Tree>    		TreeRef;
-
-    enum TreeFamily {
-        CIRCULAR_TREE = 0, // There's a better name than this.
-        CONIFER_TREE = 1,
-    };
 
     struct ZoningPlan {
         static ZoningPlanRef create( const std::string &name ) {
@@ -177,12 +218,10 @@ namespace Cityscape {
 
         using Ground::Ground;
 
-        void plantTree( float diameter );
-        void plantTree( float diameter, const ci::vec2 &at, TreeFamily f = CIRCULAR_TREE );
         void build( const BlueprintRef &blueprint, const ci::vec2 &position = ci::vec2( 0, 0 ), float rotation = 0 );
 
-        std::vector<TreeRef>        trees;
-        std::vector<BuildingRef>    buildings;
+        std::vector<BuildingRef>          buildings;
+        std::vector<Scenery::InstanceRef> plants;
     };
 
     struct Building {
@@ -199,20 +238,5 @@ namespace Cityscape {
         float           rotation; // radians
     };
 
-    struct Tree {
-        static TreeRef create( const ci::vec3 &p, float d, const ci::ColorA &c, TreeFamily f = CIRCULAR_TREE )
-        {
-            return TreeRef( new Tree( p, d, c, f ) );
-        };
-
-        Tree( const ci::vec3 &position, float diameter, const ci::ColorA &c, TreeFamily f = CIRCULAR_TREE )
-            : position( position ), diameter( diameter ), color( c ), family( f ) {};
-
-        ci::vec3 position;
-        float diameter;
-        ci::ColorA color;
-        TreeFamily family;
-    };
-    typedef std::shared_ptr<Tree>   TreeRef;
 
 } // Cityscape namespace

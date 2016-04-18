@@ -48,8 +48,7 @@ class FullLotDeveloper : public LotDeveloper {
     virtual bool isValidFor( LotRef &lot ) const override;
     virtual void buildIn( LotRef &lot ) const override;
 
-  private:
-    BuildingPlan::RoofStyle mRoof;
+    const BuildingPlan::RoofStyle mRoof;
 };
 
 class SquareGridDeveloper : public LotDeveloper {
@@ -60,11 +59,10 @@ class SquareGridDeveloper : public LotDeveloper {
     virtual bool isValidFor( LotRef &lot )  const override;
     virtual void buildIn( LotRef &lot ) const override;
 
-  private:
     const BlueprintRef mStructure;
-    float mAngle;
-    float mRowSpacing;
-    float mStructureSpacing;
+    const float mAngle;
+    const float mRowSpacing;
+    const float mStructureSpacing;
 };
 
 class FarmOrchardDeveloper : public LotDeveloper {
@@ -75,10 +73,9 @@ class FarmOrchardDeveloper : public LotDeveloper {
     virtual bool isValidFor( LotRef &lot )  const override { return true; }
     virtual void buildIn( LotRef &lot ) const override;
 
-  private:
-    float mAngle;
-    float mTreeSpacing;
-    float mDiameter;
+    const float mAngle;
+    const float mTreeSpacing;
+    const float mDiameter;
 };
 
 class FarmFieldDeveloper : public LotDeveloper {

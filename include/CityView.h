@@ -49,5 +49,5 @@ public:
     std::vector<ci::gl::BatchRef> blocks;
     std::vector<ci::gl::BatchRef> lots;
     std::vector<InstanceBatch> buildings;
-    std::vector<InstanceBatch> trees;
+    std::vector<InstanceBatch> plants;
 };

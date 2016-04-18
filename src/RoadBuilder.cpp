@@ -20,7 +20,9 @@ namespace Cityscape {
 CGAL::Polygon_2<ExactK> roadOutline( const ci::vec2 &a, const ci::vec2 &b, uint8_t width = 10 )
 {
     // It's much faster to do this math outside of CGAL's exact kernel.
-    const std::vector<ci::vec2> &points = rectangleFrom( a, b, width ).getPoints();
+    PolyLine2f line = rectangleFrom( a, b, width );
+    const std::vector<ci::vec2> &points = line.getPoints();
+    assert( points.size() == 4 );
 
     CGAL::Polygon_2<ExactK> results;
     results.push_back( pointFrom<ExactK>( points[0] ) );
@@ -102,15 +104,15 @@ void buildStreetsAndBlocks( CityModel &city )
         // Create narrow roads to cover the bounding box
         uint16_t angle = plan->district.grid.avenueAngle;
         vector<seg2> dividers = computeDividers( outlinePoints, angle * M_PI / 180.0, plan->district.grid.avenueSpacing );
-        for ( auto &a : dividers ) {
-            roads.push_back( roadOutline( a.first, a.second, plan->district.grid.roadWidth ) );
+        for ( auto &d : dividers ) {
+            roads.push_back( roadOutline( d.first, d.second, plan->district.grid.roadWidth ) );
         }
 
         // TODO move duplicated logic to a function
         angle += plan->district.grid.streetAngle;
         dividers = computeDividers( outlinePoints, angle * M_PI / 180.0, plan->district.grid.streetSpacing );
-        for ( auto &a : dividers ) {
-            roads.push_back( roadOutline( a.first, a.second, plan->district.grid.roadWidth ) );
+        for ( auto &d : dividers ) {
+            roads.push_back( roadOutline( d.first, d.second, plan->district.grid.roadWidth ) );
         }
 
         auto districtWithHoles = district->shape->polygonWithHoles<ExactK>();
