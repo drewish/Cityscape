@@ -77,7 +77,7 @@ class FlatShape {
 
     bool        contains( const ci::vec2 point ) const;
 
-    FlatShape   contract( double amount ) const;
+    std::vector<FlatShape>  contract( double amount ) const;
 
     template<class K>
     const CGAL::Polygon_2<K> polygon() const
@@ -102,6 +102,23 @@ class FlatShape {
     // that overlap.
     std::vector<seg2>       dividerSeg2s( float angle, float spacing ) const;
     std::vector<Segment_2>  dividerSegment_2s( float angle, float spacing ) const;
+
+	friend std::ostream& operator<<( std::ostream& lhs, const FlatShape& rhs )
+	{
+        lhs << "\nouter is ";
+        if ( rhs.outline().isCounterClockwise() ) {
+            lhs << "counter-";
+        }
+        lhs << "clockwise with " << rhs.holes().size() << " holes:\n" << rhs.outline();
+        for ( const ci::PolyLine2f &hole : rhs.holes() ) {
+            lhs << "hole with " << hole.size() << " points going ";
+            if ( hole.isCounterClockwise() ) {
+                lhs << "counter-";
+            }
+            lhs << "clockwise:\n" << hole << "\n";
+        }
+        return lhs;
+    }
 
   private:
 

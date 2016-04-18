@@ -159,13 +159,19 @@ typedef boost::shared_ptr<PolyWithHoles> PolyPtr;
 // +-----+
 // This just returns one of those shapes. We need to figure out how to return
 // multiple shapes.
-FlatShape FlatShape::contract( double offset ) const
+std::vector<FlatShape> FlatShape::contract( double offset ) const
 {
-    if ( mOutline.size() < 3 ) return *this;
-    if ( offset <= 0 ) return *this;
+    if ( offset <= 0 || mOutline.size() < 3 ) {
+        return std::vector<FlatShape>( { *this } );
+    }
 
     PolyWithHoles input = polygonWithHoles<InexactK>();
     printPolygon( input );
     std::vector<PolyPtr> outline = CGAL::create_interior_skeleton_and_offset_polygons_with_holes_2( offset, input );
-    return FlatShape( *outline.back() );
+
+    std::vector<FlatShape> results;
+    for ( const auto &p : outline ) {
+        results.push_back( FlatShape( *p ) );
+    }
+    return results;
 }
