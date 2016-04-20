@@ -55,12 +55,12 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
 
     // TODO: just placing it in the center for now. would be good to take
     // the street into consideration for setback and orientation.
-    BuildingRef building = Building::create( plan, lot->shape->centroid() );
+    Scenery::InstanceRef building = plan->createInstace( lot->shape->centroid(), 0 );
     if ( building ) {
         // Remove the building goes outside the lot
         // TODO: try moving and/or rotating it around?
         std::vector<PolyLine2f> a = { lot->shape->outline() },
-            b = { building->plan->outline( building->position, building->rotation ) },
+            b = { building->footprint() },
             diff = PolyLine2f::calcDifference( b, a );
         if ( diff.size() != 0 ) {
             building.reset();
@@ -73,7 +73,7 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
     // TODO: like the idea of planting trees but the intersection check doesn't take tree diameter
     // into account
     vec2 treeAt = lot->shape->randomPoint();
-    if ( !building || !building->plan->outline().contains( treeAt ) ) {
+    if ( !building || !building->footprint().contains( treeAt ) ) {
         float ratio = randFloat( 1, 3 );
         float diameter = randFloat( 5, 10 );
         lot->plants.push_back( coneTree->createInstace( treeAt, diameter, diameter * ratio ) );
@@ -97,7 +97,12 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
 
     if ( area > 100 ) {
         int floors = 1 + (int) ( sqrt( area ) / 20 ) + ci::randInt( 6 );
-        lot->build( BuildingPlan::create( lot->shape->outline(), floors, mRoof ) );
+
+        // It's kind of odd that we're passing the coordinates in via the
+        // outline and having no instance offset. I guess it doesn't matter
+        // since we're not reusing the plan or rotating it.
+        BuildingPlanRef plan = BuildingPlan::create( lot->shape->outline(), floors, mRoof );
+        lot->buildings.push_back( plan->createInstace( vec3( 0 ) ) );
     }
 }
 
@@ -122,7 +127,7 @@ void SquareGridDeveloper::buildIn( LotRef &lot ) const
             size_t count = length / mStructureSpacing;
             for ( size_t i = 0; i < count; ++i ) {
                 vec2 at = divider.first + unitVector * ( i + 0.5f );
-                lot->build( mStructure, at );
+                lot->buildings.push_back( mStructure->createInstace( at ) );
             }
         }
     }

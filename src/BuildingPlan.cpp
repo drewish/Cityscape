@@ -20,19 +20,6 @@ using namespace ci::geom;
 using namespace std;
 
 
-
-PolyLine2f Blueprint::outline( const vec2 offset, const float rotation ) const
-{
-    glm::mat3 matrix = rotate( translate( glm::mat3(), offset ), rotation );
-    PolyLine2f ret = PolyLine2f();
-    for ( const auto &it : mOutline ) {
-        ret.push_back( vec2( matrix * vec3( it, 1 ) ) );
-    }
-    return ret;
-}
-
-// * * *
-
 ci::PolyLine2f BuildingPlan::triangle()
 {
     ci::PolyLine2f result( {
@@ -455,16 +442,17 @@ Shape2d shapeFrom( const PolyLine2f &polyline )
     return result;
 }
 
-void BuildingPlan::buildGeometry()
+ci::geom::SourceMods BuildingPlan::buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roofStyle, float slope, float overhang )
 {
-    float height = mFloorHeight * mFloors;
+    const float FLOOR_HEIGHT = 10.0;
+    float height = FLOOR_HEIGHT * floors;
 
     // Extrude centers on the origin so half the walls will be below ground
-    geom::SourceMods walls = geom::Extrude( shapeFrom( mOutline ), height, 1.0f ).caps( false )
+    geom::SourceMods walls = geom::Extrude( shapeFrom( outline ), height, 1.0f ).caps( false )
         >> geom::Translate( vec3( 0, 0, height / 2.0f ) );
 
-    geom::SourceMods roof = RoofMesh( mOutline, mRoof, mRoofSlope, mRoofOverhang )
+    geom::SourceMods roof = RoofMesh( outline, roofStyle, slope, overhang )
         >> geom::Translate( vec3( 0, 0, height ) );
 
-    mGeometry = roof & walls;
+    return roof & walls;
 }

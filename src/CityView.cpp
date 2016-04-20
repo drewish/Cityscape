@@ -43,7 +43,7 @@ CityView::CityView( const Cityscape::CityModel &model )
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
     }
 
-    std::map<BlueprintRef, std::vector<InstanceData>> buildingData;
+    std::map<SceneryRef, std::vector<InstanceData>> buildingData;
     std::map<SceneryRef, std::vector<InstanceData>> plantData;
 
     for ( const auto &district : model.districts ) {
@@ -64,12 +64,8 @@ CityView::CityView( const Cityscape::CityModel &model )
                     >> geom::Translate( vec3( 0, 0, -0.01 ) );
                 lots.push_back( gl::Batch::create( mesh, colorShader ) );
 
-                for ( const auto &building : lot->buildings ) {
-                    if ( building->plan ) {
-                        mat4 modelView = glm::translate( vec3( building->position, 0 ) );
-                        modelView = glm::rotate( modelView, building->rotation, vec3( 0, 0, 1 ) );
-                        buildingData[ building->plan ].push_back( InstanceData( modelView, ColorA::white() ) );
-                    }
+                for ( const auto &instance : lot->buildings ) {
+                    buildingData[ instance->plan ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
                 }
 
                 for ( const auto &instance : lot->plants ) {

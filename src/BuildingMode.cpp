@@ -63,8 +63,9 @@ void BuildingMode::layout() {
 
     if ( mOutline.size() < 3 ) return;
 
-    auto building = Cityscape::Building::create( BuildingPlan::create( mOutline, mFloors, mRoof, 0.4 ) );
-    lot->buildings.push_back( building );
+    auto building = BuildingPlan::create( mOutline, mFloors, mRoof, 0.4  );
+    lot->buildings.push_back( building->createInstace( ci::vec3( 0 ) ) );
+
     mCityView = CityView::create( mModel );
 }
 

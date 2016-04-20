@@ -31,14 +31,14 @@ class ParkDeveloper : public LotDeveloper {
 
 class SingleFamilyHomeDeveloper : public LotDeveloper {
   public:
-    SingleFamilyHomeDeveloper( const std::vector<BlueprintRef> &plans )
+    SingleFamilyHomeDeveloper( const std::vector<SceneryRef> &plans )
         : mPlans( plans ) {};
 
     virtual bool isValidFor( LotRef &lot ) const override;
     virtual void buildIn( LotRef &lot ) const override;
 
   private:
-    std::vector<BlueprintRef> mPlans;
+    std::vector<SceneryRef> mPlans;
 };
 
 class FullLotDeveloper : public LotDeveloper {
@@ -53,13 +53,13 @@ class FullLotDeveloper : public LotDeveloper {
 
 class SquareGridDeveloper : public LotDeveloper {
   public:
-    SquareGridDeveloper( const BlueprintRef &structure, float rowSpacing, float structureSpacing, float angle = 0.0 )
+    SquareGridDeveloper( const SceneryRef &structure, float rowSpacing, float structureSpacing, float angle = 0.0 )
         :mStructure( structure ), mRowSpacing( rowSpacing ), mStructureSpacing( structureSpacing ), mAngle( angle ) {};
 
     virtual bool isValidFor( LotRef &lot )  const override;
     virtual void buildIn( LotRef &lot ) const override;
 
-    const BlueprintRef mStructure;
+    const SceneryRef mStructure;
     const float mAngle;
     const float mRowSpacing;
     const float mStructureSpacing;

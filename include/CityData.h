@@ -26,7 +26,6 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
     // 3d view of the object for display
     const ci::geom::SourceMods &geometry() const { return mGeometry; };
 
-
     struct Instance {
         Instance( const SceneryRef &plan, const ci::vec3 &position, float rotation = 0, ci::ColorA color = ci::ColorA::white() )
             : plan( plan ), position( position ), rotation( rotation ), color( color )
@@ -55,6 +54,16 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
     };
     typedef std::shared_ptr<Instance>  InstanceRef;
 
+
+    Scenery::InstanceRef createInstace( const ci::vec2 &at, float rotation = 0.0 )
+    {
+        return createInstace( ci::vec3( at, 0 ), rotation );
+    }
+    Scenery::InstanceRef createInstace( const ci::vec3 &at, float rotation = 0.0 )
+    {
+        return Scenery::InstanceRef( new Instance( shared_from_this(), at, rotation ) );
+    }
+
   protected:
     ci::PolyLine2f          mFootprint;
     ci::geom::SourceMods    mGeometry;
@@ -81,7 +90,6 @@ namespace Cityscape {
     typedef std::shared_ptr<District>       DistrictRef;
     typedef std::shared_ptr<Block>      	BlockRef;
     typedef std::shared_ptr<Lot>        	LotRef;
-    typedef std::shared_ptr<Building>   	BuildingRef;
 
     struct ZoningPlan {
         static ZoningPlanRef create( const std::string &name ) {
@@ -218,25 +226,8 @@ namespace Cityscape {
 
         using Ground::Ground;
 
-        void build( const BlueprintRef &blueprint, const ci::vec2 &position = ci::vec2( 0, 0 ), float rotation = 0 );
-
-        std::vector<BuildingRef>          buildings;
+        std::vector<Scenery::InstanceRef> buildings;
         std::vector<Scenery::InstanceRef> plants;
     };
-
-    struct Building {
-        static BuildingRef create( const BlueprintRef &blueprint, const ci::vec2 &position = ci::vec2( 0, 0 ), float rotation = 0 )
-        {
-            return BuildingRef( new Building( blueprint, position, rotation ) );
-        }
-
-        Building( const BlueprintRef &blueprint, const ci::vec2 &position = ci::vec2( 0, 0 ), float rotation = 0 )
-            : plan( blueprint ), position( position ), rotation( rotation ) {};
-
-        BlueprintRef    plan;
-        ci::vec2        position;
-        float           rotation; // radians
-    };
-
 
 } // Cityscape namespace

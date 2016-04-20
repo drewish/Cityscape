@@ -167,8 +167,8 @@
 				49AA4E3C1C8D5325008ADC8B /* BlockSubdivider.cpp */,
 				49AA4E3F1C8E4B11008ADC8B /* LotFiller.cpp */,
 				5F005E0F1CA797E2007B2A99 /* LotDeveloper.cpp */,
-				5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */,
 				5F88E73B1CC49959002A663E /* Scenery.cpp */,
+				5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -238,8 +238,8 @@
 				49AA4E3D1C8D5325008ADC8B /* BlockSubdivider.h */,
 				49AA4E401C8E4B11008ADC8B /* LotFiller.h */,
 				5F005E0E1CA797CA007B2A99 /* LotDeveloper.h */,
-				5FA1B5331B26ADC6006047DE /* BuildingPlan.h */,
 				5F88E73A1CC4994A002A663E /* Scenery.h */,
+				5FA1B5331B26ADC6006047DE /* BuildingPlan.h */,
 			);
 			name = Headers;
 			path = ../include;

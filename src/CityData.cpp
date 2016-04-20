@@ -25,12 +25,6 @@ ColorA colorWheel()
     return color;
 }
 
-// * * *
-
-void Lot::build( const BlueprintRef &blueprint, const ci::vec2 &position, float rotation )
-{
-    buildings.push_back( Building::create( blueprint, position, rotation ) );
-}
 
 // * * *
 
