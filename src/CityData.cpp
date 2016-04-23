@@ -40,7 +40,7 @@ CityModel::CityModel()
             BuildingPlan::create( polyLineLShape(), 1, BuildingPlan::HIPPED_ROOF ),
             BuildingPlan::create( polyLineLShape(), 1, BuildingPlan::GABLED_ROOF )
         } ) ), 30 );
-//    majesticheights->addUsage( LotDeveloperRef( new ParkDeveloper() ), 2 );
+    majesticheights->addUsage( LotDeveloperRef( new ParkDeveloper() ), 2 );
 
     ZoningPlanRef farm = ZoningPlan::create( "farm" );
     farm->district.streetDivision = ZoningPlan::StreetDivision::NO_STREET_DIVISION;

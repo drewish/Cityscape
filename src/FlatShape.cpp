@@ -148,28 +148,28 @@ std::vector<Segment_2> FlatShape::dividerSegment_2s( float angle, float spacing 
 typedef CGAL::Polygon_with_holes_2<InexactK> PolyWithHoles;
 typedef boost::shared_ptr<PolyWithHoles> PolyPtr;
 
-// TODO: For concave shapes contraction might split the shape into multiple
-// smaller shapes:
-// +-----+
-//  \    |   +-+
-//   \   |    \|
-//    \  |
-//    /  |
-//   /   |    /|
-//  /    |   +-+
-// +-----+
-// This just returns one of those shapes. We need to figure out how to return
-// multiple shapes.
+// For concave shapes contraction might split the shape into multiple smaller shapes:
+//   +-----+
+//    \    |   +-+
+//     \   |    \|
+//      \  |
+//      /  |
+//     /   |    /|
+//    /    |   +-+
+//   +-----+
 std::vector<FlatShape> FlatShape::contract( double offset ) const
 {
-    if ( offset <= 0 || mOutline.size() < 3 ) {
+    // Negative or zero offset is a noop
+    if ( offset <= 0 ) {
         return std::vector<FlatShape>( { *this } );
+    }
+    // Avoid computing it for small shapes
+    if ( mOutline.size() < 3 || mArea < offset * offset ) {
+        return std::vector<FlatShape>();
     }
 
     PolyWithHoles input = polygonWithHoles<InexactK>();
-    printPolygon( input );
     std::vector<PolyPtr> outline = CGAL::create_interior_skeleton_and_offset_polygons_with_holes_2( offset, input );
-
     std::vector<FlatShape> results;
     for ( const auto &p : outline ) {
         results.push_back( FlatShape( *p ) );
