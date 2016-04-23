@@ -19,6 +19,7 @@ namespace Cityscape {
 
 ConeTreeRef coneTree = ConeTree::create();
 SphereTreeRef sphereTree = SphereTree::create();
+RowCropRef crop = RowCrop::create();
 
 void ParkDeveloper::buildIn( LotRef &lot ) const
 {
@@ -158,5 +159,15 @@ void FarmOrchardDeveloper::buildIn( LotRef &lot ) const
     }
 }
 
+// * * *
+
+void FarmFieldDeveloper::buildIn( LotRef &lot ) const
+{
+    for ( const FlatShape &shape : lot->shape->contract( mRowSpacing ) ) {
+        for ( const seg2 &divider : shape.dividerSeg2s( mAngle, mRowSpacing ) ) {
+            lot->plants.push_back( crop->createInstace( divider.first, divider.second, mRowWidth ) );
+        }
+    }
+}
 
 }

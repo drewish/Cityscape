@@ -11,4 +11,10 @@ ci::PolyLine2f rectangleFrom( const ci::vec2 &start, const ci::vec2 &end, uint8_
 
 
 // Create circle (or simpler shape if you use a low number of subdivisons)
-ci::PolyLine2f polylineCircle( float radius, u_int8_t subdivisions );
+ci::PolyLine2f polyLineCircle( float radius, u_int8_t subdivisions );
+ci::PolyLine2f polyLineTriangle();
+ci::PolyLine2f polyLineSquare();
+ci::PolyLine2f polyLineRectangle( const uint16_t width, const uint16_t height );
+ci::PolyLine2f polyLineLShape();
+ci::PolyLine2f polyLinePlus();
+ci::PolyLine2f polyLineTee();

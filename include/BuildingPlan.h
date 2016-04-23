@@ -31,12 +31,6 @@ class BuildingPlan : public Scenery {
         return std::vector<std::string>({ "Flat", "Hipped", "Gabled", "Sawtooth", "Shed" /*, "Gambrel"*/ });
     }
 
-    static ci::PolyLine2f triangle();
-    static ci::PolyLine2f square();
-    static ci::PolyLine2f rectangle( const uint16_t width, const uint16_t height );
-    static ci::PolyLine2f lshape();
-    static ci::PolyLine2f plus();
-    static ci::PolyLine2f tee();
     static ci::PolyLine2f randomOutline();
 
 

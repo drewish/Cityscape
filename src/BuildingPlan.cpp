@@ -20,85 +20,21 @@ using namespace ci::geom;
 using namespace std;
 
 
-ci::PolyLine2f BuildingPlan::triangle()
-{
-    ci::PolyLine2f result( {
-        ci::vec2(10, -10), ci::vec2(10, 10), ci::vec2(-10, 10),
-        ci::vec2(10, -10) // closure
-    } );
-    result.setClosed();
-    return result;
-}
-
-ci::PolyLine2f BuildingPlan::square()
-{
-    return rectangle( 20, 20 );
-}
-
-ci::PolyLine2f BuildingPlan::rectangle( const uint16_t width, const uint16_t depth )
-{
-    float w = width / 2.0;
-    float d = depth / 2.0;
-    ci::PolyLine2f result( {
-        ci::vec2(  w, -d ), ci::vec2(  w,  d ),
-        ci::vec2( -w,  d ), ci::vec2( -w, -d ),
-        ci::vec2(  w, -d ) // closure
-    } );
-    result.setClosed();
-    return result;
-}
-
-ci::PolyLine2f BuildingPlan::lshape()
-{
-    ci::PolyLine2f result( {
-        ci::vec2(15, 0), ci::vec2(15, 10), ci::vec2(-15, 10),
-        ci::vec2(-15, -10), ci::vec2(-5, -10), ci::vec2(-5, 0),
-        ci::vec2(15, 0) // closure
-    } );
-    result.setClosed();
-    return result;
-}
-
-ci::PolyLine2f BuildingPlan::plus()
-{
-    ci::PolyLine2f result( {
-        ci::vec2(15,-5), ci::vec2(15,5), ci::vec2(5,5),
-        ci::vec2(5,15), ci::vec2(-5,15), ci::vec2(-5,5),
-        ci::vec2(-15,5), ci::vec2(-15,-5), ci::vec2(-5,-5),
-        ci::vec2(-5,-15), ci::vec2(5,-15), ci::vec2(5,-5),
-        ci::vec2(15,-5) // closure
-    } );
-    result.setClosed();
-    return result;
-}
-
-ci::PolyLine2f BuildingPlan::tee()
-{
-    ci::PolyLine2f result( {
-        ci::vec2(5,10), ci::vec2(-5,10), ci::vec2(-5,0),
-        ci::vec2(-15,0), ci::vec2(-15,-10), ci::vec2(15,-10),
-        ci::vec2(15,0), ci::vec2(5,0),
-        ci::vec2(5,10) // closure
-    } );
-    result.setClosed();
-    return result;
-}
-
 ci::PolyLine2f BuildingPlan::randomOutline()
 {
     switch (randInt(5)) {
         case 0:
-            return triangle();
+            return polyLineTriangle();
         case 1:
-            return square();
+            return polyLineSquare();
         case 2:
-            return lshape();
+            return polyLineLShape();
         case 3:
-            return plus();
+            return polyLinePlus();
         case 4:
-            return tee();
+            return polyLineTee();
         default:
-            return rectangle( 10 * randInt( 3 ), 10 * randInt( 4 ) );
+            return polyLineRectangle( 10 * randInt( 3 ), 10 * randInt( 4 ) );
     }
 }
 

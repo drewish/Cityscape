@@ -20,7 +20,7 @@ void BuildingMode::setup() {
     district->blocks.push_back( block );
     block->lots.push_back( lot );
 
-    setOutline( BuildingPlan::lshape() );
+    setOutline( polyLineLShape() );
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
@@ -38,22 +38,22 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
         setOutline( PolyLine2f() );
     }, "key=0");
     params->addButton( "Square", [&] {
-        setOutline( BuildingPlan::square() );
+        setOutline( polyLineSquare() );
     }, "key=1" );
     params->addButton( "Rect", [&] {
-        setOutline( BuildingPlan::rectangle( 60, 40 ) );
+        setOutline( polyLineRectangle( 60, 40 ) );
     }, "key=2" );
     params->addButton( "L", [&] {
-        setOutline( BuildingPlan::lshape() );
+        setOutline( polyLineLShape() );
     }, "key=3" );
     params->addButton( "T", [&] {
-        setOutline( BuildingPlan::tee() );
+        setOutline( polyLineTee() );
     }, "key=4" );
     params->addButton( "+", [&] {
-        setOutline( BuildingPlan::plus() );
+        setOutline( polyLinePlus() );
     }, "key=5" );
     params->addButton( "<", [&] {
-        setOutline( BuildingPlan::triangle() );
+        setOutline( polyLineTriangle() );
     }, "key=6" );
 }
 

@@ -118,7 +118,7 @@ std::vector<seg2> FlatShape::dividerSeg2s( float angle, float spacing ) const
 
 std::vector<Segment_2> FlatShape::dividerSegment_2s( float angle, float spacing ) const
 {
-    std::vector<Segment_2> results;
+    assert( spacing > 0 );
 
     std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( mOutline.getPoints() );
     for ( const auto &hole : mHoles ) {
@@ -128,6 +128,7 @@ std::vector<Segment_2> FlatShape::dividerSegment_2s( float angle, float spacing 
 
     // Walking across the shape and find the portion of the divider that is
     // inside the shape.
+    std::vector<Segment_2> results;
     for ( const seg2 &divider : computeDividers( mOutline.getPoints(), angle, spacing ) ) {
         outlineSegments.push_back( Segment_2( pointFrom( divider.first ), pointFrom( divider.second ) ) );
 

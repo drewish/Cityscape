@@ -79,7 +79,16 @@ class FarmOrchardDeveloper : public LotDeveloper {
 };
 
 class FarmFieldDeveloper : public LotDeveloper {
+  public:
+    FarmFieldDeveloper( float angle = 0.0, float rowSpacing = 10.0, float rowWidth = 5.0f )
+        : mAngle( angle ), mRowSpacing( rowSpacing ), mRowWidth( rowWidth ) {};
 
+    virtual bool isValidFor( LotRef &lot )  const override { return true; }
+    virtual void buildIn( LotRef &lot ) const override;
+
+    const float mAngle;
+    const float mRowSpacing;
+    const float mRowWidth;
 };
 
 }

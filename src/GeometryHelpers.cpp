@@ -40,7 +40,7 @@ PolyLine2f rectangleFrom( const ci::vec2 &a, const ci::vec2 &b, uint8_t width )
     return PolyLine2f( { b + offset, b - offset, a - offset, a + offset } );
 };
 
-ci::PolyLine2f polylineCircle( float radius, u_int8_t subdivisions )
+ci::PolyLine2f polyLineCircle( float radius, u_int8_t subdivisions )
 {
     ci::PolyLine2f result;
     const ci::vec2 center( 0 );
@@ -53,5 +53,69 @@ ci::PolyLine2f polylineCircle( float radius, u_int8_t subdivisions )
         t += tDelta;
     }
 
+    return result;
+}
+
+ci::PolyLine2f polyLineTriangle()
+{
+    ci::PolyLine2f result( {
+        ci::vec2(10, -10), ci::vec2(10, 10), ci::vec2(-10, 10),
+        ci::vec2(10, -10) // closure
+    } );
+    result.setClosed();
+    return result;
+}
+
+ci::PolyLine2f polyLineSquare()
+{
+    return polyLineRectangle( 20, 20 );
+}
+
+ci::PolyLine2f polyLineRectangle( const uint16_t width, const uint16_t depth )
+{
+    float w = width / 2.0;
+    float d = depth / 2.0;
+    ci::PolyLine2f result( {
+        ci::vec2(  w, -d ), ci::vec2(  w,  d ),
+        ci::vec2( -w,  d ), ci::vec2( -w, -d ),
+        ci::vec2(  w, -d ) // closure
+    } );
+    result.setClosed();
+    return result;
+}
+
+ci::PolyLine2f polyLineLShape()
+{
+    ci::PolyLine2f result( {
+        ci::vec2(15, 0), ci::vec2(15, 10), ci::vec2(-15, 10),
+        ci::vec2(-15, -10), ci::vec2(-5, -10), ci::vec2(-5, 0),
+        ci::vec2(15, 0) // closure
+    } );
+    result.setClosed();
+    return result;
+}
+
+ci::PolyLine2f polyLinePlus()
+{
+    ci::PolyLine2f result( {
+        ci::vec2(15,-5), ci::vec2(15,5), ci::vec2(5,5),
+        ci::vec2(5,15), ci::vec2(-5,15), ci::vec2(-5,5),
+        ci::vec2(-15,5), ci::vec2(-15,-5), ci::vec2(-5,-5),
+        ci::vec2(-5,-15), ci::vec2(5,-15), ci::vec2(5,-5),
+        ci::vec2(15,-5) // closure
+    } );
+    result.setClosed();
+    return result;
+}
+
+ci::PolyLine2f polyLineTee()
+{
+    ci::PolyLine2f result( {
+        ci::vec2(5,10), ci::vec2(-5,10), ci::vec2(-5,0),
+        ci::vec2(-15,0), ci::vec2(-15,-10), ci::vec2(15,-10),
+        ci::vec2(15,0), ci::vec2(5,0),
+        ci::vec2(5,10) // closure
+    } );
+    result.setClosed();
     return result;
 }
