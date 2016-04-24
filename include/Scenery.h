@@ -93,7 +93,7 @@ class RowCrop : public Scenery {
   protected:
     RowCrop() : Scenery(
         polyLineRectangle( 1, 1 ),
-        ci::geom::Rect()
+        ci::geom::Extrude( shapeFrom( { ci::vec2( 0.5, 0 ), ci::vec2( 0, 1 ), ci::vec2( -0.5, 0 ) } ), 1.0f, 1.0f ) >> ci::geom::Rotate( M_PI_2, ci::vec3( 1, 0, 0 ) )
     ) {}
 
     struct Instance : public Scenery::Instance {

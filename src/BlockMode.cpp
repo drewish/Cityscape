@@ -18,7 +18,7 @@ void BlockMode::setup() {
 
     mModel = Cityscape::CityModel();
 
-    mPlan = mModel.zoningPlans.back();
+    mPlan = mModel.zoningPlans.front();
 
     FlatShapeRef fs = FlatShape::create( PolyLine2f( {
         vec2( -600, -600 ), vec2(  600, -600 ),

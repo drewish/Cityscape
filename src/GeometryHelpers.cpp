@@ -40,6 +40,29 @@ PolyLine2f rectangleFrom( const ci::vec2 &a, const ci::vec2 &b, uint8_t width )
     return PolyLine2f( { b + offset, b - offset, a - offset, a + offset } );
 };
 
+Shape2d shapeFrom( const std::vector<vec2> &points, bool closed )
+{
+    Shape2d result;
+
+    auto it = points.begin();
+    result.moveTo( *it );
+    while ( ++it != points.end() ) {
+        result.lineTo( *it );
+    }
+
+    // TODO: Not sure this is necessary...
+    if ( closed ) {
+        result.close();
+    }
+
+    return result;
+}
+
+Shape2d shapeFrom( const PolyLine2f &polyline )
+{
+    return shapeFrom( polyline.getPoints(), polyline.isClosed() );
+}
+
 ci::PolyLine2f polyLineCircle( float radius, u_int8_t subdivisions )
 {
     ci::PolyLine2f result;
