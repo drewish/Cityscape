@@ -52,7 +52,7 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
     params->addParam( "Draw District", &mViewOptions.drawDistricts, "key=s" );
     params->addParam( "Draw Block",    &mViewOptions.drawBlocks,    "key=d" );
     params->addParam( "Draw Lot",      &mViewOptions.drawLots,      "key=f" );
-    params->addParam( "Draw Trees",    &mViewOptions.drawTrees,     "key=z" );
+    params->addParam( "Draw Plants",   &mViewOptions.drawPlants,    "key=z" );
     params->addParam( "Draw Building", &mViewOptions.drawBuildings, "key=x" );
 
     params->addButton( "Clear Points", [&] {
