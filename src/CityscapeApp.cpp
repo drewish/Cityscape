@@ -277,7 +277,6 @@ void CityscapeApp::draw()
     }
 
     {
-        gl::ScopedBlendAlpha scopedAlpha;
         gl::ScopedDepth depthScope(true);
         gl::ScopedMatrices matrixScope;
         if ( mIsEditing ) {

@@ -44,7 +44,11 @@ CityModel::CityModel()
 
     ZoningPlanRef farm = ZoningPlan::create( "farm" );
     farm->district.streetDivision = ZoningPlan::StreetDivision::NO_STREET_DIVISION;
-    farm->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
+//    farm->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
+    farm->district.streetDivision = ZoningPlan::StreetDivision::GRID_STREET_DIVIDED;
+    farm->district.grid.avenueSpacing = 400;
+    farm->district.grid.streetSpacing = 400;
+    farm->block.lotWidth = 200;
     farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( 0, 5, 2 ) ), 2 );
     farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( M_PI_2, 10, 5 ) ), 2 );
     farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( M_PI_4, 7, 3 ) ), 1 );
@@ -57,7 +61,7 @@ CityModel::CityModel()
     industry->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
     industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create(), 50, 50, 0.0 ) ), 1 );
 
-    zoningPlans = { majesticheights, industry, farm };
+    zoningPlans = { farm, majesticheights, industry };
 }
 
 }

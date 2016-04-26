@@ -127,16 +127,16 @@ void CityView::draw( const Options &options ) const
     if ( options.drawLots ) {
         for ( const auto &batch : lots ) batch->draw();
     }
-    if ( options.drawPlants ) {
-        gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
-        for ( const auto &plant : plants ) {
-            plant.first->drawInstanced( plant.second );
-        }
-    }
     if ( options.drawBuildings ) {
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
         for ( const auto &buildingbits : buildings ) {
             buildingbits.first->drawInstanced( buildingbits.second );
+        }
+    }
+    if ( options.drawPlants ) {
+        gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
+        for ( const auto &plant : plants ) {
+            plant.first->drawInstanced( plant.second );
         }
     }
 }

@@ -55,8 +55,10 @@ typedef std::shared_ptr<SphereTree>  SphereTreeRef;
 class SphereTree : public Scenery {
   protected:
     SphereTree() : Scenery(
-        polyLineCircle( 0.5, mSubdivisions ),
-        ci::geom::Sphere().radius( 0.5 ).subdivisions( mSubdivisions )
+        // The radius ought to be 0.5, but that results in overly simplified
+        // geometry. So double this and half the radius when scaling.
+        polyLineCircle( 1, mSubdivisions ),
+        ci::geom::Sphere().radius( 1 ).subdivisions( mSubdivisions )
     ) {}
 
     struct Instance : public Scenery::Instance {
@@ -67,7 +69,7 @@ class SphereTree : public Scenery {
 
         virtual ci::mat4 modelViewMatrix() const override
         {
-            return glm::scale( glm::translate( position ), ci::vec3( radius ) );
+            return glm::scale( glm::translate( position ), ci::vec3( 0.5f * radius ) );
         }
 
         float radius;
@@ -82,7 +84,7 @@ class SphereTree : public Scenery {
     }
 
   protected:
-    const u_int8_t mSubdivisions = 12;
+    const u_int8_t mSubdivisions = 10;
 };
 
 
