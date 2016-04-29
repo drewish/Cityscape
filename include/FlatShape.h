@@ -41,7 +41,7 @@ class FlatShape {
     FlatShape( const ci::PolyLine2f &outline, const PolyLine2fs &holes = {} )
         : mOutline( outline ), mHoles( holes )
     {
-        fixOrientation();
+        fixUp();
         mArea = calcArea();
     };
     FlatShape( const CGAL::Polygon_with_holes_2<ExactK> &pwh )
@@ -51,7 +51,7 @@ class FlatShape {
         for ( auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit ) {
             mHoles.push_back( polyLineFrom<ExactK>( *hit ) );
         }
-        fixOrientation();
+        fixUp();
         mArea = calcArea();
     };
     FlatShape( const CGAL::Polygon_with_holes_2<InexactK> &pwh )
@@ -61,7 +61,7 @@ class FlatShape {
         for ( auto hit = pwh.holes_begin(); hit != pwh.holes_end(); ++hit ) {
             mHoles.push_back( polyLineFrom<InexactK>( *hit ) );
         }
-        fixOrientation();
+        fixUp();
         mArea = calcArea();
     };
 
@@ -122,7 +122,7 @@ class FlatShape {
 
   private:
 
-    void    fixOrientation();
+    void    fixUp();
     float   calcArea() const;
 
     ci::PolyLine2f          mOutline;

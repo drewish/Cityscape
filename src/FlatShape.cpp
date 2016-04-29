@@ -18,8 +18,17 @@
 
 using namespace ci;
 
-void FlatShape::fixOrientation()
+void FlatShape::fixUp()
 {
+    // Look for the same point repeated...
+    std::vector<vec2> &points = mOutline.getPoints();
+    if ( std::adjacent_find( points.begin(), points.end() ) != points.end() ) {
+        // ...and remove duplicates since CGAL wants simple polygons.
+        auto newEnd = std::unique_copy( points.begin(), points.end(), points.begin() );
+        points.resize( std::distance( points.begin(), newEnd ) );
+    }
+
+    // Make sure the orientation is correct.
     if ( mOutline.isClockwise() ) mOutline.reverse();
     for ( auto &hole : mHoles ) {
         if ( hole.isCounterClockwise() ) hole.reverse();
