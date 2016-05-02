@@ -189,7 +189,8 @@ void CityMode::movePoint( ci::vec2 from, ci::vec2 to )
     layout();
 }
 
-bool CityMode::isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline ) {
+bool CityMode::isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline )
+{
     for ( const auto &district : mModel.districts ) {
         if ( ! district->shape->contains( point ) ) continue;
 

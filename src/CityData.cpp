@@ -57,7 +57,7 @@ CityModel::CityModel()
     farm->addUsage( LotDeveloperRef( new FarmOrchardDeveloper( M_PI_2, 10, 7 ) ), 2 );
 
     ZoningPlanRef industry = ZoningPlan::create( "industry" );
-//    industry->district.streetDivision = ZoningPlan::StreetDivision::NO_STREET_DIVISION;
+    industry->district.streetDivision = ZoningPlan::StreetDivision::NO_STREET_DIVISION;
     industry->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
     industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create(), 50, 50, 0.0 ) ), 1 );
 

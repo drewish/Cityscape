@@ -57,6 +57,8 @@ void buildHighwaysAndDistricts( CityModel &city )
         city.pavement.push_back( FlatShape::create( s ) );
     }
 
+    size_t plan = 0;
+
     // Find the unpaved chunks to break up with streets
     unpaved.complement( paved );
     unpaved.polygons_with_holes( back_inserter( unpavedShapes ) );
@@ -78,7 +80,8 @@ void buildHighwaysAndDistricts( CityModel &city )
             fs = FlatShape::create( s );
         }
 
-        city.districts.push_back( District::create( fs, city.zoningPlans.front() ) );
+        city.districts.push_back( District::create( fs, city.zoningPlans[plan] ) );
+        plan = ( plan + 1 ) % ( city.zoningPlans.size() - 1 );
     }
 }
 

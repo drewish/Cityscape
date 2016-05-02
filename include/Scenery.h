@@ -95,12 +95,13 @@ class RowCrop : public Scenery {
   protected:
     RowCrop() : Scenery(
         polyLineRectangle( 1, 1 ),
-        ci::geom::Extrude( shapeFrom( { ci::vec2( 0.5, 0 ), ci::vec2( 0, 1 ), ci::vec2( -0.5, 0 ) } ), 1.0f, 1.0f ) >> ci::geom::Rotate( M_PI_2, ci::vec3( 1, 0, 0 ) )
+        ci::geom::Extrude( shapeFrom( { ci::vec2( 0.5, 0 ), ci::vec2( 0, 1 ), ci::vec2( -0.5, 0 ) } ), 1.0f, 1.0f )
+            >> ci::geom::Rotate( M_PI_2, ci::vec3( 1, 0, 0 ) )
     ) {}
 
     struct Instance : public Scenery::Instance {
         Instance( const SceneryRef &plan, const ci::vec2 &at, float rotation, float length, float width )
-            : Scenery::Instance( plan, ci::vec3( at, 0 ), rotation, ci::ColorA( 0.41f, 0.60f, 0.22f, 0.75f ) ),
+            : Scenery::Instance( plan, ci::vec3( at, 0 ), rotation, ci::Color( 0.663, 0.502, 0.282 ) ),
               length( length ), width( width )
         {};
 
