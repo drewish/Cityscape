@@ -151,13 +151,12 @@ void subdivideSkeleton( BlockRef block, const ZoningPlan::BlockOptions &options 
 
     // TODO: this doesn't exclude the faces that are holes in the initial shape
     for ( auto face = mArr.faces_begin(); face != mArr.faces_end(); ++face ) {
-        for ( auto j = face->outer_ccbs_begin(); j != face->outer_ccbs_end(); ++j ) {
+        for ( auto edge = face->outer_ccbs_begin(); edge != face->outer_ccbs_end(); ++edge ) {
             PolyLine2f lotOutline;
-            Arrangement_2::Ccb_halfedge_circulator cc = *j;
+            Arrangement_2::Ccb_halfedge_circulator cc = *edge;
             do {
-                Arrangement_2::Halfedge_handle he = cc;
-                lotOutline.push_back( vecFrom( he->target()->point() ) );
-            } while ( ++cc != *j );
+                lotOutline.push_back( vecFrom( cc->target()->point() ) );
+            } while ( ++cc != *edge );
 
             block->lots.push_back( Lot::create( FlatShape::create( lotOutline ) ) );
         }

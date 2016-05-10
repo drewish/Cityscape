@@ -42,6 +42,14 @@ class FlatShape {
         : mOutline( outline ), mHoles( holes )
     {
         fixUp();
+        // Useful for debugging geometry issues:
+//        if ( mOutline.getPoints().size() > 0 ) {
+//            bool cinderSays = mOutline.isClockwise();
+//            bool cgalSays = polygonFrom<ExactK>( mOutline ).is_clockwise_oriented();
+//            std::cout << mOutline << "\n";
+//            printPolygon( polygonWithHoles<InexactK>() );
+//            assert( !cinderSays && !cgalSays );
+//        }
         mArea = calcArea();
     };
     FlatShape( const CGAL::Polygon_with_holes_2<ExactK> &pwh )

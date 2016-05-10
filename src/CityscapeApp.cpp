@@ -266,7 +266,7 @@ void CityscapeApp::draw()
     gl::clear( Color::white() );
     {
         // Fill the screen with our sky... at some point it should probably
-        // become a skybox since the gradient moves witht the camera right now.
+        // become a skybox since the gradient moves with the camera.
         gl::ScopedMatrices matrixScope;
         vec2 window = getWindowSize();
         gl::setMatricesWindow( window );
@@ -286,7 +286,7 @@ void CityscapeApp::draw()
             if ( mModeRef ) {
                 mModeRef->draw();
 
-                PolyLine2f  hoverOutline;
+                PolyLine2f hoverOutline;
                 if ( mModeRef->isOverOutline( mMouseOnPlaneAt, hoverOutline ) ) {
                     gl::draw( hoverOutline );
                 }
