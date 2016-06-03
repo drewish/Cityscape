@@ -1,17 +1,92 @@
 #include "GeometryHelpers.h"
 
+#include <limits>
+using std::numeric_limits;
+
 using namespace ci;
+
+// Similar logic to contiguousSegmentsFrom(), pairs of points be passed back:
+// a->b, b->c, c->d
+void pointsInPairs( const std::vector<vec2> &points, std::function<void(const vec2&, const vec2&)> process )
+{
+    if ( points.begin() == points.end() || points.begin() + 1 == points.end() ) {
+        return;
+    }
+
+    for ( auto prev = points.begin(), curr = prev + 1; curr != points.end(); ++curr ) {
+        process( *prev, *curr );
+        prev = curr;
+    }
+}
+
+// Determine the minimum area oriented bounding box for a set of points.
+bool minimumOobFor( const PolyLine2f &outline, Rectf &bestBounds, float &bestAngle )
+{
+    if ( outline.size() < 2 ) return false;
+
+    // Find the angle between each pair of points.
+    std::vector<float> angles;
+    auto calcAngle = [&angles](const vec2 &a, const vec2 &b) {
+        vec2 diff = a - b;
+        angles.push_back( atan2( diff.y, -diff.x ) );
+    };
+    pointsInPairs( outline.getPoints(), calcAngle );
+    calcAngle( outline.getPoints().back(), outline.getPoints().front() );
+
+    // Rotate the shape to align each edge with the axis and see which angle
+    // yields the smallet bounding box.
+    float minArea = numeric_limits<float>::max();
+    for ( float angle : angles ) {
+        glm::mat3 matrix = rotate( glm::mat3(), angle );
+        std::vector<vec2> rotatedOutline;
+        for( const auto &point : outline.getPoints() ) {
+            rotatedOutline.push_back( vec2( matrix * vec3( point, 1 ) ) );
+        }
+        Rectf bounds = Rectf( rotatedOutline );
+
+        float newArea = bounds.calcArea();
+        if ( newArea < minArea ) {
+            bestAngle = angle;
+            minArea = newArea;
+            bestBounds = bounds;
+        }
+    }
+
+    return true;
+}
+
+seg2 oobDivider( const ci::Rectf &bounds, float angle )
+{
+    // …rotate the smallest axis aligned bounding box back to the original
+    // angle.
+    mat3 inv = rotate( glm::mat3(), -angle );
+
+    PolyLine2f result;
+    if ( bounds.getWidth() > bounds.getHeight() ) {
+        float midX = ( bounds.x1 + bounds.x2 ) / 2;
+        return seg2(
+            vec2( inv * vec3( midX, bounds.y1, 1 ) ),
+            vec2( inv * vec3( midX, bounds.y2, 1 ) )
+        );
+    } else {
+        float midY = ( bounds.y1 + bounds.y2 ) / 2;
+        return seg2(
+            vec2( inv * vec3( bounds.x1, midY, 1 ) ),
+            vec2( inv * vec3( bounds.x2, midY, 1 ) )
+        );
+    }
+}
 
 // Gives back pairs of points to divide the shape with lines of a given angle.
 std::vector<seg2> computeDividers( const std::vector<vec2> &outline, const float angle, const float width )
 {
     // Rotate the shape to the desired angle and find the bounding box...
     glm::mat3 matrix = rotate( glm::mat3(), angle );
-    std::vector<vec2> rotated;
+    std::vector<vec2> rotatedOutline;
     for( const auto &point : outline ) {
-        rotated.push_back( vec2( matrix * vec3( point, 1 ) ) );
+        rotatedOutline.push_back( vec2( matrix * vec3( point, 1 ) ) );
     }
-    Rectf bounds = Rectf( rotated );
+    Rectf bounds = Rectf( rotatedOutline );
 
     // ...now figure out where the left edge of that box would be in the
     // unrotated space...
