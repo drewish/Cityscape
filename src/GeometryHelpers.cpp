@@ -9,9 +9,7 @@ using namespace ci;
 // a->b, b->c, c->d
 void pointsInPairs( const std::vector<vec2> &points, std::function<void(const vec2&, const vec2&)> process )
 {
-    if ( points.begin() == points.end() || points.begin() + 1 == points.end() ) {
-        return;
-    }
+    if ( points.size() < 2 ) return;
 
     for ( auto prev = points.begin(), curr = prev + 1; curr != points.end(); ++curr ) {
         process( *prev, *curr );
@@ -28,26 +26,35 @@ bool minimumOobFor( const PolyLine2f &outline, Rectf &bestBounds, float &bestAng
     std::vector<float> angles;
     auto calcAngle = [&angles](const vec2 &a, const vec2 &b) {
         vec2 diff = a - b;
-        angles.push_back( atan2( diff.y, -diff.x ) );
+        // We're building boxes so we don't care about the quadrants
+        angles.push_back( std::abs( atan2( diff.y, diff.x ) ) );
     };
     pointsInPairs( outline.getPoints(), calcAngle );
-    calcAngle( outline.getPoints().back(), outline.getPoints().front() );
+    if ( !outline.isClosed() ) {
+        calcAngle( outline.getPoints().back(), outline.getPoints().front() );
+    }
+
+    // Remove duplicate angles
+    std::sort( angles.begin(), angles.end() );
+    angles.resize( std::distance( angles.begin(), std::unique( angles.begin(), angles.end() ) ) );
 
     // Rotate the shape to align each edge with the axis and see which angle
     // yields the smallet bounding box.
     float minArea = numeric_limits<float>::max();
     for ( float angle : angles ) {
-        glm::mat3 matrix = rotate( glm::mat3(), angle );
+        mat3 matrix = rotate( mat3(), angle );
         std::vector<vec2> rotatedOutline;
         for( const auto &point : outline.getPoints() ) {
             rotatedOutline.push_back( vec2( matrix * vec3( point, 1 ) ) );
         }
+
         Rectf bounds = Rectf( rotatedOutline );
 
         float newArea = bounds.calcArea();
         if ( newArea < minArea ) {
-            bestAngle = angle;
             minArea = newArea;
+
+            bestAngle = angle;
             bestBounds = bounds;
         }
     }
@@ -60,11 +67,8 @@ bool minimumOobFor( const PolyLine2f &outline, Rectf &bestBounds, float &bestAng
 
 seg2 oobDivider( const ci::Rectf &bounds, float angle )
 {
-    // …rotate the smallest axis aligned bounding box back to the original
-    // angle.
-    mat3 inv = rotate( glm::mat3(), -angle );
+    mat3 inv = rotate( mat3(), -angle );
 
-    PolyLine2f result;
     if ( bounds.getWidth() > bounds.getHeight() ) {
         float midX = ( bounds.x1 + bounds.x2 ) / 2;
         return seg2(
