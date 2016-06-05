@@ -9,6 +9,7 @@
 #include "LotDeveloper.h"
 #include "FlatShape.h"
 
+#include <glm/gtx/closest_point.hpp>
 #include "cinder/Rand.h"
 #include "GeometryHelpers.h" // used to contract lot size to avoid overflow
 #include "Scenery.h"
@@ -55,14 +56,25 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
     auto plan = mPlans[ randInt( 0, mPlans.size() ) ];
 
     // TODO: just placing it in the center for now. would be good to take
-    // the street into consideration for setback and orientation.
-    Scenery::InstanceRef building = plan->createInstace( lot->shape->centroid(), 0 );
+    // the street and a setback into consideration for the position.
+    vec2 centroid = lot->shape->centroid();
+    float angle = 0;
+    if ( lot->streetFacingSides.size() > 1 ) {
+        // TODO: face the first edge, assuming that's the best one.
+        const seg2 side = lot->streetFacingSides.front();
+        vec2 closest = glm::closestPointOnLine( centroid, side.first, side.second );
+        vec2 diff = closest - centroid;
+        angle = atan2( diff.y, diff.x ) + M_PI_2;
+    }
+
+    Scenery::InstanceRef building = plan->createInstace( centroid, angle );
+
     if ( building ) {
-        // Remove the building goes outside the lot
+        // Remove the building if it goes outside the lot.
         // TODO: try moving and/or rotating it around?
-        std::vector<PolyLine2f> a = { lot->shape->outline() },
-            b = { building->footprint() },
-            diff = PolyLine2f::calcDifference( b, a );
+        PolyLine2fs l = { lot->shape->outline() };
+        PolyLine2fs b = { building->footprint() };
+        PolyLine2fs diff = PolyLine2f::calcDifference( b, l );
         if ( diff.size() != 0 ) {
             building.reset();
         }

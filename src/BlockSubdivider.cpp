@@ -188,9 +188,11 @@ void subdivideOOB(BlockRef block, const ZoningPlan::BlockOptions &options)
                 }
                 // If we find one copy until it stops
                 if ( cc->twin()->face()->data() ) {
-                    lot->streetFacingSides.push_back( vecFrom( cc->source()->point() ) );
                     do {
-                        lot->streetFacingSides.push_back( vecFrom( cc->target()->point() ) );
+                        lot->streetFacingSides.push_back( seg2(
+                            vecFrom( cc->source()->point() ),
+                            vecFrom( cc->target()->point() )
+                        ) );
                     } while ( ++cc != *edge && cc->twin()->face()->data() == true );
                 }
 
