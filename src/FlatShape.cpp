@@ -9,7 +9,7 @@
 #include "FlatShape.h"
 #include "cinder/Rand.h"
 #include "cinder/Triangulate.h"
-#include <CGAL/linear_least_squares_fitting_2.h>
+#include <CGAL/Sweep_line_2_algorithms.h>
 #include <CGAL/connect_holes.h>
 #include <CGAL/arrange_offset_polygons_2.h>
 #include <CGAL/create_offset_polygons_from_polygon_with_holes_2.h>
@@ -37,13 +37,7 @@ void FlatShape::fixUp()
 
 vec2 FlatShape::centroid() const
 {
-    CGAL::Polygon_2<InexactK> p( polygonFrom<InexactK>( mOutline ) );
-    InexactK::Point_2 centroid = InexactK::Point_2(0, 0);
-    InexactK::Line_2 line;
-    CGAL::Dimension_tag<0> dt;
-    CGAL::linear_least_squares_fitting_2( p.vertices_begin(), p.vertices_end(), line, centroid, dt);
-
-    return vecFrom( centroid );
+    return mOutline.calcCentroid();
 }
 
 vec2 FlatShape::randomPoint() const

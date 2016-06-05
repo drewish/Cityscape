@@ -13,12 +13,15 @@
 #include "CgalStraightSkeleton.h"
 #include "GeometryHelpers.h"
 
+#include <CGAL/Arr_observer.h>
+
 using namespace ci;
 
 namespace Cityscape {
 
 void subdivideNotReally( BlockRef block );
 void subdivideSkeleton( BlockRef block, const ZoningPlan::BlockOptions &options );
+void subdivideOOB(BlockRef block, const ZoningPlan::BlockOptions &options);
 
 // in Blocks
 // out Lots
@@ -31,6 +34,9 @@ void subdivideBlocks( CityModel &city )
             // Don't bother dividing small blocks
             if ( block->shape->area() < 100 ) {
                 subdivideNotReally( block );
+            }
+            else if ( zoning->block.lotDivision == ZoningPlan::LotDivision::OOB_LOT_DIVISION ) {
+                subdivideOOB( block, zoning->block );
             }
             else if ( zoning->block.lotDivision == ZoningPlan::LotDivision::SKELETON_LOT_DIVISION ) {
                 subdivideSkeleton( block, zoning->block );
@@ -45,7 +51,132 @@ void subdivideBlocks( CityModel &city )
 // Use the entire block for a lot.
 void subdivideNotReally( BlockRef block )
 {
-    block->lots.push_back( Lot::create( block->shape ) );
+    LotRef lot = Lot::create( block->shape );
+//    lot->streetFacingSides = block->shape->outline();
+    block->lots.push_back( lot );
+}
+
+// Does a poor job of implementing the OOB algorithm described in:
+// Procedural Generation of Parcels in Urban Modeling
+// Carlos A. Vanegas, Tom Kelly, Basil Weber, Jan Halatsch, Daniel G. Aliaga, Pascal Müller
+// http://www.twak.co.uk/2011/12/procedural-generation-of-parcels-in.html
+class OOBSubdivider : public CGAL::Arr_observer<Arrangement_2> {
+  public :
+    OOBSubdivider( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {}
+
+    enum State {
+        ADDING_OUTLINE,
+        ADDING_HOLES,
+        DIVIDING
+    };
+    State state = ADDING_OUTLINE;
+
+    void setShape( const FlatShapeRef &shape )
+    {
+        arrangement()->clear();
+
+        state = ADDING_OUTLINE;
+        std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( shape->outline().getPoints() );
+        insert_empty( *arrangement(), outlineSegments.begin(), outlineSegments.end() );
+
+        state = ADDING_HOLES;
+        std::vector<Segment_2> holeSegments;
+        for ( const auto &hole : shape->holes() ) {
+            for ( const auto &segment : contiguousSegmentsFrom( hole.getPoints() ) ) {
+                holeSegments.push_back( segment );
+            }
+        }
+        insert( *arrangement(), holeSegments.begin(), holeSegments.end() );
+    }
+
+    virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld )
+    {
+        bool isHole;
+
+        if      ( state == ADDING_OUTLINE ) isHole = false;
+        else if ( state == ADDING_HOLES )   isHole = true;
+        // Consider the following as holes: splitting the unbounded, splitting a hole, introducing a new hole.
+        else {
+            isHole = oldFace->is_unbounded() || oldFace->data();// || isHoleInOld
+        }
+
+        newFace->set_data( isHole );
+    }
+
+    void subdivide( const float lotAreaMax )
+    {
+        state = DIVIDING;
+
+        // Keep dividing as long as there are faces over our max size.
+        // TODO would probably be efficient to have a queue of faces and when we
+        // split one put both pieces on the queue.
+        std::vector<Segment_2> newDividers;
+        do {
+            newDividers.clear();
+            for ( auto face = arrangement()->faces_begin(); face != arrangement()->faces_end(); ++face ) {
+                for ( auto edge = face->outer_ccbs_begin(); edge != face->outer_ccbs_end(); ++edge ) {
+                    PolyLine2f lotOutline = polyLineFrom( *edge );
+                    float area = lotOutline.calcArea();
+                    if ( area > lotAreaMax ) {
+                        // TODO should trim anything that goes beyond the face
+                        // we're splitting...
+                        seg2 divider = oobDivider( lotOutline );
+                        newDividers.push_back( segmentFrom( divider ) );
+                    }
+                }
+            }
+            insert( *arrangement(), newDividers.begin(), newDividers.end() );
+        } while ( newDividers.size() > 0 );
+
+    }
+
+/*
+    // This stuff might be useful later for removing antennas
+    std::list<Halfedge_handle> junkEdges;
+
+    virtual void after_create_edge( Halfedge_handle e )
+    {
+        // If both sides of this are holes go ahead and merge them.
+        if ( e->face()->data() == true && e->twin()->face()->data() == true ) {
+            junkEdges.push_back( e );
+        }
+    }
+
+    void cleanup( )
+    {
+        while ( junkEdges.size() ) {
+            Halfedge_handle e = junkEdges.front();
+            // Make sure nothing has changed since we put it on the list.
+            if ( e->face()->data() == true && e->twin()->face()->data() == true ) {
+                arrangement()->remove_edge( e );
+            }
+            junkEdges.pop_front();
+        }
+    }
+*/
+};
+
+void subdivideOOB(BlockRef block, const ZoningPlan::BlockOptions &options)
+{
+    Arrangement_2 arrangement;
+    OOBSubdivider obs( arrangement );
+    obs.setShape( block->shape );
+    obs.subdivide( options.lotAreaMax );
+
+    for ( auto face = arrangement.faces_begin(); face != arrangement.faces_end(); ++face ) {
+        if ( !face->is_unbounded() && !face->data() ) {
+            for ( auto edge = face->outer_ccbs_begin(); edge != face->outer_ccbs_end(); ++edge ) {
+                PolyLine2f lotOutline = polyLineFrom( *edge );
+                PolyLine2fs lotHoles;
+                for ( auto hole = face->holes_begin(); hole != face->holes_end(); ++hole ) {
+                    lotHoles.push_back( polyLineFrom( *hole ) );
+                }
+                LotRef lot = Lot::create( FlatShape::create( lotOutline, lotHoles ) );
+    //            lot->streetFacingSides = ;
+                block->lots.push_back( lot );
+            }
+        }
+    }
 }
 
 // TODO: This needs work to handle the holes correctly

@@ -9,6 +9,8 @@
 #include "CgalArrangement.h"
 #include "CgalPolygon.h"
 
+#include <CGAL/Sweep_line_2_algorithms.h>
+
 ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circulator )
 {
     ci::PolyLine2f result;
@@ -36,7 +38,7 @@ std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points
     if ( points.empty() ) return result;
 
     for ( auto prev = points.begin(), curr = prev + 1; curr != points.end(); ++curr ) {
-        result.push_back( Segment_2( Point_2( prev->x, prev->y ), Point_2( curr->x, curr->y ) ) );
+        result.push_back( Segment_2( pointFrom( *prev ), pointFrom( *curr ) ) );
         prev = curr;
     }
     return result;
@@ -63,7 +65,7 @@ std::list<Segment_2> segmentsFrom( const std::vector<ci::vec2> &points )
     if ( points.empty() ) return result;
 
     for ( auto i = points.begin(); i != points.end(); ++i ) {
-        result.push_back( Segment_2( Point_2( i->x, i->y ), Point_2( (++i)->x, i->y ) ) );
+        result.push_back( Segment_2( pointFrom( *i ), pointFrom( *(++i) ) ) );
     }
     return result;
 }

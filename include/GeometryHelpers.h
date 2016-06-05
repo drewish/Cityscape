@@ -4,7 +4,9 @@ typedef std::pair<ci::vec2, ci::vec2> seg2;
 
 // Determine the minimum area oriented bounding box for a polyline.
 bool minimumOobFor( const ci::PolyLine2f &outline, ci::Rectf &bounds, float &rotate );
+
 // Determing how to divide an OOB in half.
+seg2 oobDivider( const ci::PolyLine2f &outline );
 seg2 oobDivider( const ci::Rectf &bounds, float angle );
 
 // Gives back pairs of points to divide the shape with lines of a given angle.

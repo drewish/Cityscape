@@ -105,6 +105,7 @@ namespace Cityscape {
         enum LotDivision {
             NO_LOT_DIVISION = 0,
             SKELETON_LOT_DIVISION = 1,
+            OOB_LOT_DIVISION = 2,
         };
 
         std::string name;
@@ -121,8 +122,10 @@ namespace Cityscape {
         } district;
 
         struct BlockOptions {
-            LotDivision lotDivision = SKELETON_LOT_DIVISION;
-            int16_t lotWidth = 40;
+            LotDivision lotDivision = OOB_LOT_DIVISION;
+            uint16_t lotWidth = 40;
+            uint32_t lotAreaMin = 1000;
+            uint32_t lotAreaMax = 40000;
         } block;
 
         // TODO Think of a better name for this

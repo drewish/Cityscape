@@ -52,6 +52,9 @@ bool minimumOobFor( const PolyLine2f &outline, Rectf &bestBounds, float &bestAng
         }
     }
 
+    // Add a little padding to make sure we intersect both sides.
+    bestBounds.inflate( vec2( 1, 1 ) );
+
     return true;
 }
 
@@ -75,6 +78,14 @@ seg2 oobDivider( const ci::Rectf &bounds, float angle )
             vec2( inv * vec3( bounds.x2, midY, 1 ) )
         );
     }
+}
+
+seg2 oobDivider( const ci::PolyLine2f &outline )
+{
+    ci::Rectf bounds;
+    float rotate;
+    minimumOobFor( outline, bounds, rotate );
+    return oobDivider( bounds, rotate );
 }
 
 // Gives back pairs of points to divide the shape with lines of a given angle.

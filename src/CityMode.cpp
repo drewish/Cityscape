@@ -42,9 +42,9 @@ void CityMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addSeparator("Block");
 
-    params->addParam( "Lot Division", {"None", "Skeleton"}, (int*)&plan->block.lotDivision )
+    params->addParam( "Lot Division", {"None", "Skeleton", "OOB"}, (int*)&plan->block.lotDivision )
         .updateFn( [this] { requestLayout(); } );
-    params->addParam( "lotWidth", &plan->block.lotWidth ).step( 5 )
+    params->addParam( "Lot Width", &plan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
 
     params->addSeparator();

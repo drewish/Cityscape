@@ -35,10 +35,14 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addSeparator("Block");
 
-    params->addParam( "Division", {"None", "Skeleton"}, (int*)&mPlan->block.lotDivision )
+    params->addParam( "Lot Division", {"None", "Skeleton", "OOB"}, (int*)&mPlan->block.lotDivision )
         .updateFn( [this] { requestLayout(); } );
-    params->addParam( "lotWidth", &mPlan->block.lotWidth ).step( 5 )
+    params->addParam( "Lot Width", &mPlan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
+    params->addParam( "Lot Area Min", &mPlan->block.lotAreaMin ).step( 100 )
+        .min( 100 ).max( 1000000 ).updateFn( [this] { requestLayout(); } );
+    params->addParam( "Lot Area Max", &mPlan->block.lotAreaMax ).step( 1000 )
+        .min( 10000 ).max( 1000000 ).updateFn( [this] { requestLayout(); } );
 
 // TODO: should alter zoning
 //    params->addSeparator("Lot");

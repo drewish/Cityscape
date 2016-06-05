@@ -18,10 +18,10 @@ class FlatShape;
 typedef std::shared_ptr<FlatShape>    	FlatShapeRef;
 
 typedef std::pair<ci::vec2, ci::vec2> seg2;
+typedef std::vector<ci::PolyLine2f> PolyLine2fs;
 
 class FlatShape {
   public:
-    typedef std::vector<ci::PolyLine2f> PolyLine2fs;
 
     static FlatShapeRef create( const ci::PolyLine2f &outline, const PolyLine2fs &holes = {} )
     {
