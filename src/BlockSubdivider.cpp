@@ -75,6 +75,8 @@ class OOBSubdivider : public CGAL::Arr_observer<Arrangement_2> {
     {
         arrangement()->clear();
 
+        arrangement()->unbounded_face()->set_data( true );
+
         state = ADDING_OUTLINE;
         std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( shape->outline().getPoints() );
         insert_empty( *arrangement(), outlineSegments.begin(), outlineSegments.end() );
@@ -87,20 +89,6 @@ class OOBSubdivider : public CGAL::Arr_observer<Arrangement_2> {
             }
         }
         insert( *arrangement(), holeSegments.begin(), holeSegments.end() );
-    }
-
-    virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld )
-    {
-        bool isHole;
-
-        if      ( state == ADDING_OUTLINE ) isHole = false;
-        else if ( state == ADDING_HOLES )   isHole = true;
-        // Consider the following as holes: splitting the unbounded, splitting a hole, introducing a new hole.
-        else {
-            isHole = oldFace->is_unbounded() || oldFace->data();// || isHoleInOld
-        }
-
-        newFace->set_data( isHole );
     }
 
     void subdivide( const float lotAreaMax )
@@ -128,6 +116,20 @@ class OOBSubdivider : public CGAL::Arr_observer<Arrangement_2> {
             insert( *arrangement(), newDividers.begin(), newDividers.end() );
         } while ( newDividers.size() > 0 );
 
+    }
+
+    virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld )
+    {
+        bool isHole;
+
+        if      ( state == ADDING_OUTLINE ) isHole = false;
+        else if ( state == ADDING_HOLES )   isHole = true;
+        // Consider the following as holes: splitting the unbounded, splitting a hole, introducing a new hole.
+        else {
+            isHole = oldFace->is_unbounded() || oldFace->data();// || isHoleInOld
+        }
+
+        newFace->set_data( isHole );
     }
 
 /*
@@ -172,7 +174,26 @@ void subdivideOOB(BlockRef block, const ZoningPlan::BlockOptions &options)
                     lotHoles.push_back( polyLineFrom( *hole ) );
                 }
                 LotRef lot = Lot::create( FlatShape::create( lotOutline, lotHoles ) );
-    //            lot->streetFacingSides = ;
+
+                // Here's some wonky code to find a street facing edge of the
+                // lot. It just grabs the first set of segments it finds rather
+                // than picking out the longest one.
+
+                // Start going around looking for a edge that faces a road.
+                Arrangement_2::Ccb_halfedge_circulator cc = *edge;
+                bool leftStart = false;
+                while ( !(leftStart && cc == *edge) && (cc->twin()->face()->data() == false) ) {
+                    ++cc;
+                    leftStart = true;
+                }
+                // If we find one copy until it stops
+                if ( cc->twin()->face()->data() ) {
+                    lot->streetFacingSides.push_back( vecFrom( cc->source()->point() ) );
+                    do {
+                        lot->streetFacingSides.push_back( vecFrom( cc->target()->point() ) );
+                    } while ( ++cc != *edge && cc->twin()->face()->data() == true );
+                }
+
                 block->lots.push_back( lot );
             }
         }

@@ -229,6 +229,7 @@ namespace Cityscape {
 
         using Ground::Ground;
 
+        ci::PolyLine2f streetFacingSides;
         std::vector<Scenery::InstanceRef> buildings;
         std::vector<Scenery::InstanceRef> plants;
     };
