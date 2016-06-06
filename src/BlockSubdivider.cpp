@@ -19,55 +19,16 @@ using namespace ci;
 
 namespace Cityscape {
 
-void subdivideNotReally( BlockRef block );
-void subdivideSkeleton( BlockRef block, const ZoningPlan::BlockOptions &options );
-void subdivideOOB(BlockRef block, const ZoningPlan::BlockOptions &options);
-
-// in Blocks
-// out Lots
-void subdivideBlocks( CityModel &city )
-{
-    for ( const auto &district : city.districts ) {
-        ZoningPlanRef zoning = district->zoningPlan;
-
-        for ( const auto &block : district->blocks ) {
-            // Don't bother dividing small blocks
-            if ( block->shape->area() < 100 ) {
-                subdivideNotReally( block );
-            }
-            else if ( zoning->block.lotDivision == ZoningPlan::LotDivision::OOB_LOT_DIVISION ) {
-                subdivideOOB( block, zoning->block );
-            }
-            else if ( zoning->block.lotDivision == ZoningPlan::LotDivision::SKELETON_LOT_DIVISION ) {
-                subdivideSkeleton( block, zoning->block );
-            }
-            else { // LotDivision::NO_LOT_DIVISION
-                subdivideNotReally( block );
-            }
-        }
-    }
-}
-
-// Use the entire block for a lot.
-void subdivideNotReally( BlockRef block )
-{
-    LotRef lot = Lot::create( block->shape );
-//    lot->streetFacingSides = block->shape->outline();
-    block->lots.push_back( lot );
-}
-
-class MyBaseDivider : public CGAL::Arr_observer<Arrangement_2> {
+class BaseDivider : public CGAL::Arr_observer<Arrangement_2> {
   public :
-    MyBaseDivider( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {}
-
     enum State {
         ADDING_OUTLINE,
         ADDING_HOLES,
         DIVIDING
     };
-    State state = ADDING_OUTLINE;
 
-    void setShape( const FlatShapeRef &shape )
+    BaseDivider( Arrangement_2& arr, const FlatShapeRef &s )
+        : CGAL::Arr_observer<Arrangement_2>( arr ), shape( s )
     {
         arrangement()->clear();
 
@@ -87,79 +48,104 @@ class MyBaseDivider : public CGAL::Arr_observer<Arrangement_2> {
         insert( *arrangement(), holeSegments.begin(), holeSegments.end() );
     }
 
+//    virtual void after_create_edge( Halfedge_handle e )
+//    {
+//        // If both sides of this are holes go ahead and merge them.
+//        if ( state == DIVIDING && limitToFace ) {
+//            if ( e->face() != face && e->twin()->face() != face ) {
+//                junkEdges.insert( e );
+//            }
+//        }
+//    }
+//
+//    virtual void before_split_face (Face_handle f, Halfedge_handle e)
+//    {
+//        if ( state == DIVIDING && limitToFace && face != f ) {
+//            junkEdges.insert( e );
+//        }
+//    }
+
     virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld )
     {
         bool isHole;
-        if      ( state == ADDING_OUTLINE ) isHole = false;
-        else if ( state == ADDING_HOLES )   isHole = true;
-        // Consider the following as holes: splitting the unbounded, splitting a hole, introducing a new hole.
+        if ( state == ADDING_OUTLINE ) {
+            isHole = false;
+        }
+        else if ( state == ADDING_HOLES ) {
+            isHole = true;
+        }
         else {
-            isHole = oldFace->is_unbounded() || oldFace->data();// || isHoleInOld
+            isHole = oldFace->data();
         }
         newFace->set_data( isHole );
     }
 
-/*
-    // This stuff might be useful later for removing antennas
-    std::list<Halfedge_handle> junkEdges;
-
-    virtual void after_create_edge( Halfedge_handle e )
+    virtual void subdivide( const ZoningPlan::BlockOptions &options )
     {
-        // If both sides of this are holes go ahead and merge them.
-        if ( e->face()->data() == true && e->twin()->face()->data() == true ) {
-            junkEdges.push_back( e );
-        }
+        state = DIVIDING;
+    }
+
+    void splitFace( Face_handle f, Segment_2 s )
+    {
+        limitToFace = true;
+        face = f;
+        insert( *arrangement(), s );
+        cleanup();
+        limitToFace = false;
     }
 
     void cleanup( )
     {
-        while ( junkEdges.size() ) {
-            Halfedge_handle e = junkEdges.front();
-            // Make sure nothing has changed since we put it on the list.
-            if ( e->face()->data() == true && e->twin()->face()->data() == true ) {
-                arrangement()->remove_edge( e );
-            }
-            junkEdges.pop_front();
+        for ( auto edge : junkEdges ) {
+            arrangement()->remove_edge( edge );
         }
     }
-*/
-    void extractLots( BlockRef &block ) {
+
+    virtual void extractLots( BlockRef &block ) {
         for ( auto face = arrangement()->faces_begin(); face != arrangement()->faces_end(); ++face ) {
-            if ( !face->is_unbounded() && !face->data() ) {
-                for ( auto edge = face->outer_ccbs_begin(); edge != face->outer_ccbs_end(); ++edge ) {
-                    PolyLine2f lotOutline = polyLineFrom( *edge );
-                    PolyLine2fs lotHoles;
-                    for ( auto hole = face->holes_begin(); hole != face->holes_end(); ++hole ) {
-                        lotHoles.push_back( polyLineFrom( *hole ) );
-                    }
-                    LotRef lot = Lot::create( FlatShape::create( lotOutline, lotHoles ) );
+            if ( face->is_unbounded() || face->data() ) continue;
 
-                    // Here's some wonky code to find a street facing edge of the
-                    // lot. It just grabs the first set of segments it finds rather
-                    // than picking out the longest one.
-
-                    // Start going around looking for a edge that faces a road.
-                    Arrangement_2::Ccb_halfedge_circulator cc = *edge;
-                    bool leftStart = false;
-                    while ( !(leftStart && cc == *edge) && (cc->twin()->face()->data() == false) ) {
-                        ++cc;
-                        leftStart = true;
-                    }
-                    // If we find one copy until it stops
-                    if ( cc->twin()->face()->data() ) {
-                        do {
-                            lot->streetFacingSides.push_back( seg2(
-                                vecFrom( cc->source()->point() ),
-                                vecFrom( cc->target()->point() )
-                            ) );
-                        } while ( ++cc != *edge && cc->twin()->face()->data() == true );
-                    }
-
-                    block->lots.push_back( lot );
+            for ( auto edge = face->outer_ccbs_begin(); edge != face->outer_ccbs_end(); ++edge ) {
+                PolyLine2f lotOutline = polyLineFrom( *edge );
+                PolyLine2fs lotHoles;
+                for ( auto hole = face->holes_begin(); hole != face->holes_end(); ++hole ) {
+                    lotHoles.push_back( polyLineFrom( *hole ) );
                 }
+                LotRef lot = Lot::create( FlatShape::create( lotOutline, lotHoles ) );
+
+                // Here's some wonky code to find a street facing edge of the
+                // lot. It just grabs the first set of segments it finds rather
+                // than picking out the longest one.
+
+                // Start going around looking for a edge that faces a road.
+                Arrangement_2::Ccb_halfedge_circulator cc = *edge;
+                bool leftStart = false;
+                while ( !(leftStart && cc == *edge) && (cc->twin()->face()->data() == false) ) {
+                    ++cc;
+                    leftStart = true;
+                }
+                // If we find one copy until it stops
+                if ( cc->twin()->face()->data() ) {
+                    do {
+                        lot->streetFacingSides.push_back( seg2(
+                            vecFrom( cc->source()->point() ),
+                            vecFrom( cc->target()->point() )
+                        ) );
+                    } while ( ++cc != *edge && cc->twin()->face()->data() == true );
+                }
+
+                block->lots.push_back( lot );
             }
         }
     }
+
+  protected:
+    State state = ADDING_OUTLINE;
+    const FlatShapeRef shape;
+
+    bool limitToFace;
+    Face_handle face;
+    std::set<Halfedge_handle> junkEdges;
 };
 
 
@@ -167,11 +153,11 @@ class MyBaseDivider : public CGAL::Arr_observer<Arrangement_2> {
 // Procedural Generation of Parcels in Urban Modeling
 // Carlos A. Vanegas, Tom Kelly, Basil Weber, Jan Halatsch, Daniel G. Aliaga, Pascal Müller
 // http://www.twak.co.uk/2011/12/procedural-generation-of-parcels-in.html
-class OOBSubdivider : public MyBaseDivider {
+class OOBSubdivider : public BaseDivider {
   public :
-    using MyBaseDivider::MyBaseDivider;
+    using BaseDivider::BaseDivider;
 
-    void subdivide( const ZoningPlan::BlockOptions &options )
+    virtual void subdivide( const ZoningPlan::BlockOptions &options ) override
     {
         state = DIVIDING;
 
@@ -189,30 +175,21 @@ class OOBSubdivider : public MyBaseDivider {
                         // TODO should trim anything that goes beyond the face
                         // we're splitting...
                         seg2 divider = oobDivider( lotOutline );
-                        newDividers.push_back( segmentFrom( divider ) );
+                        splitFace( face, segmentFrom( divider ) );
+//                        newDividers.push_back( segmentFrom( divider ) );
                     }
                 }
             }
-            insert( *arrangement(), newDividers.begin(), newDividers.end() );
+//            insert( *arrangement(), newDividers.begin(), newDividers.end() );
         } while ( newDividers.size() > 0 );
     }
 };
 
-void subdivideOOB(BlockRef block, const ZoningPlan::BlockOptions &options )
-{
-    Arrangement_2 arrangement;
-    OOBSubdivider obs( arrangement );
-    obs.setShape( block->shape );
-    obs.subdivide( options );
-    obs.extractLots( block );
-}
-
-
-class SkeletonSubdivider : public MyBaseDivider {
+class SkeletonSubdivider : public BaseDivider {
   public :
-    using MyBaseDivider::MyBaseDivider;
+    using BaseDivider::BaseDivider;
 
-    void subdivide( const FlatShapeRef &shape, const ZoningPlan::BlockOptions &options )
+    virtual void subdivide( const ZoningPlan::BlockOptions &options ) override
     {
         state = DIVIDING;
 
@@ -222,7 +199,6 @@ class SkeletonSubdivider : public MyBaseDivider {
         // Build straight skeleton with holes
         SsPtr skel = CGAL::create_interior_straight_skeleton_2( shape->polygonWithHoles<InexactK>() );
 
-        std::list<Segment_2> outlineSegments;
         std::list<Segment_2> skeletonSegments;
 
         float dividerAngle = 0;
@@ -290,6 +266,8 @@ class SkeletonSubdivider : public MyBaseDivider {
             skeletonSegments.push_back( Segment_2( Point_2( c.x(), c.y() ), adj ) );
         }
 
+        insert( *arrangement(), skeletonSegments.begin(), skeletonSegments.end() );
+
         // TODO: would be good to adjust the dividers to:
         // - create lots in specific size ranges (avoid tiny or mega lots)
 
@@ -297,19 +275,42 @@ class SkeletonSubdivider : public MyBaseDivider {
         std::vector<Segment_2> dividerSegments = shape->dividerSegment_2s( dividerAngle, options.lotWidth );
 
         // Put the adjusted skeleton, and new dividers into the the arrangment.
-        insert( *arrangement(), skeletonSegments.begin(), skeletonSegments.end() );
         insert( *arrangement(), dividerSegments.begin(), dividerSegments.end() );
     }
 };
 
-void subdivideSkeleton( BlockRef block, const ZoningPlan::BlockOptions &options )
-{
-    Arrangement_2 arrangement;
-    SkeletonSubdivider obs( arrangement );
-    obs.setShape( block->shape );
-    obs.subdivide( block->shape, options );
-    obs.extractLots( block );
-}
 
+// in Blocks
+// out Lots
+void subdivideBlocks( CityModel &city )
+{
+    for ( auto &district : city.districts ) {
+        ZoningPlanRef zoning = district->zoningPlan;
+
+        for ( auto &block : district->blocks ) {
+            ZoningPlan::LotDivision d = zoning->block.lotDivision;
+
+            // Don't bother dividing small blocks
+            if ( block->shape->area() < 100 ) {
+                d = ZoningPlan::LotDivision::NO_LOT_DIVISION;
+            }
+
+            Arrangement_2 arrangement;
+            BaseDivider *obs;
+            if ( zoning->block.lotDivision == ZoningPlan::LotDivision::OOB_LOT_DIVISION ) {
+                obs = new OOBSubdivider( arrangement, block->shape );
+            }
+            else if ( zoning->block.lotDivision == ZoningPlan::LotDivision::SKELETON_LOT_DIVISION ) {
+                obs = new SkeletonSubdivider( arrangement, block->shape );
+            }
+            else {
+                obs = new BaseDivider( arrangement, block->shape );
+            }
+            obs->subdivide( zoning->block );
+            obs->extractLots( block );
+            delete obs;
+        }
+    }
+}
 
 } // Cityscape namespace

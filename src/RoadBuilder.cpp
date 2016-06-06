@@ -81,7 +81,9 @@ void buildHighwaysAndDistricts( CityModel &city )
         }
 
         city.districts.push_back( District::create( fs, city.zoningPlans[plan] ) );
-        plan = ( plan + 1 ) % ( city.zoningPlans.size() - 1 );
+        if ( ++plan >= city.zoningPlans.size() ) {
+            plan = 0;
+        }
     }
 }
 
