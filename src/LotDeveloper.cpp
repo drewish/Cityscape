@@ -133,7 +133,7 @@ bool SquareGridDeveloper::isValidFor( LotRef &lot ) const
 }
 void SquareGridDeveloper::buildIn( LotRef &lot ) const
 {
-    float setback = math<float>::max( mRowSpacing, mStructureSpacing ) / 2;
+    float setback = math<float>::min( mRowSpacing, mStructureSpacing ) / 4;
 
     for ( const FlatShape &shape : lot->shape->contract( setback ) ) {
         std::vector<seg2> dividers = shape.dividerSeg2s( mAngle, mRowSpacing );

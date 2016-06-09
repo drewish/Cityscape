@@ -111,7 +111,7 @@ namespace Cityscape {
         } district;
 
         struct BlockOptions {
-            LotDivision lotDivision = OOB_LOT_DIVISION;
+            LotDivision lotDivision = NO_LOT_DIVISION;
             uint16_t lotWidth = 40;
             uint32_t lotAreaMin = 1000;
             uint32_t lotAreaMax = 40000;

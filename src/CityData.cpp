@@ -33,6 +33,7 @@ ColorA colorWheel()
 CityModel::CityModel()
 {
     ZoningPlanRef majesticheights = ZoningPlan::create( "default" );
+    majesticheights->block.lotDivision = ZoningPlan::LotDivision::SKELETON_LOT_DIVISION;
     majesticheights->addUsage( nullptr, 1 );
     majesticheights->addUsage( LotDeveloperRef( new SingleFamilyHomeDeveloper( {
             BuildingPlan::create( polyLineRectangle( 30, 10 ), 1, BuildingPlan::HIPPED_ROOF ),
@@ -44,10 +45,10 @@ CityModel::CityModel()
 
     ZoningPlanRef farm = ZoningPlan::create( "farm" );
     farm->district.streetDivision = ZoningPlan::StreetDivision::NO_STREET_DIVISION;
-//    farm->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
     farm->district.streetDivision = ZoningPlan::StreetDivision::GRID_STREET_DIVIDED;
     farm->district.grid.avenueSpacing = 400;
     farm->district.grid.streetSpacing = 400;
+    farm->block.lotDivision = ZoningPlan::LotDivision::OOB_LOT_DIVISION;
     farm->block.lotWidth = 200;
     farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( 0, 5, 2 ) ), 2 );
     farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( M_PI_2, 10, 5 ) ), 2 );
