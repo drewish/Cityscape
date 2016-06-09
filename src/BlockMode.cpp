@@ -130,52 +130,35 @@ void BlockMode::layout() {
 void BlockMode::draw() {
     if ( mCityView ) mCityView->draw( mViewOptions );
 
-    return;
-
     // * * *
 /*
     // This it only really helpful when debugging the CGAL arrangement.
 
-    if ( false ) {
-        Arrangement_2 &arr = mBlock->mArr;
+    if ( true ) {
+        const Arrangement_2 arr = Cityscape::lastArrangement();
 
         gl::color( 1, 1, 0 );
         for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
+            gl::ScopedColor color( Color::gray( 0.5 ) );
             gl::drawSolidCircle( vecFrom( i->point() ), 5 );
         }
 
         gl::color(0, 0, 0 );
         for ( auto i = arr.edges_begin(); i != arr.edges_end(); ++i ) {
-            PolyLine2f p = PolyLine2f({ vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
+            gl::ScopedColor color( Color::white() );
+            PolyLine2f p = PolyLine2f( { vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
             gl::draw( p );
         }
 
         float steps = 0;
-        for ( auto i = arr.faces_begin(); i != arr.faces_end(); ++i ) {
-            for ( auto j = i->outer_ccbs_begin(); j != i->outer_ccbs_end(); ++j ) {
-                PolyLine2f faceOutline;
-                Arrangement_2::Ccb_halfedge_circulator cc = *j;
-                faceOutline.push_back( vecFrom( cc->source()->point() ) );
-                do {
-                    Arrangement_2::Halfedge_handle he = cc;
-                    faceOutline.push_back( vecFrom( he->target()->point() ) );
-                } while ( ++cc != *j );
+        for ( auto face = arr.faces_begin(); face != arr.faces_end(); ++face ) {
+            if ( face->is_unbounded() ) continue;
 
-                gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.25 ) );
-                steps += 0.27;
-                if (steps > 1) steps -= 1.0;
-                gl::drawSolid( faceOutline );
-            }
-        }
-    }
+            gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.25 ) );
+            steps += 0.27;
+            if (steps > 1) steps -= 1.0;
 
-    if ( false ) {
-        std::vector<vec2> dividers = computeDividers( mOutline.getPoints(), mBlock->mDividerAngle );
-
-        gl::color( 1, 0, 1 );
-        assert( dividers.size() % 2 == 0 );
-        for ( auto i = dividers.begin(); i != dividers.end(); ++i) {
-            gl::drawLine( *i, *++i );
+            gl::drawSolid( polyLineFrom( face->outer_ccb() ) );
         }
     }
 

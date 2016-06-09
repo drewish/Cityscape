@@ -22,7 +22,7 @@ typedef Traits_2::Point_2                               Point_2;
 typedef Traits_2::X_monotone_curve_2                    Segment_2;
 typedef CGAL::Arr_naive_point_location<Arrangement_2>   Naive_pl;
 
-ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circulator );
+ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator );
 
 inline Point_2 pointFrom( const ci::vec2 &p )
 {

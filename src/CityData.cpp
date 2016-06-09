@@ -61,7 +61,11 @@ CityModel::CityModel()
     industry->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
     industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create(), 50, 50, 0.0 ) ), 1 );
 
-    zoningPlans = { farm, majesticheights, industry };
+    zoningPlans = {
+        farm,
+        majesticheights,
+        industry
+    };
 }
 
 }

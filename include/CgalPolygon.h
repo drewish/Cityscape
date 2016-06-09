@@ -36,7 +36,7 @@ CGAL::Polygon_2<K> polygonFrom( const ci::PolyLine2f &p )
 }
 
 template<class K>
-CGAL::Polygon_with_holes_2<K> polygonFrom(const ci::PolyLine2f &outline, const std::vector<ci::PolyLine2f> &holes)
+CGAL::Polygon_with_holes_2<K> polygonFrom( const ci::PolyLine2f &outline, const std::vector<ci::PolyLine2f> &holes )
 {
     CGAL::Polygon_with_holes_2<K> poly( polygonFrom<K>( outline ) );
 
@@ -48,7 +48,7 @@ CGAL::Polygon_with_holes_2<K> polygonFrom(const ci::PolyLine2f &outline, const s
 }
 
 template<class K>
-ci::PolyLine2f polyLineFrom(const CGAL::Polygon_2<K> &p)
+ci::PolyLine2f polyLineFrom( const CGAL::Polygon_2<K> &p )
 {
     ci::PolyLine2f poly;
     for ( auto it = p.vertices_begin(); it != p.vertices_end(); ++it) {

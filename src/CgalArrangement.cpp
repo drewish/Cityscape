@@ -11,25 +11,23 @@
 
 #include <CGAL/Sweep_line_2_algorithms.h>
 
-ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_circulator &circulator )
+ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator )
 {
     ci::PolyLine2f result;
-    Arrangement_2::Ccb_halfedge_circulator cc = circulator;
+    Arrangement_2::Ccb_halfedge_const_circulator cc = circulator;
     do {
         result.push_back( vecFrom( cc->target()->point() ) );
     } while ( ++cc != circulator );
     return result;
 }
 
-void findIntersections(const std::list<Segment_2> &input, std::list<Segment_2> &newEdges )
+// TODO compare list vs vector, might be better to pass in begin end instead
+void findIntersections( const std::list<Segment_2> &input, std::list<Segment_2> &newEdges )
 {
     std::vector<Point_2> pts;
     CGAL::compute_intersection_points( input.begin(), input.end(), std::back_inserter( pts ) );
 
-    // Even numbers of intersections become segments
-    for ( int i = pts.size() - 1; i > 0; i -= 2 ) {
-        newEdges.push_back( Segment_2( pts[i - 1], pts[i] ) );
-    }
+    newEdges = segmentsFrom( pts );
 }
 
 std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points )
