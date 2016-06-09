@@ -60,9 +60,14 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
     vec2 centroid = lot->shape->centroid();
     float angle = 0;
     if ( lot->streetFacingSides.size() > 1 ) {
-        // TODO: face the first edge, assuming that's the best one.
-        const seg2 side = lot->streetFacingSides.front();
-        vec2 closest = glm::closestPointOnLine( centroid, side.first, side.second );
+        const seg2 longestSide = *std::max_element(
+            lot->streetFacingSides.begin(),
+            lot->streetFacingSides.end(),
+            []( const seg2 &a, const seg2 &b) {
+                return glm::length2( a.first - a.second ) < glm::length2( b.first - b.second );
+            }
+        );
+        vec2 closest = glm::closestPointOnLine( centroid, longestSide.first, longestSide.second );
         vec2 diff = closest - centroid;
         angle = atan2( diff.y, diff.x ) + M_PI_2;
     }
