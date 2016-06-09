@@ -65,11 +65,11 @@ CityView::CityView( const Cityscape::CityModel &model )
                 lots.push_back( gl::Batch::create( mesh, colorShader ) );
 
                 for ( const auto &instance : lot->buildings ) {
-                    buildingData[ instance->plan ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
+                    buildingData[ instance->scenery ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
                 }
 
                 for ( const auto &instance : lot->plants ) {
-                    plantData[ instance->plan ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
+                    plantData[ instance->scenery ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
                 }
             }
         }

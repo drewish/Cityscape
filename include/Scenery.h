@@ -15,15 +15,17 @@ typedef std::shared_ptr<ConeTree>  ConeTreeRef;
 
 class ConeTree : public Scenery {
   protected:
-    ConeTree() : Scenery(
-        polyLineCircle( 0.5, mSubdivisions ),
-        ci::geom::Cone().radius( 0.5, 0.0 ).height( 1 ).direction( ci::vec3( 0, 0, 1 ) ).subdivisionsAxis( 8 ).subdivisionsHeight( 2 )
-    ) {}
+    ConeTree( u_int8_t subdivisions = 12 )
+    :   Scenery(
+            polyLineCircle( 0.5, subdivisions ),
+            ci::geom::Cone().radius( 0.5, 0.0 ).height( 1 ).direction( ci::vec3( 0, 0, 1 ) ).subdivisionsAxis( subdivisions ).subdivisionsHeight( 2 )
+        )
+    {}
 
     struct Instance : public Scenery::Instance {
         Instance( const SceneryRef &plan, const ci::vec2 &at, float radius, float height )
-            : Scenery::Instance( plan, ci::vec3( at, 3 ), 0, ci::ColorA( 0.41f, 0.60f, 0.22f, 1.0f ) ),
-                radius( radius ), height( height )
+        :   Scenery::Instance( plan, ci::vec3( at, 3 ), ci::ColorA( 0.41f, 0.60f, 0.22f, 1.0f ) ),
+            radius( radius ), height( height )
         {};
 
         virtual ci::mat4 modelViewMatrix() const override
@@ -43,9 +45,6 @@ class ConeTree : public Scenery {
     {
         return Scenery::InstanceRef( new Instance( shared_from_this(), at, radius, height ) );
     }
-
-  protected:
-    const u_int8_t mSubdivisions = 12;
 };
 
 
@@ -54,22 +53,22 @@ typedef std::shared_ptr<SphereTree>  SphereTreeRef;
 
 class SphereTree : public Scenery {
   protected:
-    SphereTree() : Scenery(
-        // The radius ought to be 0.5, but that results in overly simplified
-        // geometry. So double this and half the radius when scaling.
-        polyLineCircle( 1, mSubdivisions ),
-        ci::geom::Sphere().radius( 1 ).subdivisions( mSubdivisions )
-    ) {}
+    SphereTree( u_int8_t subdivisions = 12 )
+    :   Scenery(
+            polyLineCircle( 0.5, subdivisions ),
+            ci::geom::Sphere().radius( 0.5 ).subdivisions( subdivisions )
+        )
+    {}
 
     struct Instance : public Scenery::Instance {
         Instance( const SceneryRef &plan, const ci::vec2 &at, float radius )
-            : Scenery::Instance( plan, ci::vec3( at, radius ), 0, ci::ColorA( 0.41f, 0.60f, 0.22f, 0.75f ) ),
+            : Scenery::Instance( plan, ci::vec3( at, radius ), ci::ColorA( 0.41f, 0.60f, 0.22f, 0.75f ) ),
               radius( radius )
         {};
 
         virtual ci::mat4 modelViewMatrix() const override
         {
-            return glm::scale( glm::translate( position ), ci::vec3( 0.5f * radius ) );
+            return glm::scale( glm::translate( position ), ci::vec3( radius ) );
         }
 
         float radius;
@@ -82,9 +81,6 @@ class SphereTree : public Scenery {
     {
         return Scenery::InstanceRef( new Instance( shared_from_this(), at, radius ) );
     }
-
-  protected:
-    const u_int8_t mSubdivisions = 10;
 };
 
 
@@ -101,8 +97,8 @@ class RowCrop : public Scenery {
 
     struct Instance : public Scenery::Instance {
         Instance( const SceneryRef &plan, const ci::vec2 &at, float rotation, float length, float width )
-            : Scenery::Instance( plan, ci::vec3( at, 0 ), rotation, ci::Color( 0.663, 0.502, 0.282 ) ),
-              length( length ), width( width )
+        :   Scenery::Instance( plan, ci::vec3( at, 0 ), ci::Color( 0.663, 0.502, 0.282 ) ),
+            length( length ), width( width ), rotation( rotation )
         {};
 
         virtual ci::mat4 modelViewMatrix() const override
@@ -118,6 +114,7 @@ class RowCrop : public Scenery {
 
         float length;
         float width;
+        float rotation; // radians
     };
 
   public:
@@ -130,9 +127,6 @@ class RowCrop : public Scenery {
         float length = glm::distance( start, end );
         return Scenery::InstanceRef( new Instance( shared_from_this(), midpoint, rotation, length, width ) );
     }
-
-  protected:
-    const u_int8_t mSubdivisions = 12;
 };
 
 // * * *
@@ -142,15 +136,19 @@ typedef std::shared_ptr<SmokeStack>  SmokeStackRef;
 
 class SmokeStack : public Scenery {
   protected:
-    SmokeStack() : Scenery(
-        polyLineCircle( 0.5, mSubdivisions ),
-        ci::geom::Cone().radius( 0.5, 0.4 ).height( 1 ).direction( ci::vec3( 0, 0, 1 ) ).subdivisionsAxis( 8 ).subdivisionsHeight( 2 )
-    ) {}
+    SmokeStack( u_int8_t subdivisions = 12 )
+    :   Scenery(
+            polyLineCircle( 0.5, subdivisions ),
+            ci::geom::Cone().radius( 0.5, 0.4 ).height( 1 )
+                .direction( ci::vec3( 0, 0, 1 ) ).subdivisionsAxis( subdivisions )
+                .subdivisionsHeight( 2 )
+        )
+    {}
 
     struct Instance : public Scenery::Instance {
         Instance( const SceneryRef &plan, const ci::vec2 &at, float radius, float height )
-            : Scenery::Instance( plan, ci::vec3( at, radius ), 0, ci::Color::white() ),
-              radius( radius ), height( height )
+        :   Scenery::Instance( plan, ci::vec3( at, 0 ), ci::Color::white() ),
+            radius( radius ), height( height )
         {};
 
         virtual ci::mat4 modelViewMatrix() const override
@@ -169,9 +167,6 @@ class SmokeStack : public Scenery {
     {
         return Scenery::InstanceRef( new Instance( shared_from_this(), at, radius, height ) );
     }
-
-  protected:
-    const u_int8_t mSubdivisions = 12;
 };
 
 
@@ -181,15 +176,18 @@ typedef std::shared_ptr<OilTank>  OilTankRef;
 
 class OilTank : public Scenery {
   protected:
-    OilTank() : Scenery(
-        polyLineCircle( 0.5, mSubdivisions ),
-        ci::geom::Cylinder().radius( 0.5 ).height( 1 ).subdivisionsAxis( mSubdivisions ).direction( ci::vec3( 0, 0, 1 ) )
-    ) {}
+    OilTank( u_int8_t subdivisions = 12 )
+    :   Scenery(
+            polyLineCircle( 0.5, subdivisions ),
+            ci::geom::Cylinder().radius( 0.5 ).height( 1 )
+                .subdivisionsAxis( subdivisions ).direction( ci::vec3( 0, 0, 1 ) )
+        )
+    {}
 
     struct Instance : public Scenery::Instance {
         Instance( const SceneryRef &plan, const ci::vec2 &at, float radius, float height )
-            : Scenery::Instance( plan, ci::vec3( at, radius ), 0, ci::Color::white() ),
-              radius( radius ), height( height )
+        :   Scenery::Instance( plan, ci::vec3( at, 0 ), ci::Color::white() ),
+            radius( radius ), height( height )
         {};
 
         virtual ci::mat4 modelViewMatrix() const override
@@ -208,7 +206,4 @@ class OilTank : public Scenery {
     {
         return Scenery::InstanceRef( new Instance( shared_from_this(), at, radius, height ) );
     }
-
-  protected:
-    const u_int8_t mSubdivisions = 12;
 };

@@ -31,14 +31,14 @@ class ParkDeveloper : public LotDeveloper {
 
 class SingleFamilyHomeDeveloper : public LotDeveloper {
   public:
-    SingleFamilyHomeDeveloper( const std::vector<SceneryRef> &plans )
+    SingleFamilyHomeDeveloper( const std::vector<BuildingPlanRef> &plans )
         : mPlans( plans ) {};
 
     virtual bool isValidFor( LotRef &lot ) const override;
     virtual void buildIn( LotRef &lot ) const override;
 
   private:
-    std::vector<SceneryRef> mPlans;
+    std::vector<BuildingPlanRef> mPlans;
 };
 
 class FullLotDeveloper : public LotDeveloper {
@@ -53,16 +53,20 @@ class FullLotDeveloper : public LotDeveloper {
 
 class SquareGridDeveloper : public LotDeveloper {
   public:
-    SquareGridDeveloper( const SceneryRef &structure, float rowSpacing, float structureSpacing, float angle = 0.0 )
-        :mStructure( structure ), mRowSpacing( rowSpacing ), mStructureSpacing( structureSpacing ), mAngle( angle ) {};
+    typedef std::function<Scenery::InstanceRef( const ci::vec2& )> Builder;
+
+    SquareGridDeveloper( Builder sceneryBuilder, float rowSpacing, float structureSpacing, float angle = 0.0 )
+    :   mSceneryBuilder( sceneryBuilder ), mRowSpacing( rowSpacing ),
+        mStructureSpacing( structureSpacing ), mAngle( angle )
+    {};
 
     virtual bool isValidFor( LotRef &lot )  const override;
     virtual void buildIn( LotRef &lot ) const override;
 
-    const SceneryRef mStructure;
     const float mAngle;
     const float mRowSpacing;
     const float mStructureSpacing;
+    const Builder mSceneryBuilder;
 };
 
 class FarmOrchardDeveloper : public LotDeveloper {

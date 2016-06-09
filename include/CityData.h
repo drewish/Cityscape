@@ -27,13 +27,13 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
     const ci::geom::SourceMods &geometry() const { return mGeometry; };
 
     struct Instance {
-        Instance( const SceneryRef &plan, const ci::vec3 &position, float rotation = 0, ci::ColorA color = ci::ColorA::white() )
-            : plan( plan ), position( position ), rotation( rotation ), color( color )
+        Instance( const SceneryRef &scenery, const ci::vec3 &position, ci::ColorA color = ci::ColorA::white() )
+            : scenery( scenery ), position( position ), color( color )
         {};
 
         virtual ci::mat4 modelViewMatrix() const
         {
-            return glm::rotate( glm::translate( position ), rotation, ci::vec3( 0, 0, 1 ) );
+            return glm::translate( position );
         }
 
         // Footprint of the Scenery in its position on the lot
@@ -41,28 +41,17 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
         {
             glm::mat4 matrix = modelViewMatrix();
             ci::PolyLine2f result;
-            for ( const auto &it : plan->footprint() ) {
+            for ( const auto &it : scenery->footprint() ) {
                 result.push_back( ci::vec2( matrix * ci::vec4( it, 1, 1 ) ) );
             }
             return result;
         }
 
-        const SceneryRef    plan;
+        const SceneryRef    scenery;
         ci::vec3            position;
-        float               rotation; // radians
         ci::ColorA          color;
     };
     typedef std::shared_ptr<Instance>  InstanceRef;
-
-
-    Scenery::InstanceRef createInstace( const ci::vec2 &at, float rotation = 0.0 )
-    {
-        return createInstace( ci::vec3( at, 0 ), rotation );
-    }
-    Scenery::InstanceRef createInstace( const ci::vec3 &at, float rotation = 0.0 )
-    {
-        return Scenery::InstanceRef( new Instance( shared_from_this(), at, rotation ) );
-    }
 
   protected:
     ci::PolyLine2f          mFootprint;

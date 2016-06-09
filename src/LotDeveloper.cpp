@@ -53,7 +53,7 @@ bool SingleFamilyHomeDeveloper::isValidFor( LotRef &lot ) const
 void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
 {
     // Pick a random plan
-    auto plan = mPlans[ randInt( 0, mPlans.size() ) ];
+    BuildingPlanRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
 
     // TODO: just placing it in the center for now. would be good to take
     // the street and a setback into consideration for the position.
@@ -120,7 +120,7 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
         // outline and having no instance offset. I guess it doesn't matter
         // since we're not reusing the plan or rotating it.
         BuildingPlanRef plan = BuildingPlan::create( lot->shape->outline(), floors, mRoof );
-        lot->buildings.push_back( plan->createInstace( vec3( 0 ) ) );
+        lot->buildings.push_back( plan->createInstace( vec2( 0 ) ) );
     }
 }
 
@@ -145,7 +145,7 @@ void SquareGridDeveloper::buildIn( LotRef &lot ) const
             size_t count = length / mStructureSpacing;
             for ( size_t i = 0; i < count; ++i ) {
                 vec2 at = divider.first + unitVector * ( i + 0.5f );
-                lot->buildings.push_back( mStructure->createInstace( at ) );
+                lot->buildings.push_back( mSceneryBuilder( at ) );
             }
         }
     }

@@ -58,8 +58,11 @@ CityModel::CityModel()
 
     ZoningPlanRef industry = ZoningPlan::create( "industry" );
     industry->district.streetDivision = ZoningPlan::StreetDivision::NO_STREET_DIVISION;
-    industry->block.lotDivision = ZoningPlan::LotDivision::NO_LOT_DIVISION;
-    industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create(), 50, 50, 0.0 ) ), 1 );
+    industry->block.lotDivision = ZoningPlan::LotDivision::OOB_LOT_DIVISION;
+    industry->block.lotAreaMax = 160000;
+    auto oiltank = OilTank::create();
+    industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( [oiltank](const vec2 &at){ return oiltank->createInstace( at, 40, 15 ); }, 50, 50, 0.0 ) ), 1 );
+    industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( [oiltank](const vec2 &at){ return oiltank->createInstace( at, 60, 20 ); }, 70, 80, 0.0 ) ), 1 );
 
     zoningPlans = {
         farm,

@@ -33,6 +33,16 @@ class BuildingPlan : public Scenery {
 
     static ci::PolyLine2f randomOutline();
 
+    static BuildingPlanRef create( const ci::PolyLine2f &outline, uint8_t floors = 1,
+        const RoofStyle roof = FLAT_ROOF, float slope = 0.5, float overhang = 0.0f )
+    {
+        return BuildingPlanRef( new BuildingPlan( outline, floors, roof, slope, overhang ) );
+    }
+
+    Scenery::InstanceRef createInstace( const ci::vec2 &at, float rotation = 0 )
+    {
+        return Scenery::InstanceRef( new Instance( shared_from_this(), at, 0 ) );
+    }
 
   protected:
     static ci::geom::SourceMods buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang );
@@ -46,15 +56,15 @@ class BuildingPlan : public Scenery {
 
     struct Instance : public Scenery::Instance {
         Instance( const SceneryRef &plan, const ci::vec2 &at, float rotation )
-            : Scenery::Instance( plan, ci::vec3( at, 0 ), rotation, ci::Color::white() )
+        :   Scenery::Instance( plan, ci::vec3( at, 0 ), ci::Color::white() ),
+            rotation( rotation )
         {};
-    };
-    typedef std::shared_ptr<Instance>  InstanceRef;
 
-  public:
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, uint8_t floors = 1,
-        const RoofStyle roof = FLAT_ROOF, float slope = 0.5, float overhang = 0.0f )
-    {
-        return BuildingPlanRef( new BuildingPlan( outline, floors, roof, slope, overhang ) );
+        virtual ci::mat4 modelViewMatrix() const override
+        {
+            return glm::rotate( glm::translate( position ), rotation, ci::vec3( 0, 0, 1 ) );
+        }
+
+        float rotation; // radians
     };
 };
