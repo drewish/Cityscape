@@ -15,6 +15,8 @@
 #include "cinder/Rand.h"
 #include "cinder/Triangulate.h"
 
+#include <CGAL/Sweep_line_2_algorithms.h>
+
 using namespace ci;
 using namespace ci::geom;
 using namespace std;
@@ -266,7 +268,13 @@ void buildSawtoothRoof( const PolyLine2f &outline, float upWidth, float height, 
     float x = bounds.x1;
     while ( x < bounds.x2 ) {
         intersect.push_back( Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
-        findIntersections( intersect, newEdges );
+
+        std::vector<Point_2> pts;
+        CGAL::compute_intersection_points( intersect.begin(), intersect.end(), std::back_inserter( pts ) );
+        for ( const auto &segment : contiguousSegmentsFrom( pts ) ) {
+            newEdges.push_back( segment );
+        }
+
         intersect.pop_back();
 
         x += (step % 2) ? downWidth : upWidth;

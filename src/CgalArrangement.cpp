@@ -21,15 +21,6 @@ ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator 
     return result;
 }
 
-// TODO compare list vs vector, might be better to pass in begin end instead
-void findIntersections( const std::list<Segment_2> &input, std::list<Segment_2> &newEdges )
-{
-    std::vector<Point_2> pts;
-    CGAL::compute_intersection_points( input.begin(), input.end(), std::back_inserter( pts ) );
-
-    newEdges = segmentsFrom( pts );
-}
-
 std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points )
 {
     std::list<Segment_2> result;

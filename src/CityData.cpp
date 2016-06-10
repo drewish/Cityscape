@@ -32,7 +32,7 @@ ColorA colorWheel()
 
 CityModel::CityModel()
 {
-    ZoningPlanRef majesticheights = ZoningPlan::create( "default" );
+    ZoningPlanRef majesticheights = ZoningPlan::create( "suburbsx" );
     majesticheights->block.lotDivision = ZoningPlan::LotDivision::SKELETON_LOT_DIVISION;
     majesticheights->addUsage( nullptr, 1 );
     majesticheights->addUsage( LotDeveloperRef( new SingleFamilyHomeDeveloper( {
@@ -64,6 +64,20 @@ CityModel::CityModel()
     auto oiltank = OilTank::create();
     industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( [oiltank](const vec2 &at){ return oiltank->createInstace( at, 40, 15 ); }, 50, 50, 0.0 ) ), 1 );
     industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( [oiltank](const vec2 &at){ return oiltank->createInstace( at, 60, 20 ); }, 70, 80, 0.0 ) ), 1 );
+    industry->addUsage( LotDeveloperRef( new WarehouseDeveloper( {
+        BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, BuildingPlan::SAWTOOTH_ROOF ),
+        BuildingPlan::create( polyLineRectangle( 40, 60 ), 1, BuildingPlan::FLAT_ROOF ),
+    } ) ), 30 );
+
+    ZoningPlanRef downtown = ZoningPlan::create( "downtown" );
+    downtown->district.streetDivision = ZoningPlan::StreetDivision::GRID_STREET_DIVIDED;
+    downtown->district.grid.avenueSpacing = 200;
+    downtown->district.grid.streetSpacing = 300;
+    downtown->block.lotDivision = ZoningPlan::LotDivision::SKELETON_LOT_DIVISION;
+    downtown->block.lotWidth = 40;
+    downtown->addUsage( LotDeveloperRef( new FullLotDeveloper( BuildingPlan::FLAT_ROOF ) ), 10 );
+    downtown->addUsage( LotDeveloperRef( new ParkDeveloper() ), 1 );
+
 
     zoningPlans = {
         farm,

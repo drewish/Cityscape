@@ -18,6 +18,24 @@ using namespace ci;
 
 namespace Cityscape {
 
+float angleToLongestStreet( const LotRef &lot, const vec2 &from )
+{
+    float angle = 0;
+    if ( lot->streetFacingSides.size() > 1 ) {
+        const seg2 longestSide = *std::max_element(
+            lot->streetFacingSides.begin(),
+            lot->streetFacingSides.end(),
+            []( const seg2 &a, const seg2 &b) {
+                return glm::length2( a.first - a.second ) < glm::length2( b.first - b.second );
+            }
+        );
+        vec2 closest = glm::closestPointOnLine( from, longestSide.first, longestSide.second );
+        vec2 diff = closest - from;
+        angle = atan2( diff.y, diff.x ) + M_PI_2;
+    }
+    return angle;
+}
+
 ConeTreeRef coneTree = ConeTree::create();
 SphereTreeRef sphereTree = SphereTree::create();
 RowCropRef crop = RowCrop::create();
@@ -58,20 +76,7 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
     // TODO: just placing it in the center for now. would be good to take
     // the street and a setback into consideration for the position.
     vec2 centroid = lot->shape->centroid();
-    float angle = 0;
-    if ( lot->streetFacingSides.size() > 1 ) {
-        const seg2 longestSide = *std::max_element(
-            lot->streetFacingSides.begin(),
-            lot->streetFacingSides.end(),
-            []( const seg2 &a, const seg2 &b) {
-                return glm::length2( a.first - a.second ) < glm::length2( b.first - b.second );
-            }
-        );
-        vec2 closest = glm::closestPointOnLine( centroid, longestSide.first, longestSide.second );
-        vec2 diff = closest - centroid;
-        angle = atan2( diff.y, diff.x ) + M_PI_2;
-    }
-
+    float angle = angleToLongestStreet( lot, centroid );
     Scenery::InstanceRef building = plan->createInstace( centroid, angle );
 
     if ( building ) {
@@ -95,6 +100,42 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
         float ratio = randFloat( 1, 3 );
         float diameter = randFloat( 5, 10 );
         lot->plants.push_back( coneTree->createInstace( treeAt, diameter, diameter * ratio ) );
+    }
+}
+
+// * * *
+
+bool WarehouseDeveloper::isValidFor( LotRef &lot ) const
+{
+    // TODO: should have a configurable minimum lot size.
+    return mPlans.size() > 0 && lot->shape->area() > 300;
+}
+void WarehouseDeveloper::buildIn( LotRef &lot ) const
+{
+    for ( const FlatShape &shape : lot->shape->contract( 5 ) ) {
+
+        // TODO: just placing it in the center for now. would be good to take
+        // the street and a setback into consideration for the position.
+        vec2 centroid = shape.centroid();
+        float angle = angleToLongestStreet( lot, centroid );
+
+        // Pick a random plan
+        BuildingPlanRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
+        Scenery::InstanceRef building = plan->createInstace( centroid, angle );
+
+        if ( building ) {
+            // Remove the building if it goes outside the lot.
+            // TODO: try moving and/or rotating it around?
+            PolyLine2fs l = { lot->shape->outline() };
+            PolyLine2fs b = { building->footprint() };
+            PolyLine2fs diff = PolyLine2f::calcDifference( b, l );
+            if ( diff.size() != 0 ) {
+                building.reset();
+            }
+        }
+        if ( building ) {
+            lot->buildings.push_back( building );
+        }
     }
 }
 

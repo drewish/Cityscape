@@ -14,6 +14,7 @@
 #include "GeometryHelpers.h"
 
 #include <CGAL/Arr_observer.h>
+#include <CGAL/Sweep_line_2_algorithms.h>
 
 using namespace ci;
 
@@ -147,11 +148,11 @@ class OOBSubdivider : public BaseDivider {
         // Finally add the divider
         faceSegments.push_back( segmentFrom( divider ) );
 
-        std::list<Segment_2> newEdges;
-        findIntersections( faceSegments, newEdges );
-        if ( newEdges.size() ) {
-            insert( *arrangement(), newEdges.begin(), newEdges.end() );
-        }
+        std::vector<Point_2> pts;
+        CGAL::compute_intersection_points( faceSegments.begin(), faceSegments.end(), std::back_inserter( pts ) );
+        std::list<Segment_2> newEdges = segmentsFrom( pts );
+
+        insert( *arrangement(), newEdges.begin(), newEdges.end() );
     }
 
     virtual void subdivide( const ZoningPlan::BlockOptions &options ) override

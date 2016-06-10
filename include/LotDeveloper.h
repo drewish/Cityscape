@@ -41,6 +41,18 @@ class SingleFamilyHomeDeveloper : public LotDeveloper {
     std::vector<BuildingPlanRef> mPlans;
 };
 
+class WarehouseDeveloper : public LotDeveloper {
+  public:
+    WarehouseDeveloper( const std::vector<BuildingPlanRef> &plans )
+        : mPlans( plans ) {};
+
+    virtual bool isValidFor( LotRef &lot ) const override;
+    virtual void buildIn( LotRef &lot ) const override;
+
+  private:
+    std::vector<BuildingPlanRef> mPlans;
+};
+
 class FullLotDeveloper : public LotDeveloper {
   public:
     FullLotDeveloper( BuildingPlan::RoofStyle roof ): mRoof( roof ) {};
