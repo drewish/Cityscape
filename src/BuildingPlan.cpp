@@ -49,8 +49,9 @@ typedef std::map<std::pair<float, float>, vec3> OffsetMap;
 // We're building the walls using individual triangles (rather than strip) so we
 // can use Cinder's triangulator to build the roof.
 //
-void buildSidesFromOutlineAndTopOffsets(const PolyLine2f &outline, const OffsetMap &topOffsets, const float defaultTopHeight, vector<vec3> &verts, vector<uint32_t> &indices)
+void buildSidesFromOutlineAndTopOffsets(const PolyLine2f &outline, const OffsetMap &topOffsets, vector<vec3> &verts, vector<uint32_t> &indices)
 {
+    const float defaultTopHeight = 0.0;
     uint32_t base = verts.size();
     for ( auto i = outline.begin(); i != outline.end(); ++i ) {
         vec3 bottom = vec3( i->x, i->y, 0.0 );
@@ -245,7 +246,7 @@ void buildShedRoof( const PolyLine2f &wallOutline, float slope, float overhang, 
 
     // - triangulate roof faces and add to mesh
     buildRoofFaceFromOutlineAndOffsets( roofOutline, offsetMap, verts, indices );
-    buildSidesFromOutlineAndTopOffsets( wallOutline, offsetMap, 0.0, verts, indices );
+    buildSidesFromOutlineAndTopOffsets( wallOutline, offsetMap, verts, indices );
 }
 
 // TODO:
@@ -255,37 +256,39 @@ void buildSawtoothRoof( const PolyLine2f &outline, float upWidth, float height, 
 {
     if (outline.size() < 3) return;
 
+    // Put the outline onto the arrangment.
+    Arrangement_2 arr;
     std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( outline.getPoints() );
+    insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
 
-    // Ready the outline for intersection testing.
-    std::list<Segment_2> intersect( outlineSegments.begin(), outlineSegments.end() );
+    // See where the high and low reversals are on the outline and add those
+    // points to the original arrangement so we can specify heights.
+    class Observer : public CGAL::Arr_observer<Arrangement_2> {
+      public :
+        Observer( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {}
 
-    // Then start walking across the outline looking for intersections.
-    std::list<Segment_2> newEdges;
+        virtual void before_split_edge (
+            Halfedge_handle e, Vertex_handle v,
+            const X_monotone_curve_2& c1, const X_monotone_curve_2& c2
+        ) { points.push_back( v->point() ); }
+
+        std::vector<Point_2> points;
+    };
 // TODO: look at replacing this with two calls to computeDividers(), one for each height
     u_int16_t step = 0;
     Rectf bounds = Rectf( outline.getPoints() );
     float x = bounds.x1;
     while ( x < bounds.x2 ) {
-        intersect.push_back( Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
-
-        std::vector<Point_2> pts;
-        CGAL::compute_intersection_points( intersect.begin(), intersect.end(), std::back_inserter( pts ) );
-        for ( const auto &segment : contiguousSegmentsFrom( pts ) ) {
-            newEdges.push_back( segment );
+        Arrangement_2 copy = Arrangement_2( arr );
+        Observer observer( copy );
+        insert( copy, Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
+        for ( const auto &p : observer.points ) {
+            insert_point( arr, p );
         }
-
-        intersect.pop_back();
 
         x += (step % 2) ? downWidth : upWidth;
         ++step;
     };
-
-    // Put the outline onto the arrangment...
-    Arrangement_2 arr;
-    insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
-    // ...along with the new edges.
-    insert( arr, newEdges.begin(), newEdges.end() );
 
     // Compute a height for each vertex (we need to do them all because the
     // outline may have points between the peaks and valleys).
@@ -306,12 +309,11 @@ void buildSawtoothRoof( const PolyLine2f &outline, float upWidth, float height, 
     // Now turn the arrangment into a mesh (there should just be one face with
     // an single hole).
     for ( auto i = arr.faces_begin(); i != arr.faces_end(); ++i ) {
-        for ( auto j = i->holes_begin(); j != i->holes_end(); ++j ) {
-            PolyLine2f faceOutline( polyLineFrom( *j ).reversed() );
+        if ( i->is_unbounded() ) continue;
 
-            buildRoofFaceFromOutlineAndOffsets( faceOutline, offsets, verts, indices );
-            buildSidesFromOutlineAndTopOffsets( faceOutline, offsets, 0.0, verts, indices );
-        }
+        PolyLine2f faceOutline( polyLineFrom( i->outer_ccb() ) );
+        buildRoofFaceFromOutlineAndOffsets( faceOutline, offsets, verts, indices );
+        buildSidesFromOutlineAndTopOffsets( faceOutline, offsets, verts, indices );
     }
 }
 
