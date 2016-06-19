@@ -26,7 +26,7 @@ class BaseMode
     virtual void setup() {}
     virtual void layout() {}
     virtual void draw() { if ( mCityView ) mCityView->draw( mViewOptions ); }
-    void update()
+    virtual void update()
     {
         // TODO: Don't redo layout on every change, set a timer to update every
         // half second or so.

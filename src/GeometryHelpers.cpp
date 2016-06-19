@@ -5,17 +5,47 @@ using std::numeric_limits;
 
 using namespace ci;
 
-// Similar logic to contiguousSegmentsFrom(), pairs of points be passed back:
-// a->b, b->c, c->d
-void pointsInPairs( const std::vector<vec2> &points, std::function<void(const vec2&, const vec2&)> process )
+// For a polyline with points a,b,c,d that is marked open:
+//   a->b, b->c, c->d, d->a
+// if it's closed:
+//   a->b, b->c, c->d
+void pointsInPairs( const PolyLine2f &outline, std::function<void(const vec2&, const vec2&)> process )
 {
-    if ( points.size() < 2 ) return;
+    if ( outline.size() < 2 ) return;
 
+    const std::vector<vec2> &points = outline.getPoints();
     for ( auto prev = points.begin(), curr = prev + 1; curr != points.end(); ++curr ) {
         process( *prev, *curr );
         prev = curr;
     }
+    if ( !outline.isClosed() ) {
+        process( points.back(), points.front() );
+    }
 }
+
+std::vector<float> anglesBetweenPointsIn( const PolyLine2f &outline )
+{
+    std::vector<float> angles;
+    pointsInPairs( outline,
+        [&angles]( const vec2 &a, const vec2 &b ) {
+            vec2 diff = a - b;
+            angles.push_back( atan2( diff.y, diff.x ) );
+        }
+    );
+    return angles;
+}
+
+std::vector<float> distanceBetweenPointsIn( const PolyLine2f &outline )
+{
+    std::vector<float> lengths;
+    pointsInPairs( outline,
+        [&lengths](const vec2 &a, const vec2 &b) {
+            lengths.push_back( glm::length( a - b ) );
+        }
+    );
+    return lengths;
+}
+
 
 // Determine the minimum area oriented bounding box for a set of points.
 bool minimumOobFor( const PolyLine2f &outline, Rectf &bestBounds, float &bestAngle )
@@ -24,15 +54,13 @@ bool minimumOobFor( const PolyLine2f &outline, Rectf &bestBounds, float &bestAng
 
     // Find the angle between each pair of points.
     std::vector<float> angles;
-    auto calcAngle = [&angles](const vec2 &a, const vec2 &b) {
-        vec2 diff = a - b;
-        // We're building boxes so we don't care about the quadrants
-        angles.push_back( std::abs( atan2( diff.y, diff.x ) ) );
-    };
-    pointsInPairs( outline.getPoints(), calcAngle );
-    if ( !outline.isClosed() ) {
-        calcAngle( outline.getPoints().back(), outline.getPoints().front() );
-    }
+    pointsInPairs( outline,
+        [&angles]( const vec2 &a, const vec2 &b ) {
+            vec2 diff = a - b;
+            // We're building boxes so we don't care about the quadrants
+            angles.push_back( std::abs( atan2( diff.y, diff.x ) ) );
+        }
+    );
 
     // Remove duplicate angles
     std::sort( angles.begin(), angles.end() );

@@ -2,6 +2,16 @@
 
 typedef std::pair<ci::vec2, ci::vec2> seg2;
 
+// For a polyline with points a,b,c,d that is marked open:
+//   a->b, b->c, c->d, d->a
+// if it's closed:
+//   a->b, b->c, c->d
+void pointsInPairs( const ci::PolyLine2f &outline, std::function<void(const ci::vec2&, const ci::vec2&)> process );
+
+// Find the angle in radians between each pair of points.
+std::vector<float> anglesBetweenPointsIn( const ci::PolyLine2f &outline );
+std::vector<float> distanceBetweenPointsIn( const ci::PolyLine2f &outline );
+
 // Determine the minimum area oriented bounding box for a polyline.
 bool minimumOobFor( const ci::PolyLine2f &outline, ci::Rectf &bounds, float &rotate );
 

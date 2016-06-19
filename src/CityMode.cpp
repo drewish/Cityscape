@@ -8,7 +8,9 @@
 using namespace ci;
 using namespace ci::app;
 
-void CityMode::setup() {
+
+void CityMode::setup()
+{
     mViewOptions.drawBlocks = false;
     mViewOptions.drawLots = false;
     mViewOptions.drawBuildings = true;
@@ -16,8 +18,8 @@ void CityMode::setup() {
     layout();
 }
 
-void CityMode::addParams( ci::params::InterfaceGlRef params) {
-
+void CityMode::addParams( ci::params::InterfaceGlRef params)
+{
     Cityscape::ZoningPlanRef plan = mModel.zoningPlans.front();
 
     params->addSeparator("Road");

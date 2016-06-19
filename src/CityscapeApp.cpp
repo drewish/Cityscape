@@ -12,6 +12,7 @@
 #include "CityMode.h"
 #include "BlockMode.h"
 #include "BuildingMode.h"
+#include "VehicleMode.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -102,7 +103,7 @@ void CityscapeApp::setup()
 
     mParams = params::InterfaceGl::create( "Cityscape", ivec2( 350, 700 ) );
     mParams->minimize();
-    setupModeParams( ModeRef( new CityMode() ) );
+    setupModeParams( ModeRef( new VehicleMode() ) );
 
     mEditCamera.setPerspective( 60.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
     mEditCamera.lookAt( vec3( 0, 0, 1000 ), vec3( 0 ), vec3( 0, 1, 0 ) );
