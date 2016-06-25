@@ -70,7 +70,7 @@ void BuildingMode::layout() {
 
 void BuildingMode::setOutline( const ci::PolyLine2f &outline ) {
     mOutline = outline;
-    layout();
+    requestLayout();
 }
 
 std::vector<ci::vec2> BuildingMode::getPoints()

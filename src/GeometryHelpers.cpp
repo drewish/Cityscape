@@ -40,7 +40,7 @@ std::vector<float> distanceBetweenPointsIn( const PolyLine2f &outline )
     std::vector<float> lengths;
     pointsInPairs( outline,
         [&lengths](const vec2 &a, const vec2 &b) {
-            lengths.push_back( glm::length( a - b ) );
+            lengths.push_back( glm::distance( a, b ) );
         }
     );
     return lengths;
@@ -193,6 +193,7 @@ ci::PolyLine2f polyLineCircle( float radius, u_int8_t subdivisions )
         result.push_back( center + unit * radius );
         t += tDelta;
     }
+    result.setClosed();
 
     return result;
 }

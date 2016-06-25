@@ -40,6 +40,9 @@ class CityscapeApp : public App {
     void layout();
 
   protected:
+    // keep track of time so physics can be independent of frame rate
+    double mCurrentSeconds;
+
     CameraPersp         mEditCamera;
     CameraUi            mEditCameraUI;
     CameraPersp         mViewCamera;
@@ -116,6 +119,9 @@ void CityscapeApp::setup()
     mViewCameraUI.enable( ! mIsEditing );
 
     buildBackground();
+
+    // Track current time so we can calculate elapsed time.
+    mCurrentSeconds = getElapsedSeconds();
 }
 
 void CityscapeApp::setupModeParams( ModeRef newMode )
@@ -146,7 +152,11 @@ void CityscapeApp::resize()
 
 void CityscapeApp::update()
 {
-    if ( mModeRef ) mModeRef->update();
+	// Calculate elapsed time.
+    double elapsed = getElapsedSeconds() - mCurrentSeconds;
+    mCurrentSeconds += elapsed;
+
+    if ( mModeRef ) mModeRef->update( elapsed );
 }
 
 void CityscapeApp::keyUp( KeyEvent event )

@@ -11,11 +11,13 @@
 
 using namespace ci;
 
+
+#include <glm/gtx/vector_angle.hpp>
 // TODO:
-// - move this to its own files
-// - pass elapsed time into update
 // - slow down at the end of a segment
 // - interpolate the rotation angle turning
+// - only closed polylines should loop 
+// - move this to its own files
 // - draw a custom shape to indicate direction
 // - build path from highways in city
 // - use instanced drawing
@@ -23,18 +25,82 @@ using namespace ci;
 class Mover {
   public:
 
-    void setup( PolyLine2f path )
+    void setup( const PolyLine2f &path )
     {
         mPath = path;
-        mSpeed = 0;
-        mSegment = 0;
-        mDistance = 0;
+        // If it's closed and the front and back aren't the same point add it
+        // to close it up.
+        if ( path.isClosed() && glm::distance2( mPath.getPoints().front(), mPath.getPoints().back() ) > 0.001 ) {
+            mPath.getPoints().push_back( mPath.getPoints().front() );
+        }
         mLengths = distanceBetweenPointsIn( mPath );
         mAngles = anglesBetweenPointsIn( mPath );
+        mSegment = 0;
+        mTime = 0;
+        mSpeed = 0;
+        mDistance = 0;
+
+        mTurnSpeeds.clear();
+        mTurnSpeeds.insert( mTurnSpeeds.begin(), mPath.size(), 0 );
+        size_t count = mPath.size();
+        if ( count > 2 ) {
+            std::vector<vec2> &points = mPath.getPoints();
+/* 
+path (count == 5):
+0 1 2 3 4
+
+open (start = 1, last = count-2)
+0: 0
+1: 0-1-2
+2: 1-2-3
+3: 2-3-4
+4: 0
+
+closed (start = 0, last = count-1)
+0: 4-0-1
+1: 0-1-2
+2: 1-2-3
+3: 2-3-4
+4: 3-4-0
+*/
+            size_t first;
+            size_t last;
+            if ( mPath.isClosed() ) {
+                first = 0;
+                last = count - 1;
+            }
+            else {
+                first = 1;
+                last = count - 2;
+            }
+
+            for ( int64_t i = first; i <= last; ++i ) {
+                size_t prev = ( i == 0 )         ? last - 1 : ( i - 1 );
+                size_t next = ( i == count - 1 ) ? 1        : ( i + 1 );
+                float r;
+                vec2 center;
+                if ( glm::distance2( points[prev], points[i] ) < 0.001 ) {
+                    r = 1000000;
+                } else if ( glm::distance2( points[i], points[next] ) < 0.001 ) {
+                    r = 1000000;
+                } else {
+                    findRadius( points[prev], points[i], points[next], r, center );
+                }
+                // Determine maximum speed in an unbanked turn for radius.
+                // http://www.batesville.k12.in.us/Physics/PhyNet/Mechanics/Circular%20Motion/an_unbanked_turn.htm
+                float mu = 0.1;
+                float g = 9.8;
+                float v = std::sqrt( mu * r * g );
+                mTurnSpeeds[i] = std::min( v, mSpeedLimit );
+            }
+        }
+
     }
 
-    void update()
+    void update( double elapsed )
     {
+        mTime += elapsed;
+
         if ( mPath.size() < 2 ) return;
 
         float distanceToTurn = mLengths[mSegment] - mDistance;
@@ -48,16 +114,16 @@ class Mover {
 //            mAngle = mAngles[mSegment];
 //        }
 
-        if ( distanceToTurn < 20 ) {
+        if ( distanceToTurn < 100 ) {
             // slowing
-            float Vf = 0;
+            float Vf = mTurnSpeeds[mSegment];
             float Vi = mSpeed;
             float d = distanceToTurn + 1;
             // http://stackoverflow.com/a/1088194/203673
             mAcceleration = (Vf*Vf - Vi*Vi)/(2 * d);
         } else if ( mSpeed < mSpeedLimit ) {
             // speeding up
-            mAcceleration = 0.25;
+            mAcceleration = 0.01;
         } else {
             // coasting
             mAcceleration = 0;
@@ -65,7 +131,7 @@ class Mover {
         mSpeed += mAcceleration;
 
         mDistance += mSpeed;
-        if ( mDistance > mLengths[mSegment] ) {
+        if ( mDistance >= mLengths[mSegment] ) {
             mDistance = mDistance - mLengths[mSegment];
             ++mSegment;
             if ( mSegment > mLengths.size() - 1 ) {
@@ -74,14 +140,75 @@ class Mover {
         }
     }
 
+    void findRadius( const vec2 &v1, const vec2 &v2, const vec2 &v3, float &r, vec2 &center ) {
+        // Put the point at the origin create two normal vectors heading
+        // to the adjacent points.
+        vec2 prev = glm::normalize( v1 - v2 );
+        vec2 next = glm::normalize( v3 - v2 );
+
+        // Find the radius of circle tangent to the vectors leaving this
+        // point d distance away.
+        float d = 5;
+        /*
+                         d
+               prev <--+----+
+                       |  θ/ \
+                      r|  /   \
+                       | /h    v
+                       |/      next
+                       +
+
+            θ=inner angle/2
+            tan(θ)=r/d => r=d*tan(θ)
+            cos(θ)=d/h => h=d/cos(θ)
+          
+            I love having to relearn trig for stuff like this.
+        */
+        float diff = glm::angle( prev, next ) / 2.0;
+        r = d * std::tan( diff );
+
+        // If we want to display the circle we'll need to locate the
+        // center which is on the hypotenuse.
+        vec2 middle = ( prev + next ) / vec2( 2 );
+        float middleAngle = std::atan2( middle.y, middle.x );
+        float h = d / std::cos( diff );
+        center = v2 + vec2( std::cos( middleAngle ), std::sin( middleAngle ) ) * h;
+    }
+
     void draw()
     {
+//        size_t count = mPath.size();
+//        if ( count > 2 ) {
+//            std::vector<vec2> &points = mPath.getPoints();
+//
+//            size_t first;
+//            size_t last;
+//            if ( mPath.isClosed() ) {
+//                first = 0;
+//                last = count - 1;
+//            }
+//            else {
+//                first = 1;
+//                last = count - 2;
+//            }
+//
+//            for ( int64_t i = first; i < last; ++i ) {
+//                size_t prev = ( i == 0 )         ? last : ( i - 1 );
+//                size_t next = ( i == count - 1 ) ? 0    : ( i + 1 );
+//                float r;
+//                vec2 center;
+//                findRadius( points[prev], points[i], points[next], r, center );
+//                gl::drawStrokedCircle( center, r, 32 );
+//            }
+//        }
+
         gl::draw( mPath );
         {
             gl::ScopedModelMatrix matrix;
             gl::translate( getPosition() );
             gl::rotate( getAngle() );
-            gl::drawColorCube( vec3( 0 ), vec3( 20 ) ) ;
+            gl::drawVector( vec3( 0, 0, 0 ), vec3( -10, 0, 0 ), 20, 10);
+//            gl::drawColorCube( vec3( 0 ), vec3( 20 ) ) ;
         }
     }
 
@@ -105,12 +232,14 @@ class Mover {
     PolyLine2f mPath;
     std::vector<float> mAngles;
     std::vector<float> mLengths;
+    std::vector<float> mTurnSpeeds;
     size_t mSegment;
+    float mTime;
     float mDistance;
     float mSpeed;
     float mAcceleration;
     float mAngle;
-    float mSpeedLimit = 2;
+    float mSpeedLimit = 10;
 };
 
 Mover mover;
@@ -122,7 +251,7 @@ void VehicleMode::setup()
     mViewOptions.drawLots = false;
     mViewOptions.drawBuildings = true;
 
-    mPath = polyLineTriangle().scaled( vec2( 20 ) );
+    mPath = polyLineCircle( 500, 10 );
 
     layout();
 }
@@ -143,17 +272,17 @@ void VehicleMode::addParams( params::InterfaceGlRef params ) {
     params->addButton( "Triangle", [&] {
         mPath = polyLineTriangle().scaled( vec2( 20 ) );
         requestLayout();
-    }, "key=2" );
+    }, "key=3" );
 }
 
 void VehicleMode::layout() {
     mover.setup( mPath );
 }
 
-void VehicleMode::update()
+void VehicleMode::update( double elapsed )
 {
-    BaseMode::update();
-    mover.update();
+    BaseMode::update( elapsed );
+    mover.update( elapsed );
 }
 
 void VehicleMode::draw()
