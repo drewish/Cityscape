@@ -11,10 +11,9 @@
 
 using namespace ci;
 
-
+#include <boost/format.hpp>
 #include <glm/gtx/vector_angle.hpp>
 // TODO:
-// - slow down at the end of a segment
 // - interpolate the rotation angle turning
 // - only closed polylines should loop 
 // - move this to its own files
@@ -33,114 +32,100 @@ class Mover {
         if ( path.isClosed() && glm::distance2( mPath.getPoints().front(), mPath.getPoints().back() ) > 0.001 ) {
             mPath.getPoints().push_back( mPath.getPoints().front() );
         }
-        mLengths = distanceBetweenPointsIn( mPath );
-        mAngles = anglesBetweenPointsIn( mPath );
-        mSegment = 0;
-        mTime = 0;
-        mSpeed = 0;
-        mDistance = 0;
+        mAngle = 0;
 
-        mTurnSpeeds.clear();
-        mTurnSpeeds.insert( mTurnSpeeds.begin(), mPath.size(), 0 );
-        size_t count = mPath.size();
-        if ( count > 2 ) {
-            std::vector<vec2> &points = mPath.getPoints();
-/* 
-path (count == 5):
-0 1 2 3 4
+        mPosition = vec2( mPath.getPoints()[0] );
+        mVelocity = vec2( 0 );
+        mMaxSpeed = 4;
+        mMaxForce = 0.5;
+        mMass = 5;
 
-open (start = 1, last = count-2)
-0: 0
-1: 0-1-2
-2: 1-2-3
-3: 2-3-4
-4: 0
-
-closed (start = 0, last = count-1)
-0: 4-0-1
-1: 0-1-2
-2: 1-2-3
-3: 2-3-4
-4: 3-4-0
-*/
-            size_t first;
-            size_t last;
-            if ( mPath.isClosed() ) {
-                first = 0;
-                last = count - 1;
-            }
-            else {
-                first = 1;
-                last = count - 2;
-            }
-
-            for ( int64_t i = first; i <= last; ++i ) {
-                size_t prev = ( i == 0 )         ? last - 1 : ( i - 1 );
-                size_t next = ( i == count - 1 ) ? 1        : ( i + 1 );
-                float r;
-                vec2 center;
-                if ( glm::distance2( points[prev], points[i] ) < 0.001 ) {
-                    r = 1000000;
-                } else if ( glm::distance2( points[i], points[next] ) < 0.001 ) {
-                    r = 1000000;
-                } else {
-                    findRadius( points[prev], points[i], points[next], r, center );
-                }
-                // Determine maximum speed in an unbanked turn for radius.
-                // http://www.batesville.k12.in.us/Physics/PhyNet/Mechanics/Circular%20Motion/an_unbanked_turn.htm
-                float mu = 0.1;
-                float g = 9.8;
-                float v = std::sqrt( mu * r * g );
-                mTurnSpeeds[i] = std::min( v, mSpeedLimit );
-            }
-        }
-
+        mPrevPoint = mPath.size() > 1 ? mPath.size() - 1 : 0;
+        mCurrPoint = 0;
+        mNextPoint = mPath.size() > 1 ? 1 : 0;
+        moveToNextSegment();
     }
 
-    void update( double elapsed )
+    void moveToNextSegment()
     {
-        mTime += elapsed;
+        mPrevPoint = mCurrPoint;
+        mCurrPoint = mNextPoint;
+        ++mNextPoint;
 
+        if ( mNextPoint > mPath.size() - ( mPath.isClosed() ? 2 : 1 ) ) {
+            mNextPoint = 0;
+        }
+
+        std::vector<vec2> &points = mPath.getPoints();
+
+        vec2 p = glm::normalize( points[mCurrPoint] - points[mPrevPoint] );
+        vec2 n = glm::normalize( points[mNextPoint] - points[mCurrPoint] );
+        float diff = glm::angle( n, p );
+        if ( diff <= M_PI_4 + 0.1 ) {
+            mNextTurnSpeed = mMaxSpeed;
+        } else if ( diff <= M_PI_2 + 0.1 ) {
+            mNextTurnSpeed = mMaxSpeed / 2;
+        } else {
+            mNextTurnSpeed = mMaxSpeed / 3;
+        }
+
+        vec2 _center;
+        findRadius( points[mPrevPoint], points[mCurrPoint], points[mNextPoint], mNextTurnRadius, _center );
+
+        mSlowingDistance = calcSlowingDistance();
+    }
+
+    float calcSlowingDistance()
+    {
+        float max_accel = mMaxForce / mMass;
+        float fudge_factor = 1.1;
+        return fudge_factor * std::abs( mMaxSpeed * mMaxSpeed - mNextTurnSpeed * mNextTurnSpeed ) / ( 2.0 * max_accel );
+    }
+
+    vec2 truncate( vec2 v, float s )
+    {
+        if ( glm::length2( v ) >  s * s )
+            return glm::normalize( v ) * s;
+        else
+            return v;
+    }
+
+    // All this is based of Reynold's steering behaviors
+    // http://www.red3d.com/cwr/steer/gdc99/
+    void update( double dt )
+    {
         if ( mPath.size() < 2 ) return;
 
-        float distanceToTurn = mLengths[mSegment] - mDistance;
+        vec2 target = mPath.getPoints()[mCurrPoint];
 
-//        float angleDelta = ( mSegment)
-//        if ( distanceToTurn < 5 ) {
-//            // start turning to the new angle
-//        }
-//        else if ( mDistance < 5 ) {
-//            // keep turning to match the new angle
-//            mAngle = mAngles[mSegment];
-//        }
+        // steer to arrive at next point
+        vec2 target_offset = target - mPosition;
+        float distance = glm::length( target_offset );
+        float ramped_speed = mNextTurnSpeed * ( distance / mSlowingDistance );
+        float clipped_speed = std::min( ramped_speed, mMaxSpeed );
+        vec2 desired_velocity = (clipped_speed / distance) * target_offset;
+        vec2 steering_direction = desired_velocity - mVelocity;
+        vec2 steering_force = truncate( steering_direction, mMaxForce );
 
-        if ( distanceToTurn < 100 ) {
-            // slowing
-            float Vf = mTurnSpeeds[mSegment];
-            float Vi = mSpeed;
-            float d = distanceToTurn + 1;
-            // http://stackoverflow.com/a/1088194/203673
-            mAcceleration = (Vf*Vf - Vi*Vi)/(2 * d);
-        } else if ( mSpeed < mSpeedLimit ) {
-            // speeding up
-            mAcceleration = 0.01;
-        } else {
-            // coasting
-            mAcceleration = 0;
-        }
-        mSpeed += mAcceleration;
+        vec2 acceleration = steering_force / mMass;
+        mVelocity = truncate( mVelocity + acceleration, mMaxSpeed );
+        mPosition = mPosition + mVelocity;
 
-        mDistance += mSpeed;
-        if ( mDistance >= mLengths[mSegment] ) {
-            mDistance = mDistance - mLengths[mSegment];
-            ++mSegment;
-            if ( mSegment > mLengths.size() - 1 ) {
-                mSegment = 0;
-            }
+        if ( ramped_speed < mMaxSpeed )
+            mColor = ColorA(1, 0, 0, 0.75);
+//        else if ( accLen2 > 0.0 )
+//            mColor = ColorA(0, 1, 0, 0.75);
+        else
+            mColor = ColorA(1, 1, 1, 0.75);
+
+        // When we get close move to the next point
+        if ( distance < mNextTurnRadius && glm::length2( mVelocity ) < ( mNextTurnSpeed * mNextTurnSpeed ) ) {
+            moveToNextSegment();
         }
     }
 
-    void findRadius( const vec2 &v1, const vec2 &v2, const vec2 &v3, float &r, vec2 &center ) {
+    void findRadius( const vec2 &v1, const vec2 &v2, const vec2 &v3, float &r, vec2 &center )
+    {
         // Put the point at the origin create two normal vectors heading
         // to the adjacent points.
         vec2 prev = glm::normalize( v1 - v2 );
@@ -148,7 +133,6 @@ closed (start = 0, last = count-1)
 
         // Find the radius of circle tangent to the vectors leaving this
         // point d distance away.
-        float d = 5;
         /*
                          d
                prev <--+----+
@@ -165,81 +149,72 @@ closed (start = 0, last = count-1)
             I love having to relearn trig for stuff like this.
         */
         float diff = glm::angle( prev, next ) / 2.0;
-        r = d * std::tan( diff );
+        r = mTurnDistance * std::tan( diff );
 
         // If we want to display the circle we'll need to locate the
         // center which is on the hypotenuse.
         vec2 middle = ( prev + next ) / vec2( 2 );
         float middleAngle = std::atan2( middle.y, middle.x );
-        float h = d / std::cos( diff );
+        float h = mTurnDistance / std::cos( diff );
         center = v2 + vec2( std::cos( middleAngle ), std::sin( middleAngle ) ) * h;
     }
 
     void draw()
     {
-//        size_t count = mPath.size();
-//        if ( count > 2 ) {
-//            std::vector<vec2> &points = mPath.getPoints();
-//
-//            size_t first;
-//            size_t last;
-//            if ( mPath.isClosed() ) {
-//                first = 0;
-//                last = count - 1;
-//            }
-//            else {
-//                first = 1;
-//                last = count - 2;
-//            }
-//
-//            for ( int64_t i = first; i < last; ++i ) {
-//                size_t prev = ( i == 0 )         ? last : ( i - 1 );
-//                size_t next = ( i == count - 1 ) ? 0    : ( i + 1 );
-//                float r;
-//                vec2 center;
-//                findRadius( points[prev], points[i], points[next], r, center );
-//                gl::drawStrokedCircle( center, r, 32 );
-//            }
-//        }
-
-        gl::draw( mPath );
         {
+            gl::ScopedColor color( mColor );
             gl::ScopedModelMatrix matrix;
             gl::translate( getPosition() );
             gl::rotate( getAngle() );
-            gl::drawVector( vec3( 0, 0, 0 ), vec3( -10, 0, 0 ), 20, 10);
-//            gl::drawColorCube( vec3( 0 ), vec3( 20 ) ) ;
+            gl::drawVector( vec3( 0, 0, 0 ), vec3( 10, 0, 0 ), 20, 10);
+        }
+        gl::draw( mPath );
+
+        // Text debugging info
+        {
+            gl::ScopedMatrices mat;
+            gl::setMatricesWindow( cinder::app::getWindowSize() );
+            boost::format formatter( "%07.5f" );
+            gl::drawString( "Speed: " + (formatter % glm::length(mVelocity)).str(), vec2( 10, 10 ) );
+            gl::drawString( "Turn:  " + (formatter % mNextTurnSpeed).str(), vec2( 10, 25 ) );
+            gl::drawString( "Max:   " + (formatter % mMaxSpeed).str(), vec2( 10, 40 ) );
+            gl::drawString( "Dist:  " + (formatter % mSlowingDistance).str(), vec2( 10, 55 ) );
         }
     }
 
     vec2 getPosition()
     {
-        if ( mPath.size() == 0 ) return vec2( 0 );
-        if ( mPath.size() == 1 ) return mPath.getPoints().front();
-
-        std::vector<vec2> &points = mPath.getPoints();
-        float lerpT = mDistance / mLengths[mSegment];
-        return points[mSegment] * ( 1 - lerpT ) + points[mSegment + 1] * lerpT;
+        return mPosition;
     }
 
     float getAngle()
     {
-        if ( mPath.size() < 2 ) return 0;
-
-        return mAngles[mSegment];
+        if ( glm::length2( mVelocity ) > 0.001 ) {
+            mAngle = std::atan2( mVelocity.y, mVelocity.x );
+        }
+        return mAngle;
     }
 
+    const float G = 9.8;
+    const float MU = 0.1;
+    const float mTurnDistance = 10;
+
+    float mMaxSpeed;
+    float mMaxForce;
+
     PolyLine2f mPath;
-    std::vector<float> mAngles;
-    std::vector<float> mLengths;
-    std::vector<float> mTurnSpeeds;
-    size_t mSegment;
-    float mTime;
-    float mDistance;
-    float mSpeed;
-    float mAcceleration;
+    size_t mPrevPoint;
+    size_t mCurrPoint;
+    size_t mNextPoint;
+
+    ColorA mColor;
+    vec2 mPosition;
+    vec2 mVelocity;
+    float mMass;
     float mAngle;
-    float mSpeedLimit = 10;
+    float mNextTurnRadius;
+    float mNextTurnSpeed;
+    float mSlowingDistance;
 };
 
 Mover mover;
