@@ -31,6 +31,7 @@
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5F005E101CA797E2007B2A99 /* LotDeveloper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F005E0F1CA797E2007B2A99 /* LotDeveloper.cpp */; };
 		5F2CA9791D17305D005E0450 /* VehicleMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F2CA9781D17305D005E0450 /* VehicleMode.cpp */; };
+		5F3555FA1D29AF7D0042AF58 /* Vehicle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F3555F91D29AF7D0042AF58 /* Vehicle.cpp */; };
 		5F39B9FF1C228A6B0006F986 /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39B9FE1C228A6B0006F986 /* libboost_thread-mt.dylib */; };
 		5F39BA011C228A850006F986 /* libCGAL_Core.11.0.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA001C228A850006F986 /* libCGAL_Core.11.0.1.dylib */; };
 		5F39BA031C228AA10006F986 /* libCGAL.11.0.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39BA021C228AA10006F986 /* libCGAL.11.0.1.dylib */; };
@@ -91,6 +92,8 @@
 		5F005E0F1CA797E2007B2A99 /* LotDeveloper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LotDeveloper.cpp; path = ../src/LotDeveloper.cpp; sourceTree = "<group>"; };
 		5F2CA9771D173041005E0450 /* VehicleMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VehicleMode.h; sourceTree = "<group>"; };
 		5F2CA9781D17305D005E0450 /* VehicleMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VehicleMode.cpp; path = ../src/VehicleMode.cpp; sourceTree = "<group>"; };
+		5F3555F71D29AF1A0042AF58 /* Vehicle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vehicle.h; sourceTree = "<group>"; };
+		5F3555F91D29AF7D0042AF58 /* Vehicle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vehicle.cpp; path = ../src/Vehicle.cpp; sourceTree = "<group>"; };
 		5F39B9FE1C228A6B0006F986 /* libboost_thread-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_thread-mt.dylib"; sourceTree = "<group>"; };
 		5F39BA001C228A850006F986 /* libCGAL_Core.11.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.11.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.7/lib/libCGAL_Core.11.0.1.dylib; sourceTree = "<group>"; };
 		5F39BA021C228AA10006F986 /* libCGAL.11.0.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.1.dylib; path = ../../../../../usr/local/Cellar/cgal/4.7/lib/libCGAL.11.0.1.dylib; sourceTree = "<group>"; };
@@ -170,6 +173,7 @@
 				5F005E0F1CA797E2007B2A99 /* LotDeveloper.cpp */,
 				5F88E73B1CC49959002A663E /* Scenery.cpp */,
 				5FA1B5301B26AD40006047DE /* BuildingPlan.cpp */,
+				5F3555F91D29AF7D0042AF58 /* Vehicle.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -241,6 +245,7 @@
 				5F005E0E1CA797CA007B2A99 /* LotDeveloper.h */,
 				5F88E73A1CC4994A002A663E /* Scenery.h */,
 				5FA1B5331B26ADC6006047DE /* BuildingPlan.h */,
+				5F3555F71D29AF1A0042AF58 /* Vehicle.h */,
 			);
 			name = Headers;
 			path = ../include;
@@ -392,6 +397,7 @@
 				5FA1B5321B26AD40006047DE /* BuildingPlan.cpp in Sources */,
 				497EFE111C4A0D240053D720 /* GeometryHelpers.cpp in Sources */,
 				494BE6AD1C8B9D9100E50477 /* CityData.cpp in Sources */,
+				5F3555FA1D29AF7D0042AF58 /* Vehicle.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
