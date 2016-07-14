@@ -39,7 +39,6 @@ class Vehicle {
     void moveToNextSegment();
     float calcSlowingDistance();
     ci::vec2 truncate( ci::vec2 v, float s );
-    void findRadius( const ci::vec2 &v1, const ci::vec2 &v2, const ci::vec2 &v3, float &r, ci::vec2 &center );
 
   protected:
     const float mTurnDistance = 10;

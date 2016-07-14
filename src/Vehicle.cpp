@@ -42,6 +42,41 @@ void Vehicle::setup( const PolyLine2f &path )
     moveToNextSegment();
 }
 
+void findRadius( float turnDistance, const vec2 &v1, const vec2 &v2, const vec2 &v3, float &r, vec2 &center )
+{
+    // Put the point at the origin create two normal vectors heading
+    // to the adjacent points.
+    vec2 prev = glm::normalize( v1 - v2 );
+    vec2 next = glm::normalize( v3 - v2 );
+
+    // Find the radius of circle tangent to the vectors leaving this
+    // point d distance away.
+    /*
+                     d
+           prev <--+----+
+                   |  θ/ \
+                  r|  /   \
+                   | /h    v
+                   |/      next
+                   +
+
+        θ=inner angle/2
+        tan(θ)=r/d => r=d*tan(θ)
+        cos(θ)=d/h => h=d/cos(θ)
+
+        I love having to relearn trig for stuff like this.
+    */
+    float diff = glm::angle( prev, next ) / 2.0;
+    r = turnDistance * std::tan( diff );
+
+    // If we want to display the circle we'll need to locate the
+    // center which is on the hypotenuse.
+    vec2 middle = ( prev + next ) / vec2( 2 );
+    float middleAngle = std::atan2( middle.y, middle.x );
+    float h = turnDistance / std::cos( diff );
+    center = v2 + vec2( std::cos( middleAngle ), std::sin( middleAngle ) ) * h;
+}
+
 void Vehicle::moveToNextSegment()
 {
     mPrevPoint = mCurrPoint;
@@ -66,7 +101,7 @@ void Vehicle::moveToNextSegment()
     }
 
     vec2 _center;
-    findRadius( points[mPrevPoint], points[mCurrPoint], points[mNextPoint], mNextTurnRadius, _center );
+    findRadius( mTurnDistance, points[mPrevPoint], points[mCurrPoint], points[mNextPoint], mNextTurnRadius, _center );
 
     mSlowingDistance = calcSlowingDistance();
 }
@@ -98,7 +133,7 @@ void Vehicle::update( double dt )
     float distance = glm::length( target_offset );
     float ramped_speed = mNextTurnSpeed * ( distance / mSlowingDistance );
     float clipped_speed = std::min( ramped_speed, mMaxSpeed );
-    vec2 desired_velocity = (clipped_speed / distance) * target_offset;
+    vec2 desired_velocity = ( clipped_speed / distance ) * target_offset;
     vec2 steering_direction = desired_velocity - mVelocity;
     vec2 steering_force = truncate( steering_direction, mMaxForce );
 
@@ -108,8 +143,8 @@ void Vehicle::update( double dt )
 
     if ( ramped_speed < mMaxSpeed )
         mColor = ColorA(1, 0, 0, 0.75);
-//        else if ( accLen2 > 0.0 )
-//            mColor = ColorA(0, 1, 0, 0.75);
+//    else if ( accelerating? )
+//        mColor = ColorA(0, 1, 0, 0.75);
     else
         mColor = ColorA(1, 1, 1, 0.75);
 
@@ -117,41 +152,6 @@ void Vehicle::update( double dt )
     if ( distance < mNextTurnRadius && glm::length2( mVelocity ) < ( mNextTurnSpeed * mNextTurnSpeed ) ) {
         moveToNextSegment();
     }
-}
-
-void Vehicle::findRadius( const vec2 &v1, const vec2 &v2, const vec2 &v3, float &r, vec2 &center )
-{
-    // Put the point at the origin create two normal vectors heading
-    // to the adjacent points.
-    vec2 prev = glm::normalize( v1 - v2 );
-    vec2 next = glm::normalize( v3 - v2 );
-
-    // Find the radius of circle tangent to the vectors leaving this
-    // point d distance away.
-    /*
-                     d
-           prev <--+----+
-                   |  θ/ \
-                  r|  /   \
-                   | /h    v
-                   |/      next
-                   +
-
-        θ=inner angle/2
-        tan(θ)=r/d => r=d*tan(θ)
-        cos(θ)=d/h => h=d/cos(θ)
-
-        I love having to relearn trig for stuff like this.
-    */
-    float diff = glm::angle( prev, next ) / 2.0;
-    r = mTurnDistance * std::tan( diff );
-
-    // If we want to display the circle we'll need to locate the
-    // center which is on the hypotenuse.
-    vec2 middle = ( prev + next ) / vec2( 2 );
-    float middleAngle = std::atan2( middle.y, middle.x );
-    float h = mTurnDistance / std::cos( diff );
-    center = v2 + vec2( std::cos( middleAngle ), std::sin( middleAngle ) ) * h;
 }
 
 void Vehicle::draw() const
@@ -162,6 +162,12 @@ void Vehicle::draw() const
         gl::translate( getPosition() );
         gl::rotate( getAngle() );
         gl::drawVector( vec3( 0, 0, 0 ), vec3( 10, 0, 0 ), 20, 10);
+    }
+
+    {
+        const std::vector<vec2> &points = mPath.getPoints();
+        gl::ScopedColor color( 1, 0, 0, 0.125 );
+        gl::drawStrokedCircle( points[mCurrPoint], 2 * mSlowingDistance );
     }
     gl::draw( mPath );
 
