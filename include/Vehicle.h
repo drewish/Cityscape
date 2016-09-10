@@ -59,4 +59,6 @@ class Vehicle {
     float mNextTurnRadius;
     float mNextTurnSpeed;
     float mSlowingDistance;
+
+    ci::gl::BatchRef mBatch;
 };

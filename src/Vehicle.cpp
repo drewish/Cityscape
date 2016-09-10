@@ -20,6 +20,9 @@ using namespace ci;
 // - move into the citydata structure
 // - create a car model
 
+#include "Resources.h"
+#include "cinder/ObjLoader.h"
+
 void Vehicle::setup( const PolyLine2f &path )
 {
     mPath = path;
@@ -40,6 +43,14 @@ void Vehicle::setup( const PolyLine2f &path )
     mCurrPoint = 0;
     mNextPoint = mPath.size() > 1 ? 1 : 0;
     moveToNextSegment();
+
+
+    // Load the plane model in so we have something to draw
+    ObjLoader loader( app::loadResource( RES_PLANE_OBJ ) );
+    TriMeshRef mesh = TriMesh::create( loader );
+    if( ! loader.getAvailableAttribs().count( geom::NORMAL ) )
+        mesh->recalculateNormals();
+    mBatch = gl::Batch::create( *mesh, gl::getStockShader( gl::ShaderDef().color() ) );
 }
 
 void findRadius( float turnDistance, const vec2 &v1, const vec2 &v2, const vec2 &v3, float &r, vec2 &center )
@@ -92,6 +103,7 @@ void Vehicle::moveToNextSegment()
     vec2 p = glm::normalize( points[mCurrPoint] - points[mPrevPoint] );
     vec2 n = glm::normalize( points[mNextPoint] - points[mCurrPoint] );
     float diff = glm::angle( n, p );
+    // TODO: Come up with a more gradual way of handling this
     if ( diff <= M_PI_4 + 0.1 ) {
         mNextTurnSpeed = mMaxSpeed;
     } else if ( diff <= M_PI_2 + 0.1 ) {
@@ -160,16 +172,26 @@ void Vehicle::draw() const
         gl::ScopedColor color( mColor );
         gl::ScopedModelMatrix matrix;
         gl::translate( getPosition() );
-        gl::rotate( getAngle() );
-        gl::drawVector( vec3( 0, 0, 0 ), vec3( 10, 0, 0 ), 20, 10);
+        gl::rotate( getAngle(), vec3( 0, 0, 1 ) );
+        //  gl::drawVector( vec3( 0, 0, 0 ), vec3( 10, 0, 0 ), 20, 10);
+        // For what ever reason we have to do some rotating to get the model
+        // facing the right direction.
+        gl::rotate( 1.571, vec3( 1, 0, 0 ) );
+        gl::rotate( 1.571, vec3( 0, 1, 0 ) );
+        gl::scale( vec3( 10 ) );
+        mBatch->draw();
     }
 
+    if ( false ) return;
+
+    gl::draw( mPath );
+
+    // Slowing boundary
     {
-        const std::vector<vec2> &points = mPath.getPoints();
         gl::ScopedColor color( 1, 0, 0, 0.125 );
+        const std::vector<vec2> &points = mPath.getPoints();
         gl::drawStrokedCircle( points[mCurrPoint], 2 * mSlowingDistance );
     }
-    gl::draw( mPath );
 
     // Text debugging info
     {

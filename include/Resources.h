@@ -5,3 +5,5 @@
 #define RES_BUILDING_FRAG       CINDER_RESOURCE( ../resources/, direction_colored.frag, 130, GLSL )
 #define RES_TREE_VERT           CINDER_RESOURCE( ../resources/, tree.vert, 131, GLSL )
 #define RES_TREE_FRAG           CINDER_RESOURCE( ../resources/, tree.frag, 132, GLSL )
+
+#define RES_PLANE_OBJ           CINDER_RESOURCE( ../resources/, plane.obj, 133, OBJ )

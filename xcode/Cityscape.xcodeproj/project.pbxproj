@@ -30,6 +30,7 @@
 		49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49FD33B01B5B54D90077D1F4 /* CgalArrangement.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		5F005E101CA797E2007B2A99 /* LotDeveloper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F005E0F1CA797E2007B2A99 /* LotDeveloper.cpp */; };
+		5F27C11E1D84625700EC1F03 /* plane.obj in Resources */ = {isa = PBXBuildFile; fileRef = 5F27C11D1D84625700EC1F03 /* plane.obj */; };
 		5F2CA9791D17305D005E0450 /* VehicleMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F2CA9781D17305D005E0450 /* VehicleMode.cpp */; };
 		5F3555FA1D29AF7D0042AF58 /* Vehicle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F3555F91D29AF7D0042AF58 /* Vehicle.cpp */; };
 		5F39B9FF1C228A6B0006F986 /* libboost_thread-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F39B9FE1C228A6B0006F986 /* libboost_thread-mt.dylib */; };
@@ -90,6 +91,7 @@
 		5323E6B50EAFCA7E003A9687 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
 		5F005E0E1CA797CA007B2A99 /* LotDeveloper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LotDeveloper.h; sourceTree = "<group>"; };
 		5F005E0F1CA797E2007B2A99 /* LotDeveloper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LotDeveloper.cpp; path = ../src/LotDeveloper.cpp; sourceTree = "<group>"; };
+		5F27C11D1D84625700EC1F03 /* plane.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = plane.obj; path = ../resources/plane.obj; sourceTree = "<group>"; };
 		5F2CA9771D173041005E0450 /* VehicleMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VehicleMode.h; sourceTree = "<group>"; };
 		5F2CA9781D17305D005E0450 /* VehicleMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VehicleMode.cpp; path = ../src/VehicleMode.cpp; sourceTree = "<group>"; };
 		5F3555F71D29AF1A0042AF58 /* Vehicle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vehicle.h; sourceTree = "<group>"; };
@@ -254,6 +256,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5F27C11D1D84625700EC1F03 /* plane.obj */,
 				4983C3721C8954A200531A46 /* tree.vert */,
 				4983C3711C8954A200531A46 /* tree.frag */,
 				49E959211B23EC340093E4C8 /* direction_colored.vert */,
@@ -367,6 +370,7 @@
 			files = (
 				49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */,
 				49E959241B23EC4D0093E4C8 /* direction_colored.frag in Resources */,
+				5F27C11E1D84625700EC1F03 /* plane.obj in Resources */,
 				4983C3741C8954A200531A46 /* tree.vert in Resources */,
 				49E959221B23EC340093E4C8 /* direction_colored.vert in Resources */,
 				A27A70ECAE7549F98B411A74 /* CinderApp.icns in Resources */,

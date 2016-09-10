@@ -136,6 +136,9 @@ void CityscapeApp::setupModeParams( ModeRef newMode )
     mParams->addButton( "Building Mode", [this] {
         setupModeParams( ModeRef( new BuildingMode() ) );
     }, "key=e" );
+    mParams->addButton( "Vehicle Mode", [this] {
+        setupModeParams( ModeRef( new VehicleMode() ) );
+    }, "key=r" );
 
     mModeRef = newMode;
     mModeRef->setup();
