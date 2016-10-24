@@ -114,20 +114,18 @@ class FlatShape {
 	friend std::ostream& operator<<( std::ostream& lhs, const FlatShape& rhs )
 	{
         lhs << "\nouter is ";
-        switch ( rhs.outline().orientation() ) {
-            case ci::PolyLine2f::COLLINEAR:
-                lhs << "collinear";
-                break;
-            case ci::PolyLine2f::COUNTER_CLOCKWISE:
-                lhs << "counter-";
-            case ci::PolyLine2f::CLOCKWISE:
-                lhs << "clockwise";
-                break;
+		bool colinear;
+        if ( rhs.outline().isClockwise( &colinear ) ) {
+            lhs << "clockwise";
+        } else if ( colinear ) {
+            lhs << "collinear";
+        } else {
+            lhs << "counterclockwise";
         }
         lhs << " with " << rhs.holes().size() << " holes:\n" << rhs.outline();
         for ( const ci::PolyLine2f &hole : rhs.holes() ) {
             lhs << "hole with " << hole.size() << " points going ";
-            if ( hole.isCounterClockwise() ) {
+            if ( hole.isCounterclockwise() ) {
                 lhs << "counter-";
             }
             lhs << "clockwise:\n" << hole << "\n";

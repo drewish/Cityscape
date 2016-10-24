@@ -31,7 +31,7 @@ void FlatShape::fixUp()
     // Make sure the orientation is correct.
     if ( mOutline.isClockwise() ) mOutline.reverse();
     for ( auto &hole : mHoles ) {
-        if ( hole.isCounterClockwise() ) hole.reverse();
+        if ( hole.isCounterclockwise() ) hole.reverse();
     }
 }
 
