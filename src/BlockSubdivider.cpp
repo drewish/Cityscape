@@ -20,6 +20,12 @@ using namespace ci;
 
 namespace Cityscape {
 
+/*
+ * This class takes an arrangement, noting holes, and tracks its division. When
+ * faces are split it checks if the face was a hole or not and marks the newly
+ * split faces accordingly. When it extracts the lots it notes which edges are
+ * street facing (against the original outer bounds).
+ */
 class BaseDivider : public CGAL::Arr_observer<Arrangement_2> {
   public :
     enum State {
@@ -73,16 +79,10 @@ class BaseDivider : public CGAL::Arr_observer<Arrangement_2> {
         for ( auto face = arrangement()->faces_begin(); face != arrangement()->faces_end(); ++face ) {
             if ( face->is_unbounded() || face->data() ) continue;
 
-            // TODO: Refactor into a flatshape from face method.
-            Ccb_halfedge_circulator edge = face->outer_ccb();
-            PolyLine2f lotOutline = polyLineFrom( edge );
-            PolyLine2fs lotHoles;
-            for ( auto hole = face->holes_begin(); hole != face->holes_end(); ++hole ) {
-                lotHoles.push_back( polyLineFrom( *hole ) );
-            }
-            LotRef lot = Lot::create( FlatShape::create( lotOutline, lotHoles ) );
+            LotRef lot = Lot::create( FlatShape::create( face ) );
 
             // Start going around looking for a edge that faces a road.
+            Ccb_halfedge_circulator edge = face->outer_ccb();
             Arrangement_2::Ccb_halfedge_circulator cc = edge;
             bool leftStart = false;
             while ( !(leftStart && cc == edge) && (cc->twin()->face()->data() == false) ) {
@@ -317,10 +317,10 @@ void subdivideBlocks( CityModel &city )
 
             Arrangement_2 arrangement;
             BaseDivider *obs;
-            if ( zoning->block.lotDivision == ZoningPlan::LotDivision::OOB_LOT_DIVISION ) {
+            if ( d == ZoningPlan::LotDivision::OOB_LOT_DIVISION ) {
                 obs = new OOBSubdivider( arrangement, block->shape );
             }
-            else if ( zoning->block.lotDivision == ZoningPlan::LotDivision::SKELETON_LOT_DIVISION ) {
+            else if ( d == ZoningPlan::LotDivision::SKELETON_LOT_DIVISION ) {
                 obs = new SkeletonSubdivider( arrangement, block->shape );
             }
             else {

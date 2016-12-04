@@ -33,6 +33,16 @@ class FlatShape {
         return FlatShapeRef( new FlatShape( pwh ) );
     }
 
+    static FlatShapeRef create( const Arrangement_2::Face_iterator &face )
+    {
+        ci::PolyLine2f lotOutline = polyLineFrom( face->outer_ccb() );
+        PolyLine2fs lotHoles;
+        for ( auto hole = face->holes_begin(); hole != face->holes_end(); ++hole ) {
+            lotHoles.push_back( polyLineFrom( *hole ) );
+        }
+        return FlatShapeRef( new FlatShape( lotOutline, lotHoles ) );
+    }
+
     // * * *
 
     FlatShape( const FlatShape &s )
@@ -111,10 +121,10 @@ class FlatShape {
     std::vector<seg2>       dividerSeg2s( float angle, float spacing ) const;
     std::vector<Segment_2>  dividerSegment_2s( float angle, float spacing ) const;
 
-	friend std::ostream& operator<<( std::ostream& lhs, const FlatShape& rhs )
-	{
+    friend std::ostream& operator<<( std::ostream& lhs, const FlatShape& rhs )
+    {
         lhs << "\nouter is ";
-		bool colinear;
+        bool colinear;
         if ( rhs.outline().isClockwise( &colinear ) ) {
             lhs << "clockwise";
         } else if ( colinear ) {

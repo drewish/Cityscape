@@ -115,7 +115,7 @@ seg2 oobDivider( const ci::Rectf &bounds, float angle )
 seg2 oobDivider( const ci::PolyLine2f &outline )
 {
     ci::Rectf bounds;
-    float rotate;
+    float rotate = 0;
     minimumOobFor( outline, bounds, rotate );
     return oobDivider( bounds, rotate );
 }
