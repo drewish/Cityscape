@@ -14,7 +14,8 @@
 ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator )
 {
     ci::PolyLine2f result;
-    Arrangement_2::Ccb_halfedge_const_circulator cc = circulator;
+    auto cc = circulator;
+    result.push_back( vecFrom( cc->source()->point() ) );
     do {
         result.push_back( vecFrom( cc->target()->point() ) );
     } while ( ++cc != circulator );
@@ -24,24 +25,14 @@ ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator 
 std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points )
 {
     std::list<Segment_2> result;
-    if ( points.empty() ) return result;
-
-    for ( auto prev = points.begin(), curr = prev + 1; curr != points.end(); ++curr ) {
-        result.push_back( Segment_2( pointFrom( *prev ), pointFrom( *curr ) ) );
-        prev = curr;
-    }
+    contiguousSegmentsFrom( points, std::back_inserter( result ) );
     return result;
 }
 
 std::list<Segment_2> contiguousSegmentsFrom( const std::vector<Point_2> &points )
 {
     std::list<Segment_2> result;
-    if ( points.empty() ) return result;
-
-    for ( auto prev = points.begin(), curr = prev + 1; curr != points.end(); ++curr ) {
-        result.push_back( Segment_2( *prev, *curr ) );
-        prev = curr;
-    }
+    contiguousSegmentsFrom( points, std::back_inserter( result ) );
     return result;
 }
 

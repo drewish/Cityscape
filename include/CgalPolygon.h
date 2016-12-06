@@ -17,20 +17,17 @@ template<class K>
 CGAL::Polygon_2<K> polygonFrom( const ci::PolyLine2f &p )
 {
     CGAL::Polygon_2<K> poly;
-    auto begin = p.begin(),
-    end = p.end(),
-    last = --p.end(),
-    i = begin;
 
-    if (p.size() < 3) return poly;
+    if ( p.size() < 3 ) return poly;
 
-    // if this is closed (first == last) we can skip the last one
-    if (*begin == *last) {
-        end = last;
+    // If this is closed (first == last) we can skip the last one.
+    auto end = p.end();
+    if ( *p.begin() == *( end - 1 ) ) {
+        --end;
     }
-    do {
-        poly.push_back(pointFrom<K>(*i++));
-    } while (i != end);
+    for ( auto i = p.begin(); i != end; ++i ) {
+        poly.push_back( pointFrom<K>( *i ) );
+    };
 
     return poly;
 }

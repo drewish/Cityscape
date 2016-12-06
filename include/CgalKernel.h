@@ -21,7 +21,7 @@ inline ci::vec2 vecFrom(const InexactK::Point_2 &p)
 
 inline ci::vec2 vecFrom(const ExactK::Point_2 &p)
 {
-    return ci::vec2( p.x().floatValue(), p.y().floatValue() );
+    return ci::vec2( CGAL::to_double( p.x() ), CGAL::to_double( p.y() ) );
 }
 
 template<class K>

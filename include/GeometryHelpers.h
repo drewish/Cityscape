@@ -2,6 +2,17 @@
 
 typedef std::pair<ci::vec2, ci::vec2> seg2;
 
+
+// Segments will be created from a->b, b->c, c->d
+template<class OI>
+void contiguousSeg2sFrom( const std::vector<ci::vec2> &points, OI out )
+{
+    if ( points.empty() ) return;
+
+    std::transform( begin( points ), end( points ) - 1, begin( points ) + 1, out,
+        []( const ci::vec2 &a, const ci::vec2 &b ) { return seg2( a, b ); } );
+}
+
 // For a polyline with points a,b,c,d that is marked open:
 //   a->b, b->c, c->d, d->a
 // if it's closed:

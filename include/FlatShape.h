@@ -116,8 +116,8 @@ class FlatShape {
     CGAL::Polygon_2<InexactK> polygonWithConnectedHoles() const;
     ci::PolyLine2f polyLineWithConnectedHoles() const;
 
-    // Create a set of parallel lines that cross the shape, returns the segments
-    // that overlap.
+    // Create a set of parallel lines that cross the shape, returns only the
+    // segments that overlap the shape.
     std::vector<seg2>       dividerSeg2s( float angle, float spacing ) const;
     std::vector<Segment_2>  dividerSegment_2s( float angle, float spacing ) const;
 
