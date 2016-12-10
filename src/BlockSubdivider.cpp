@@ -128,7 +128,7 @@ std::vector<LotRef> slice( const LotRef lot, const seg2 &divider ) {
 }
 
 
-void noop_subdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
+void noopSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 {
     LotRef lot = Lot::create( block->shape );
 
@@ -145,7 +145,7 @@ void noop_subdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 // Procedural Generation of Parcels in Urban Modeling
 // Carlos A. Vanegas, Tom Kelly, Basil Weber, Jan Halatsch, Daniel G. Aliaga, Pascal Müller
 // http://www.twak.co.uk/2011/12/procedural-generation-of-parcels-in.html
-void oob_subdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
+void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 {
     std::queue<LotRef> toSplit;
     toSplit.push( Lot::create( block->shape ) );
@@ -167,7 +167,7 @@ void oob_subdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
     std::cout << "ended with " << block->lots.size() << " lots\n";
 }
 
-void skeleton_subdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
+void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 {
     // For closed outlines, we need at least 4 points.
     if ( block->shape->outline().size() < 4 ) return;
@@ -283,13 +283,13 @@ void subdivideBlocks( CityModel &city )
             }
 
             if ( d == ZoningPlan::LotDivision::OOB_LOT_DIVISION ) {
-                oob_subdivide( zoning->block, block );
+                oobSubdivide( zoning->block, block );
             }
             else if ( d == ZoningPlan::LotDivision::SKELETON_LOT_DIVISION ) {
-                skeleton_subdivide( zoning->block, block );
+                skeletonSubdivide( zoning->block, block );
             }
             else {
-                noop_subdivide( zoning->block, block );
+                noopSubdivide( zoning->block, block );
             }
         }
     }
