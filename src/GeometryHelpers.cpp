@@ -1,14 +1,18 @@
 #include "GeometryHelpers.h"
 
+#include <set>
 #include <limits>
 using std::numeric_limits;
 
 using namespace ci;
 
-// For a polyline with points a,b,c,d that is marked open:
-//   a->b, b->c, c->d, d->a
-// if it's closed:
-//   a->b, b->c, c->d
+// For an input: a,b,c
+//   when open: a->b,b->c
+//   when closed: a->b,b->c,c->a
+//
+// For an input: a,b,c,a
+//   when open: a->b,b->c,c->a
+//   when closed: a->b,b->c,c->a
 void pointsInPairs( const PolyLine2f &outline, std::function<void(const vec2&, const vec2&)> process )
 {
     if ( outline.size() < 2 ) return;
@@ -18,7 +22,7 @@ void pointsInPairs( const PolyLine2f &outline, std::function<void(const vec2&, c
         process( *prev, *curr );
         prev = curr;
     }
-    if ( !outline.isClosed() ) {
+    if ( outline.isClosed() && points.front() != points.back() ) {
         process( points.back(), points.front() );
     }
 }
@@ -26,12 +30,7 @@ void pointsInPairs( const PolyLine2f &outline, std::function<void(const vec2&, c
 std::vector<float> anglesBetweenPointsIn( const PolyLine2f &outline )
 {
     std::vector<float> angles;
-    pointsInPairs( outline,
-        [&angles]( const vec2 &a, const vec2 &b ) {
-            vec2 diff = a - b;
-            angles.push_back( atan2( diff.y, diff.x ) );
-        }
-    );
+    anglesBetweenPointsIn( outline, std::back_inserter( angles ) );
     return angles;
 }
 
@@ -46,65 +45,63 @@ std::vector<float> distanceBetweenPointsIn( const PolyLine2f &outline )
     return lengths;
 }
 
+Rectf computeBounds( const PolyLine2f outline, float rotation )
+{
+    mat3 matrix = rotate( mat3(), rotation );
+    std::vector<vec2> rotatedOutline;
+    for( const auto &point : outline.getPoints() ) {
+        rotatedOutline.push_back( vec2( matrix * vec3( point, 1 ) ) );
+    }
+
+    return Rectf( rotatedOutline );
+}
 
 // Determine the minimum area oriented bounding box for a set of points.
-bool minimumOobFor( const PolyLine2f &outline, Rectf &bestBounds, float &bestAngle )
+Rectf minimumOobFor( const PolyLine2f &outline, float &bestAngle )
 {
-    if ( outline.size() < 2 ) return false;
+    if ( outline.size() < 2 ) return Rectf();
 
     // Find the angle between each pair of points.
-    std::vector<float> angles;
-    pointsInPairs( outline,
-        [&angles]( const vec2 &a, const vec2 &b ) {
-            vec2 diff = a - b;
-            // We're building boxes so we don't care about the quadrants
-            angles.push_back( std::abs( atan2( diff.y, diff.x ) ) );
-        }
-    );
-
-    // Remove duplicate angles
-    std::sort( angles.begin(), angles.end() );
-    angles.resize( std::distance( angles.begin(), std::unique( angles.begin(), angles.end() ) ) );
+    std::vector<float> angles = anglesBetweenPointsIn( outline );
+    // We're rotating rectangles we only need a 0 to pi/2 ranage. This gets us
+    // down to 0 to pi meaning less candidates to test.
+    std::set<float> uniqueAngles;
+    std::transform( angles.begin(), angles.end(), std::inserter( uniqueAngles, uniqueAngles.end() ), [](float f){
+        return fabs(f);
+    } );
 
     // Rotate the shape to align each edge with the axis and see which angle
     // yields the smallet bounding box.
-    float minArea = numeric_limits<float>::max();
-    for ( float angle : angles ) {
-        mat3 matrix = rotate( mat3(), angle );
-        std::vector<vec2> rotatedOutline;
-        for( const auto &point : outline.getPoints() ) {
-            rotatedOutline.push_back( vec2( matrix * vec3( point, 1 ) ) );
-        }
+    typedef std::pair<float, Rectf> RotRect;
+    std::vector<RotRect> oobs;
+    std::transform( begin( angles ), end( angles ), back_inserter( oobs ), [&](float angle) -> RotRect {
+        return RotRect( angle, computeBounds( outline, angle ) );
+    } );
 
-        Rectf bounds = Rectf( rotatedOutline );
-
-        float newArea = bounds.calcArea();
-        if ( newArea < minArea ) {
-            minArea = newArea;
-
-            bestAngle = angle;
-            bestBounds = bounds;
-        }
-    }
+    RotRect best = *std::min_element( begin( oobs ), end( oobs ), []( RotRect a, RotRect b ) {
+        return a.second.calcArea() < b.second.calcArea();
+    } );
+    bestAngle = best.first;
+    Rectf bestBounds = best.second;
 
     // Add a little padding to make sure we intersect both sides.
     bestBounds.inflate( vec2( 1, 1 ) );
 
-    return true;
+    return bestBounds;
 }
 
-seg2 oobDivider( const ci::Rectf &bounds, float angle )
+seg2 oobDivider( const ci::Rectf &bounds, float angle, float fraction )
 {
     mat3 inv = rotate( mat3(), -angle );
 
     if ( bounds.getWidth() > bounds.getHeight() ) {
-        float midX = ( bounds.x1 + bounds.x2 ) / 2;
+        float midX = ( bounds.x1 + bounds.x2 ) * fraction;
         return seg2(
             vec2( inv * vec3( midX, bounds.y1, 1 ) ),
             vec2( inv * vec3( midX, bounds.y2, 1 ) )
         );
     } else {
-        float midY = ( bounds.y1 + bounds.y2 ) / 2;
+        float midY = ( bounds.y1 + bounds.y2 ) * fraction;
         return seg2(
             vec2( inv * vec3( bounds.x1, midY, 1 ) ),
             vec2( inv * vec3( bounds.x2, midY, 1 ) )
@@ -112,12 +109,11 @@ seg2 oobDivider( const ci::Rectf &bounds, float angle )
     }
 }
 
-seg2 oobDivider( const ci::PolyLine2f &outline )
+seg2 oobDivider( const ci::PolyLine2f &outline, float fraction )
 {
-    ci::Rectf bounds;
     float rotate = 0;
-    minimumOobFor( outline, bounds, rotate );
-    return oobDivider( bounds, rotate );
+    ci::Rectf bounds = minimumOobFor( outline, rotate );
+    return oobDivider( bounds, rotate, fraction );
 }
 
 // Gives back pairs of points to divide the shape with lines of a given angle.

@@ -13,6 +13,8 @@
 #include "CgalStraightSkeleton.h"
 #include "GeometryHelpers.h"
 
+#include "cinder/Rand.h"
+
 #include <CGAL/Arr_observer.h>
 #include <CGAL/Sweep_line_2_algorithms.h>
 
@@ -148,23 +150,51 @@ void noopSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 {
     std::queue<LotRef> toSplit;
-    toSplit.push( Lot::create( block->shape ) );
+    if ( block->shape->area() > options.lotAreaMax ) {
+        toSplit.push( Lot::create( block->shape ) );
+    } else {
+        block->lots.push_back( Lot::create( block->shape ) );
+    }
 
-    do {
-        LotRef in = toSplit.front();
-        for ( auto &lot : slice( in, oobDivider( in->shape->outline() ) ) ) {
-            float area = lot->shape->area();
-            std::cout << "comparing " << area << " to " << options.lotAreaMax << "\n";
-            if ( area > options.lotAreaMax ) {
-                toSplit.push( lot );
-            } else {
-                block->lots.push_back( lot );
+std::cout << "need to be between " << options.lotAreaMin << " - " << options.lotAreaMax << "\n";
+    while ( !toSplit.empty() ) {
+        LotRef lot = toSplit.front();
+std::cout << "\n";
+
+        // Figure out the minimum bounding box so we can try a few divisions
+        const ci::PolyLine2f &outline = lot->shape->outline();
+        ci::Rectf bounds;
+        float rotate = 0;
+        minimumOobFor( outline, bounds, rotate );
+
+        int tries = 4;
+        bool tooSmall = true;
+        std::vector<LotRef> splitLots;
+        do {
+            float fraction = randFloat( 0.45, 0.5 );
+            seg2 divider = oobDivider( bounds, rotate, fraction );
+            splitLots = slice( lot, divider );
+            tooSmall = std::any_of( begin( splitLots ), end( splitLots ), [&]( const LotRef &lot ) {
+std::cout << "part area: " << lot->shape->area() << "\n";
+                return lot->shape->area() < options.lotAreaMin;
+            } );
+        } while ( tooSmall && --tries > 0 );
+
+        if ( tooSmall ) {
+std::cout << "failed on area: " << lot->shape->area() << "\t" << tries << "\n";
+            block->lots.push_back( lot );
+        } else {
+            for ( auto &part : splitLots ) {
+                if ( part->shape->area() > options.lotAreaMax ) {
+                    toSplit.push( part );
+                } else {
+                    block->lots.push_back( part );
+                }
             }
         }
-        toSplit.pop();
-    } while ( !toSplit.empty() );
 
-    std::cout << "ended with " << block->lots.size() << " lots\n";
+        toSplit.pop();
+    }
 }
 
 void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
