@@ -59,6 +59,7 @@
 		5FA88B2D1C48B871008C1A4A /* CityMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B2C1C48B871008C1A4A /* CityMode.cpp */; };
 		5FA88B311C48B9CA008C1A4A /* BlockMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B301C48B9CA008C1A4A /* BlockMode.cpp */; };
 		5FA88B331C48B9D6008C1A4A /* BuildingMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */; };
+		5FD4C49A1D87BF8000EF8E51 /* car_01.obj in Resources */ = {isa = PBXBuildFile; fileRef = 5FD4C4991D87BF8000EF8E51 /* car_01.obj */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		A27A70ECAE7549F98B411A74 /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0AE48136C1644371A1A5B3C8 /* CinderApp.icns */; };
 /* End PBXBuildFile section */
@@ -150,6 +151,7 @@
 		5FA88B321C48B9D6008C1A4A /* BuildingMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuildingMode.cpp; path = ../src/BuildingMode.cpp; sourceTree = "<group>"; };
 		5FBB83461B00580B0095ADB6 /* libCGAL_Core.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL_Core.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL_Core.11.0.0.dylib; sourceTree = "<group>"; };
 		5FBB83471B00580B0095ADB6 /* libCGAL.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.0.dylib; path = ../../../../../usr/local/Cellar/cgal/4.6/lib/libCGAL.11.0.0.dylib; sourceTree = "<group>"; };
+		5FD4C4991D87BF8000EF8E51 /* car_01.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = car_01.obj; path = ../resources/car_01.obj; sourceTree = "<group>"; };
 		5FEFD9B71A928CA90093F109 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../usr/local/Cellar/gmp/6.0.0a/lib/libgmp.10.dylib; sourceTree = "<group>"; };
 		5FEFD9B91A928CF60093F109 /* libmpfr.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmpfr.4.dylib; path = "../../../../../usr/local/Cellar/mpfr/3.1.2-p10/lib/libmpfr.4.dylib"; sourceTree = "<group>"; };
 		5FEFD9BD1A928DB90093F109 /* libboost_thread-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_thread-mt.dylib"; path = "../../../../../usr/local/Cellar/boost/1.57.0/lib/libboost_thread-mt.dylib"; sourceTree = "<group>"; };
@@ -311,6 +313,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5FD4C4991D87BF8000EF8E51 /* car_01.obj */,
 				5F27C11D1D84625700EC1F03 /* plane.obj */,
 				4983C3721C8954A200531A46 /* tree.vert */,
 				4983C3711C8954A200531A46 /* tree.frag */,
@@ -461,6 +464,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */,
+				5FD4C49A1D87BF8000EF8E51 /* car_01.obj in Resources */,
 				49E959241B23EC4D0093E4C8 /* direction_colored.frag in Resources */,
 				5F27C11E1D84625700EC1F03 /* plane.obj in Resources */,
 				4983C3741C8954A200531A46 /* tree.vert in Resources */,

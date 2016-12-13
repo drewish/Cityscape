@@ -7,3 +7,4 @@
 #define RES_TREE_FRAG           CINDER_RESOURCE( ../resources/, tree.frag, 132, GLSL )
 
 #define RES_PLANE_OBJ           CINDER_RESOURCE( ../resources/, plane.obj, 133, OBJ )
+#define RES_CAR_01_OBJ          CINDER_RESOURCE( ../resources/, car_01.obj, 134, OBJ )

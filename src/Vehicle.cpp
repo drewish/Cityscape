@@ -45,8 +45,8 @@ void Vehicle::setup( const PolyLine2f &path )
     moveToNextSegment();
 
 
-    // Load the plane model in so we have something to draw
-    ObjLoader loader( app::loadResource( RES_PLANE_OBJ ) );
+    // Load the model in so we have something to draw
+    ObjLoader loader( app::loadResource( RES_CAR_01_OBJ ) );
     TriMeshRef mesh = TriMesh::create( loader );
     if( ! loader.getAvailableAttribs().count( geom::NORMAL ) )
         mesh->recalculateNormals();
