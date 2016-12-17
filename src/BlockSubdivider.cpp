@@ -150,38 +150,37 @@ void noopSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 {
     std::queue<LotRef> toSplit;
+
+    LotRef lot = Lot::create( block->shape );
     if ( block->shape->area() > options.lotAreaMax ) {
-        toSplit.push( Lot::create( block->shape ) );
+        toSplit.push( lot );
     } else {
-        block->lots.push_back( Lot::create( block->shape ) );
+        block->lots.push_back( lot );
     }
 
-std::cout << "need to be between " << options.lotAreaMin << " - " << options.lotAreaMax << "\n";
     while ( !toSplit.empty() ) {
         LotRef lot = toSplit.front();
-std::cout << "\n";
 
         // Figure out the minimum bounding box so we can try a few divisions
         const ci::PolyLine2f &outline = lot->shape->outline();
-        ci::Rectf bounds;
-        float rotate = 0;
-        minimumOobFor( outline, bounds, rotate );
+        std::vector< std::pair<float, ci::Rectf> > oobs = oobsFor( outline );
 
+        // TODO: we should make a few tries with one OOB and if it doesn't work
+        // try the next couple.
+        std::pair<float, ci::Rectf> oob = oobs.front();
         int tries = 4;
         bool tooSmall = true;
         std::vector<LotRef> splitLots;
         do {
             float fraction = randFloat( 0.45, 0.5 );
-            seg2 divider = oobDivider( bounds, rotate, fraction );
+            seg2 divider = oobDivider( oob.second, oob.first, fraction );
             splitLots = slice( lot, divider );
             tooSmall = std::any_of( begin( splitLots ), end( splitLots ), [&]( const LotRef &lot ) {
-std::cout << "part area: " << lot->shape->area() << "\n";
                 return lot->shape->area() < options.lotAreaMin;
             } );
         } while ( tooSmall && --tries > 0 );
 
         if ( tooSmall ) {
-std::cout << "failed on area: " << lot->shape->area() << "\t" << tries << "\n";
             block->lots.push_back( lot );
         } else {
             for ( auto &part : splitLots ) {

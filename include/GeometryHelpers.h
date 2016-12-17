@@ -39,6 +39,9 @@ void anglesBetweenPointsIn( const ci::PolyLine2f &outline, OI out )
 std::vector<float> anglesBetweenPointsIn( const ci::PolyLine2f &outline );
 std::vector<float> distanceBetweenPointsIn( const ci::PolyLine2f &outline );
 
+// Returns Oriented Bounding Boxes aligned to the various angles in the PolyLine
+// sorted by ascending area.
+std::vector< std::pair<float, ci::Rectf> > oobsFor( const ci::PolyLine2f &outline );
 // Determine the minimum area oriented bounding box for a polyline.
 ci::Rectf minimumOobFor( const ci::PolyLine2f &outline, float &rotate );
 

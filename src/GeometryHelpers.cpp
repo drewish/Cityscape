@@ -56,10 +56,13 @@ Rectf computeBounds( const PolyLine2f outline, float rotation )
     return Rectf( rotatedOutline );
 }
 
-// Determine the minimum area oriented bounding box for a set of points.
-Rectf minimumOobFor( const PolyLine2f &outline, float &bestAngle )
+// Returns Oriented Bounding Boxes aligned to the various angles in the PolyLine
+// sorted by ascending area.
+std::vector< std::pair<float, Rectf> > oobsFor( const PolyLine2f &outline )
 {
-    if ( outline.size() < 2 ) return Rectf();
+    typedef std::pair<float, Rectf> RotRect;
+
+    if ( outline.size() < 2 ) return std::vector<RotRect>();
 
     // Find the angle between each pair of points.
     std::vector<float> angles = anglesBetweenPointsIn( outline );
@@ -72,26 +75,34 @@ Rectf minimumOobFor( const PolyLine2f &outline, float &bestAngle )
 
     // Rotate the shape to align each edge with the axis and see which angle
     // yields the smallet bounding box.
-    typedef std::pair<float, Rectf> RotRect;
-    std::vector<RotRect> oobs;
-    std::transform( begin( angles ), end( angles ), back_inserter( oobs ), [&](float angle) -> RotRect {
+    std::vector<RotRect> result;
+    std::transform( begin( angles ), end( angles ), back_inserter( result ), [&](float angle) -> RotRect {
         return RotRect( angle, computeBounds( outline, angle ) );
     } );
 
-    RotRect best = *std::min_element( begin( oobs ), end( oobs ), []( RotRect a, RotRect b ) {
+    // Sort of smallest area to greatest
+    std::sort( begin( result ), end( result ), []( RotRect a, RotRect b ) {
         return a.second.calcArea() < b.second.calcArea();
     } );
+
+    return result;
+}
+
+// Determine the minimum area oriented bounding box for a set of points.
+Rectf minimumOobFor( const PolyLine2f &outline, float &bestAngle )
+{
+    std::pair<float, Rectf> best = oobsFor( outline ).front();
     bestAngle = best.first;
     Rectf bestBounds = best.second;
-
-    // Add a little padding to make sure we intersect both sides.
-    bestBounds.inflate( vec2( 1, 1 ) );
 
     return bestBounds;
 }
 
-seg2 oobDivider( const ci::Rectf &bounds, float angle, float fraction )
+seg2 oobDivider( const ci::Rectf &b, float angle, float fraction )
 {
+    // Add a little padding to make sure we intersect both sides.
+    Rectf bounds = b.inflated( vec2( 1, 1 ) );
+
     mat3 inv = rotate( mat3(), -angle );
 
     if ( bounds.getWidth() > bounds.getHeight() ) {
