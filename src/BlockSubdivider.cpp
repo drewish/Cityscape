@@ -63,19 +63,38 @@ std::vector<LotRef> slice( const Arrangement_2 &arrShape, const Arrangement_2 &a
     return ret;
 }
 
-
-void noopSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
-{
+LotRef lotFilling( const BlockRef &block ) {
     LotRef lot = Lot::create( block->shape );
-
     contiguousSeg2sFrom( block->shape->outline().getPoints(), std::back_inserter( lot->streetFacingSides ) );
     for ( auto &hole : block->shape->holes() ) {
         contiguousSeg2sFrom( hole.getPoints(), std::back_inserter( lot->streetFacingSides ) );
     }
-
-    block->lots.push_back( lot );
+    return lot;
 }
 
+Arrangement_2 lotArrangement( const LotRef &lot ) {
+    Arrangement_2 arrLot = lot->shape->arrangement();
+    // Default edge role to divider, the override outside
+    setEdgeRoles( arrLot.halfedges_begin(), arrLot.halfedges_end(), EdgeRole::Divider );
+
+    for ( auto e = arrLot.halfedges_begin(); e != arrLot.halfedges_end(); ++e ) {
+        seg2 needle = seg2( vecFrom( e->source()->point() ), vecFrom( e->target()->point() ) );
+        bool inThere = std::any_of( lot->streetFacingSides.begin(), lot->streetFacingSides.end(), [&needle]( seg2 hay ) {
+            return ( hay.first == needle.first && hay.second == needle.second );
+        } );
+        if ( inThere ) {
+            e->set_data( EdgeRole::Exterior );
+            e->twin()->set_data( EdgeRole::Exterior );
+        }
+    }
+
+    return arrLot;
+}
+
+void noopSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
+{
+    block->lots.push_back( lotFilling( block ) );
+}
 
 // Does a poor job of implementing the OOB algorithm described in:
 // Procedural Generation of Parcels in Urban Modeling
@@ -85,7 +104,7 @@ void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 {
     std::queue<LotRef> toSplit;
 
-    LotRef lot = Lot::create( block->shape );
+    LotRef lot = lotFilling( block );
     if ( block->shape->area() > options.lotAreaMax ) {
         toSplit.push( lot );
     } else {
@@ -94,11 +113,9 @@ void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 
     while ( !toSplit.empty() ) {
         LotRef lot = toSplit.front();
+        toSplit.pop();
 
-        Arrangement_2 arrLot = lot->shape->arrangement();
-        // TODO: this shouldn't just mark everthing as street side, it should look
-        // at the lot's street facing edges.
-        setEdgeRoles( arrLot.halfedges_begin(), arrLot.halfedges_end(), EdgeRole::Exterior );
+        Arrangement_2 arrLot = lotArrangement( lot );
 
         // Figure out some oriented bounding boxes so we can try a few divisions
         const ci::PolyLine2f &outline = lot->shape->outline();
@@ -137,8 +154,6 @@ void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
                 }
             }
         }
-
-        toSplit.pop();
     }
 }
 
