@@ -15,116 +15,54 @@
 
 #include "cinder/Rand.h"
 
-#include <CGAL/Arr_observer.h>
-#include <CGAL/Sweep_line_2_algorithms.h>
+#include <CGAL/Arr_overlay_2.h>
 
 using namespace ci;
 
 namespace Cityscape {
 
-/*
- * These classes track an arrangement, noting holes, and tracks its division. When
- * faces are split they checks if the face was a hole or not and marks the newly
- * split faces accordingly.
- */
-
-struct OutlineObserver : public CGAL::Arr_observer<Arrangement_2> {
-    OutlineObserver( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {
-        arr.unbounded_face()->set_data( FaceRole::Hole );
-    };
-    virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld ) {
-        newFace->set_data( FaceRole::Lot );
-    }
-};
-
-struct HoleObserver : public CGAL::Arr_observer<Arrangement_2> {
-    HoleObserver( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {};
-    // in before_split_face mark all new edges as street facing
-    virtual void before_split_face ( Face_handle oldFace, Halfedge_handle newEdge ) {
-        newEdge->set_data( EdgeRole::Street );
-        newEdge->twin()->set_data( newEdge->data() );
-    }
-    // in after_split_face mark new faces as holes
-    virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld ) {
-        newFace->set_data( FaceRole::Hole );
-    }
-};
-
-struct DividerObserver : public CGAL::Arr_observer<Arrangement_2> {
-    DividerObserver( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {};
-    // in before_split_face mark all new edges as interior
-    virtual void before_split_face ( Face_handle oldFace, Halfedge_handle newEdge ) {
-        newEdge->set_data( EdgeRole::Interior );
-        newEdge->twin()->set_data( newEdge->data() );
-    }
-    // in after_split_face mark new faces' data = old faces'
-    virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld ) {
-        newFace->set_data( oldFace->data() );
-    }
-};
-
-Arrangement_2 arrangementFor( const FlatShapeRef shape ) {
-    Arrangement_2 arr;
-
-    // add outline to arrangement
-    OutlineObserver outObs( arr );
-    std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( shape->outline().getPoints() );
-    insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
-    outObs.detach();
-
-    if ( shape->holes().empty() ) return arr;
-
-    // add holes to arrangement
-    HoleObserver holeObs( arr );
-    std::vector<Segment_2> holeSegments;
-    for ( const auto &hole : shape->holes() ) {
-        contiguousSegmentsFrom( hole.getPoints(), back_inserter( holeSegments ) );
-    }
-    insert( arr, holeSegments.begin(), holeSegments.end() );
-    holeObs.detach();
-
-    return arr;
-}
-
 LotRef lotFrom( const Arrangement_2::Face_iterator &face ) {
     LotRef lot = Lot::create( FlatShape::create( face ) );
 
-    // Start going around looking for a edge that faces a road.
-    Arrangement_2::Ccb_halfedge_circulator edge = face->outer_ccb();
-    Arrangement_2::Ccb_halfedge_circulator cc = edge;
-    bool leftStart = false;
-    while ( !( leftStart && cc == edge ) && ( cc->twin()->face()->data() == FaceRole::Lot ) ) {
-        ++cc;
-        leftStart = true;
-    }
-    // If we find a road copy all we find until we get back to the
-    // start.
-    if ( cc->twin()->face()->data() == FaceRole::Hole ) {
-        do {
-            lot->streetFacingSides.push_back( seg2(
-                vecFrom( cc->source()->point() ),
-                vecFrom( cc->target()->point() )
-            ) );
-        } while ( ++cc != edge && cc->twin()->face()->data() == FaceRole::Hole );
-    }
+    Arrangement_2::Ccb_halfedge_circulator start = face->outer_ccb();
+    Arrangement_2::Ccb_halfedge_circulator cc = start;
+
+    // TODO: should look at holes too
+    do {
+        if ( cc->data() == EdgeRole::Exterior ) {
+            lot->streetFacingSides.push_back(
+                seg2( vecFrom( cc->source()->point() ), vecFrom( cc->target()->point() ) )
+            );
+        }
+    } while ( ++cc != start );
 
     return lot;
 }
 
-std::vector<LotRef> slice( const LotRef lot, const seg2 &divider ) {
-    Arrangement_2 arr = arrangementFor( lot->shape );
+void setEdgeRoles( const Arrangement_2::Halfedge_iterator begin, const Arrangement_2::Halfedge_iterator end, EdgeRole data ) {
+    for ( auto i = begin; i != end; ++i ) { i->set_data( data ); }
+}
 
-    // add divider
-    DividerObserver divObs( arr );
-    insert( arr, segmentFrom( divider ) );
-    divObs.detach();
+void printArrangement( const Arrangement_2 &arr ) {
+    std::cout << "\n\nArrangement\n";
+    for ( auto e = arr.edges_begin(); e != arr.edges_end(); ++e ) {
+        std::cout << "(" << e->source()->point() << ", " << e->target()->point() << ") = " << static_cast<uint>(e->data()) <<  "\n";
+    }
+}
+
+std::vector<LotRef> slice( const Arrangement_2 &arrShape, const Arrangement_2 &arrDividers ) {
+    Arrangement_2 arrOverlay;
+    Arr_extended_overlay_traits overlay_traits;
+    overlay( arrShape, arrDividers, arrOverlay, overlay_traits );
+
+    // printArrangement(arrOverlay);
 
     // extract lots
     std::vector<LotRef> ret;
-    for ( auto face = arr.faces_begin(); face != arr.faces_end(); ++face ) {
-        if ( face->is_unbounded() || face->data() == FaceRole::Hole ) continue;
-
-        ret.push_back( lotFrom( face ) );
+    for ( auto face = arrOverlay.faces_begin(); face != arrOverlay.faces_end(); ++face ) {
+        if ( !face->is_unbounded() && face->data() != FaceRole::Hole ) {
+            ret.push_back( lotFrom( face ) );
+        }
     }
     return ret;
 }
@@ -173,8 +111,21 @@ void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
         std::vector<LotRef> splitLots;
         do {
             float fraction = randFloat( 0.45, 0.5 );
-            seg2 divider = oobDivider( oob.second, oob.first, fraction );
-            splitLots = slice( lot, divider );
+
+            // TODO: Move to a function
+            Segment_2 divider = segmentFrom( oobDivider( oob.second, oob.first, fraction ) );
+            Arrangement_2 arrDiv;
+            auto edge = insert_non_intersecting_curve( arrDiv, divider );
+            edge->set_data( EdgeRole::Divider );
+            edge->twin()->set_data( EdgeRole::Divider );
+
+
+            Arrangement_2 arrLot = lot->shape->arrangement();
+            // TODO: this shouldn't just mark everthing as street side, it should look
+            // at the lot's street facing edges.
+            setEdgeRoles( arrLot.halfedges_begin(), arrLot.halfedges_end(), EdgeRole::Exterior );
+
+            splitLots = slice( arrLot, arrDiv );
             tooSmall = std::any_of( begin( splitLots ), end( splitLots ), [&]( const LotRef &lot ) {
                 return lot->shape->area() < options.lotAreaMin;
             } );
@@ -204,7 +155,7 @@ void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block
     // Build straight skeleton with holes
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( block->shape->polygonWithHoles<InexactK>() );
 
-    std::list<Segment_2> skeletonSegments;
+    std::vector<Segment_2> skeletonSegments;
 
     float dividerAngle = 0;
     float maxLength = 0;
@@ -271,29 +222,21 @@ void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block
         skeletonSegments.push_back( Segment_2( Point_2( c.x(), c.y() ), adj ) );
     }
 
-
-    Arrangement_2 arr = arrangementFor( block->shape );
-
-    DividerObserver divObs( arr );
-
-    insert( arr, skeletonSegments.begin(), skeletonSegments.end() );
-
-    // TODO: would be good to adjust the dividers to:
-    // - create lots in specific size ranges (avoid tiny or mega lots)
+    Arrangement_2 arrBlock = block->shape->arrangement();
+    setEdgeRoles( arrBlock.halfedges_begin(), arrBlock.halfedges_end(), EdgeRole::Exterior );
 
     // Then start walking across the outline adding dividers.
-    std::vector<Segment_2> dividerSegments = block->shape->dividerSegment_2s( dividerAngle, options.lotWidth );
-
-    // Put the adjusted skeleton, and new dividers into the the arrangment.
-    insert( arr, dividerSegments.begin(), dividerSegments.end() );
-
-    divObs.detach();
-
-    for ( auto face = arr.faces_begin(); face != arr.faces_end(); ++face ) {
-        if ( face->is_unbounded() || face->data() == FaceRole::Hole ) continue;
-
-        block->lots.push_back( lotFrom( face ) );
+    // TODO: would be good to adjust the dividers to:
+    // - create lots in specific size ranges (avoid tiny or mega lots)
+    Arrangement_2 arrDividers;
+    for ( const seg2 &divider : computeDividers( block->shape->outline().getPoints(), dividerAngle, options.lotWidth ) ) {
+        Segment_2 segment = Segment_2( pointFrom( divider.first ), pointFrom( divider.second ) );
+        insert_non_intersecting_curve( arrDividers, segment );
     }
+    insert( arrDividers, skeletonSegments.begin(), skeletonSegments.end() );
+    setEdgeRoles( arrDividers.halfedges_begin(), arrDividers.halfedges_end(), EdgeRole::Divider );
+
+    block->lots = slice( arrBlock, arrDividers );
 }
 
 // in Blocks

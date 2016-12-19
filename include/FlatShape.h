@@ -116,6 +116,25 @@ class FlatShape {
     CGAL::Polygon_2<InexactK> polygonWithConnectedHoles() const;
     ci::PolyLine2f polyLineWithConnectedHoles() const;
 
+    Arrangement_2 arrangement() const {
+        Arrangement_2 arr;
+
+        OutlineObserver outObs( arr );
+        std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( mOutline.getPoints() );
+        insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
+        outObs.detach();
+
+        HoleObserver holeObs( arr );
+        std::vector<Segment_2> holeSegments;
+        for ( const auto &hole : mHoles ) {
+            contiguousSegmentsFrom( hole.getPoints(), back_inserter( holeSegments ) );
+        }
+        insert( arr, holeSegments.begin(), holeSegments.end() );
+        holeObs.detach();
+
+        return arr;
+    }
+
     // Create a set of parallel lines that cross the shape, returns only the
     // segments that overlap the shape.
     std::vector<seg2>       dividerSeg2s( float angle, float spacing ) const;

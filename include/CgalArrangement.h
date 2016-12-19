@@ -14,14 +14,18 @@
 #include <CGAL/Arr_segment_traits_2.h>
 #include <CGAL/Arr_extended_dcel.h>
 #include <CGAL/Arr_naive_point_location.h>
+#include <CGAL/Arr_observer.h>
+#include <CGAL/Arr_default_overlay_traits.h>
+#include <CGAL/Arr_overlay_2.h>
+
 
 // Need to benchmark this kernel to see if it's faster.
 #include <CGAL/Cartesian.h>
 typedef CGAL::Quotient<CGAL::MP_Float> Number_type;
 typedef CGAL::Cartesian<Number_type> Kernel;
 
-enum class FaceRole { Lot, Hole };
-enum class EdgeRole { Street, Interior };
+enum class FaceRole { Shape, Hole };
+enum class EdgeRole { Undef = 0, Exterior, Divider };
 typedef CGAL::Arr_segment_traits_2<ExactK>              Traits_2;
 // vert, halfedge, face but I'm only using edge and face values
 typedef CGAL::Arr_extended_dcel<Traits_2, bool, EdgeRole, FaceRole> Dcel;
@@ -29,6 +33,66 @@ typedef CGAL::Arrangement_2<Traits_2, Dcel>             Arrangement_2;
 typedef Traits_2::Point_2                               Point_2;
 typedef Traits_2::X_monotone_curve_2                    Segment_2;
 typedef CGAL::Arr_naive_point_location<Arrangement_2>   Naive_pl;
+
+
+/**
+ * These classes track an arrangement, noting holes, and tracks its division. When
+ * faces are split they checks if the face was a hole or not and marks the newly
+ * split faces accordingly.
+ */
+struct OutlineObserver : public CGAL::Arr_observer<Arrangement_2> {
+    OutlineObserver( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {
+        arr.unbounded_face()->set_data( FaceRole::Hole );
+    };
+    virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld ) {
+        newFace->set_data( FaceRole::Shape );
+    }
+};
+
+struct HoleObserver : public CGAL::Arr_observer<Arrangement_2> {
+    HoleObserver( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {};
+    // in after_split_face mark new faces as holes
+    virtual void after_split_face( Face_handle oldFace, Face_handle newFace, bool isHoleInOld ) {
+        newFace->set_data( FaceRole::Hole );
+    }
+};
+
+/**
+ * This allow you to overlay two arrangments and it'll combine the edge and face
+ * roles we can extract which faces are holes and which edges are on the street.
+ */
+struct Arr_extended_overlay_traits : public CGAL::_Arr_default_overlay_traits_base<Arrangement_2, Arrangement_2, Arrangement_2>
+{
+    typedef typename Arrangement_2::Halfedge_const_handle Halfedge_handle_A;
+    typedef typename Arrangement_2::Halfedge_const_handle Halfedge_handle_B;
+    typedef typename Arrangement_2::Halfedge_handle       Halfedge_handle_R;
+    typedef typename Arrangement_2::Face_const_handle     Face_handle_A;
+    typedef typename Arrangement_2::Face_const_handle     Face_handle_B;
+    typedef typename Arrangement_2::Face_handle           Face_handle_R;
+
+    virtual void create_face( Face_handle_A f1, Face_handle_B f2, Face_handle_R f ) const {
+        // f1 should be the lot/block so just use its value, that way we don't
+        // have to worry about setting the face roles on the dividers.
+        f->set_data( f1->data() );
+        //f->set_data( f1->data() == FaceRole::Hole || f2->data() == FaceRole::Hole ? FaceRole::Hole : FaceRole::Lot );
+    }
+
+    virtual void create_edge( Halfedge_handle_A e1, Halfedge_handle_B e2, Halfedge_handle_R e ) const {
+        e->set_data( e1->data() == EdgeRole::Exterior || e2->data() == EdgeRole::Exterior ? EdgeRole::Exterior : EdgeRole::Divider );
+        e->twin()->set_data( e->data() );
+    }
+
+    virtual void create_edge( Halfedge_handle_A e1, Face_handle_B f2, Halfedge_handle_R e ) const {
+        e->set_data( e1->data() );
+        e->twin()->set_data( e1->data() );
+    }
+
+    virtual void create_edge( Face_handle_A f1, Halfedge_handle_B e2, Halfedge_handle_R e ) const {
+        e->set_data( e2->data() );
+        e->twin()->set_data( e2->data() );
+    }
+};
+
 
 inline ci::vec2 vecFrom(const Kernel::Point_2 &p)
 {
