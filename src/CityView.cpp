@@ -13,7 +13,6 @@
 
 using namespace ci;
 
-
 CityView::CityView( const Cityscape::CityModel &model )
 {
     gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
@@ -71,6 +70,10 @@ CityView::CityView( const Cityscape::CityModel &model )
                 for ( const auto &instance : lot->plants ) {
                     plantData[ instance->scenery ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
                 }
+
+                for ( seg2 side : lot->streetFacingSides ) {
+                    lotEdges.push_back( PolyLine2f( { side.first, side.second } ) );
+                }
             }
         }
     }
@@ -126,6 +129,12 @@ void CityView::draw( const Options &options ) const
     }
     if ( options.drawLots ) {
         for ( const auto &batch : lots ) batch->draw();
+    }
+    if ( options.drawLotEdges ) {
+        gl::ScopedColor color( Color::black() );
+        for ( const auto &edge : lotEdges ) {
+            gl::draw( edge );
+        }
     }
     if ( options.drawBuildings ) {
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );

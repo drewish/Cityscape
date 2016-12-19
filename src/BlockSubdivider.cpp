@@ -24,16 +24,13 @@ namespace Cityscape {
 LotRef lotFrom( const Arrangement_2::Face_iterator &face ) {
     LotRef lot = Lot::create( FlatShape::create( face ) );
 
-    Arrangement_2::Ccb_halfedge_circulator start = face->outer_ccb();
-    Arrangement_2::Ccb_halfedge_circulator cc = start;
-
     // TODO: should look at holes too
+    Arrangement_2::Ccb_halfedge_circulator start = face->outer_ccb(), cc = start;
     do {
-        if ( cc->data() == EdgeRole::Exterior ) {
-            lot->streetFacingSides.push_back(
-                seg2( vecFrom( cc->source()->point() ), vecFrom( cc->target()->point() ) )
-            );
-        }
+        if ( cc->data() != EdgeRole::Exterior ) continue;
+
+        seg2 s = seg2( vecFrom( cc->source()->point() ), vecFrom( cc->target()->point() ) );
+        lot->streetFacingSides.push_back( s );
     } while ( ++cc != start );
 
     return lot;
@@ -51,13 +48,12 @@ void printArrangement( const Arrangement_2 &arr ) {
 }
 
 std::vector<LotRef> slice( const Arrangement_2 &arrShape, const Arrangement_2 &arrDividers ) {
+    // Overlay the two arrangements
     Arrangement_2 arrOverlay;
     Arr_extended_overlay_traits overlay_traits;
     overlay( arrShape, arrDividers, arrOverlay, overlay_traits );
 
-    // printArrangement(arrOverlay);
-
-    // extract lots
+    // Extract lots
     std::vector<LotRef> ret;
     for ( auto face = arrOverlay.faces_begin(); face != arrOverlay.faces_end(); ++face ) {
         if ( !face->is_unbounded() && face->data() != FaceRole::Hole ) {
@@ -99,7 +95,12 @@ void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
     while ( !toSplit.empty() ) {
         LotRef lot = toSplit.front();
 
-        // Figure out the minimum bounding box so we can try a few divisions
+        Arrangement_2 arrLot = lot->shape->arrangement();
+        // TODO: this shouldn't just mark everthing as street side, it should look
+        // at the lot's street facing edges.
+        setEdgeRoles( arrLot.halfedges_begin(), arrLot.halfedges_end(), EdgeRole::Exterior );
+
+        // Figure out some oriented bounding boxes so we can try a few divisions
         const ci::PolyLine2f &outline = lot->shape->outline();
         std::vector< std::pair<float, ci::Rectf> > oobs = oobsFor( outline );
 
@@ -118,12 +119,6 @@ void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
             auto edge = insert_non_intersecting_curve( arrDiv, divider );
             edge->set_data( EdgeRole::Divider );
             edge->twin()->set_data( EdgeRole::Divider );
-
-
-            Arrangement_2 arrLot = lot->shape->arrangement();
-            // TODO: this shouldn't just mark everthing as street side, it should look
-            // at the lot's street facing edges.
-            setEdgeRoles( arrLot.halfedges_begin(), arrLot.halfedges_end(), EdgeRole::Exterior );
 
             splitLots = slice( arrLot, arrDiv );
             tooSmall = std::any_of( begin( splitLots ), end( splitLots ), [&]( const LotRef &lot ) {

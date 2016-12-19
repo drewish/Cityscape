@@ -31,6 +31,7 @@ public:
         bool drawDistricts = false;
         bool drawBlocks = false;
         bool drawLots = false;
+        bool drawLotEdges = true;
         bool drawPlants = true;
         bool drawBuildings = true;
     };
@@ -48,6 +49,8 @@ public:
     std::vector<ci::gl::BatchRef> districts;
     std::vector<ci::gl::BatchRef> blocks;
     std::vector<ci::gl::BatchRef> lots;
+    // TODO: convert the edges to a batch
+    std::vector<ci::PolyLine2f> lotEdges;
     std::vector<InstanceBatch> buildings;
     std::vector<InstanceBatch> plants;
 };
