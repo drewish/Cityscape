@@ -10,7 +10,6 @@
 #include "cinder/Rand.h"
 #include "cinder/Triangulate.h"
 #include <CGAL/Sweep_line_2_algorithms.h>
-#include <CGAL/connect_holes.h>
 #include <CGAL/arrange_offset_polygons_2.h>
 #include <CGAL/create_offset_polygons_from_polygon_with_holes_2.h>
 #include "GeometryHelpers.h"
@@ -84,28 +83,6 @@ float FlatShape::calcArea() const
         area -= hole.calcArea();
     }
     return area;
-}
-
-CGAL::Polygon_2<InexactK> FlatShape::polygonWithConnectedHoles() const
-{
-    std::vector<ExactK::Point_2> points;
-
-    CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
-
-    CGAL::Polygon_2<InexactK> result;
-    for ( auto &p : points ) {
-        result.push_back( InexactK::Point_2( p.x().floatValue(), p.y().floatValue() ) );
-    }
-    return result;
-}
-
-ci::PolyLine2f FlatShape::polyLineWithConnectedHoles() const
-{
-    std::vector<CGAL::Point_2<ExactK>> points;
-
-    CGAL::connect_holes( polygonWithHoles<ExactK>(), std::back_inserter( points ) );
-
-    return polyLineFrom<ExactK>( points );
 }
 
 std::vector<seg2> FlatShape::dividerSeg2s( float angle, float spacing ) const

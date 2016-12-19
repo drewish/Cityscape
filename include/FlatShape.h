@@ -113,9 +113,6 @@ class FlatShape {
         return poly;
     }
 
-    CGAL::Polygon_2<InexactK> polygonWithConnectedHoles() const;
-    ci::PolyLine2f polyLineWithConnectedHoles() const;
-
     Arrangement_2 arrangement() const {
         Arrangement_2 arr;
 
