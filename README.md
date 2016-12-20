@@ -26,16 +26,27 @@ fast, but it'll do it accurately.
 
 ## Installation
 
-Install CGAL 4.7 using homebrew:
+Clone this repo:
+
+```
+git clone https://github.com/drewish/Cityscape.git
+```
+
+Install Cinder 0.9.1dev in a sibling directory:
+
+```
+git clone --recursive https://github.com/cinder/Cinder.git
+Cinder/xcode/fullbuild.sh
+```
+
+Install CGAL 4.9 using homebrew:
 
 ```
 brew install cgal
 ```
 
+Open the app up in Xcode:
 
-Install my fork of Cinder (so we get #1034, #1411, #1412) as a sibling directory:
 ```
-cd ../
-git clone --recursive --branch all-my-polyline-changes https://github.com/drewish/Cinder.git
-Cinder/xcode/fullbuild.sh
+open Cityscape/xcode/Cityscape.xcodeproj
 ```
