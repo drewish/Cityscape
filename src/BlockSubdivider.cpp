@@ -65,9 +65,9 @@ std::vector<LotRef> slice( const Arrangement_2 &arrShape, const Arrangement_2 &a
 
 LotRef lotFilling( const BlockRef &block ) {
     LotRef lot = Lot::create( block->shape );
-    contiguousSeg2sFrom( block->shape->outline().getPoints(), std::back_inserter( lot->streetFacingSides ) );
+    contiguousSeg2sFrom( block->shape->outline(), std::back_inserter( lot->streetFacingSides ) );
     for ( auto &hole : block->shape->holes() ) {
-        contiguousSeg2sFrom( hole.getPoints(), std::back_inserter( lot->streetFacingSides ) );
+        contiguousSeg2sFrom( hole, std::back_inserter( lot->streetFacingSides ) );
     }
     return lot;
 }
@@ -104,11 +104,10 @@ void oobSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block )
 {
     std::queue<LotRef> toSplit;
 
-    LotRef lot = lotFilling( block );
     if ( block->shape->area() > options.lotAreaMax ) {
-        toSplit.push( lot );
+        toSplit.push( lotFilling( block ) );
     } else {
-        block->lots.push_back( lot );
+        block->lots.push_back( lotFilling( block ) );
     }
 
     while ( !toSplit.empty() ) {

@@ -6,15 +6,26 @@
 
 typedef std::pair<ci::vec2, ci::vec2> seg2;
 
-
-// Segments will be created from a->b, b->c, c->d
+// For an input: a,b,c
+//   when open: a->b,b->c
+//   when closed: a->b,b->c,c->a
+// For an input: a,b,c,a
+//   when open: a->b,b->c,c->a
+//   when closed: a->b,b->c,c->a
 template<class OI>
-void contiguousSeg2sFrom( const std::vector<ci::vec2> &points, OI out )
+void contiguousSeg2sFrom( const ci::PolyLine2f &polyline, OI out )
 {
-    if ( points.empty() ) return;
+    if ( polyline.size() < 2 ) return;
 
-    std::transform( begin( points ), end( points ) - 1, begin( points ) + 1, out,
+    std::transform( polyline.begin(), polyline.end() - 1, polyline.begin() + 1, out,
         []( const ci::vec2 &a, const ci::vec2 &b ) { return seg2( a, b ); } );
+
+    if ( polyline.isClosed() ) {
+        auto &points = polyline.getPoints();
+        if ( points.front() != points.back() ) {
+            out++ = seg2( points.back(), points.front() );
+        }
+    }
 }
 
 // For an input: a,b,c

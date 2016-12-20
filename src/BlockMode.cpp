@@ -29,6 +29,8 @@ void BlockMode::setup() {
     district->blocks.push_back( Cityscape::Block::create( fs ) );
     mModel.districts.push_back( district );
 
+    mOutline.setClosed();
+
     layout();
 }
 
@@ -62,6 +64,7 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
 
     params->addButton( "Clear Points", [&] {
         mOutline = PolyLine2f();
+        mOutline.setClosed();
         mHoles = {};
         layout();
     }, "key=0");

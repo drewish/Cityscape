@@ -13,44 +13,91 @@
 
 using namespace ci;
 
-TEST_CASE( "contiguousSeg2sFrom", "[foo]" ) {
-    SECTION( "0 points" ) {
-        std::vector<vec2> input;
-        std::vector<seg2> output;
+TEST_CASE( "contiguousSeg2sFrom(PolyLine2f)", "[foo]" ) {
+    std::vector<seg2> output;
 
-        contiguousSeg2sFrom( input, back_inserter( output ) );
+    SECTION( "0 points" ) {
+        PolyLine2f input;
+
+        contiguousSeg2sFrom( input, std::back_inserter( output ) );
 
         REQUIRE( output.empty() );
     }
 
-    SECTION( "1 point" ) {
-        std::vector<vec2> input( { vec2( 0, 0 ) } );
-        std::vector<seg2> output;
+    SECTION( "1 points" ) {
+        PolyLine2f input( { vec2( 0, 0 ) } );
 
-        contiguousSeg2sFrom( input, back_inserter( output ) );
+        contiguousSeg2sFrom( input, std::back_inserter( output ) );
 
         REQUIRE( output.empty() );
     }
 
     SECTION( "2 points" ) {
-        std::vector<vec2> input( { vec2( 0, 0 ), vec2( 1, 1 ) } );
-        std::vector<seg2> output;
+        PolyLine2f input( { vec2( 0, 0 ), vec2( 1, 1 ) } );
 
-        contiguousSeg2sFrom( input, back_inserter( output ) );
+        SECTION( "open" ) {
+            contiguousSeg2sFrom( input, std::back_inserter( output ) );
 
-        REQUIRE( output.size() == 1 );
-        REQUIRE( output.front() == seg2( vec2( 0, 0 ), vec2( 1, 1 ) ) );
+            REQUIRE( output.size() == 1 );
+            REQUIRE( output.front() == seg2( vec2( 0, 0 ), vec2( 1, 1 ) ) );
+        }
+
+        SECTION( "closed" ) {
+            input.setClosed();
+
+            contiguousSeg2sFrom( input, std::back_inserter( output ) );
+
+            REQUIRE( output.size() == 2 );
+            REQUIRE( output[0] == seg2( vec2( 0, 0 ), vec2( 1, 1 ) ) );
+            REQUIRE( output[1] == seg2( vec2( 1, 1 ), vec2( 0, 0 ) ) );
+        }
     }
 
-    SECTION( "3 points" ) {
-        std::vector<vec2> input( { vec2( 0, 0 ), vec2( 1, 1 ), vec2( 2, 0 ) } );
-        std::vector<seg2> output;
+    SECTION( "3 points, different first and last" ) {
+        PolyLine2f input( { vec2( 0, 0 ), vec2( 1, 1 ), vec2( 2, 0 ) } );
 
-        contiguousSeg2sFrom( input, back_inserter( output ) );
+        SECTION( "open" ) {
+            contiguousSeg2sFrom( input, std::back_inserter( output ) );
 
-        REQUIRE( output.size() == 2 );
-        REQUIRE( output.front() == seg2( vec2( 0, 0 ), vec2( 1, 1 ) ) );
-        REQUIRE( output.back() == seg2( vec2( 1, 1 ), vec2( 2, 0 ) ) );
+            REQUIRE( output.size() == 2 );
+            REQUIRE( output[0] == seg2( vec2( 0, 0 ), vec2( 1, 1 ) ) );
+            REQUIRE( output[1] == seg2( vec2( 1, 1 ), vec2( 2, 0 ) ) );
+        }
+
+        SECTION( "closed" ) {
+            input.setClosed();
+
+            contiguousSeg2sFrom( input, std::back_inserter( output ) );
+
+            REQUIRE( output.size() == 3 );
+            REQUIRE( output[0] == seg2( vec2( 0, 0 ), vec2( 1, 1 ) ) );
+            REQUIRE( output[1] == seg2( vec2( 1, 1 ), vec2( 2, 0 ) ) );
+            REQUIRE( output[2] == seg2( vec2( 2, 0 ), vec2( 0, 0 ) ) );
+        }
+    }
+
+    SECTION( "4 points, same first and last" ) {
+        PolyLine2f input( { vec2( 0, 0 ), vec2( 1, 1 ), vec2( 2, 0 ), vec2( 0, 0 ) } );
+
+        SECTION( "open" ) {
+            contiguousSeg2sFrom( input, std::back_inserter( output ) );
+
+            REQUIRE( output.size() == 3 );
+            REQUIRE( output[0] == seg2( vec2( 0, 0 ), vec2( 1, 1 ) ) );
+            REQUIRE( output[1] == seg2( vec2( 1, 1 ), vec2( 2, 0 ) ) );
+            REQUIRE( output[2] == seg2( vec2( 2, 0 ), vec2( 0, 0 ) ) );
+        }
+
+        SECTION( "closed" ) {
+            input.setClosed();
+
+            contiguousSeg2sFrom( input, std::back_inserter( output ) );
+
+            REQUIRE( output.size() == 3 );
+            REQUIRE( output[0] == seg2( vec2( 0, 0 ), vec2( 1, 1 ) ) );
+            REQUIRE( output[1] == seg2( vec2( 1, 1 ), vec2( 2, 0 ) ) );
+            REQUIRE( output[2] == seg2( vec2( 2, 0 ), vec2( 0, 0 ) ) );
+        }
     }
 }
 
@@ -141,7 +188,6 @@ TEST_CASE( "pointsInPairs", "[foo]" ) {
             REQUIRE( output[2] == seg2( vec2( 2, 0 ), vec2( 0, 0 ) ) );
         }
     }
-
 }
 
 TEST_CASE( "anglesBetweenPointsIn", "[foo]" ) {

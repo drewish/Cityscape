@@ -27,6 +27,18 @@ void FlatShape::fixUp()
         points.resize( std::distance( points.begin(), newEnd ) );
     }
 
+    // If it's marked as closed, the front and back need to connect.
+    auto ensureClosed = []( PolyLine2f &poly ) {
+        auto &points = poly.getPoints();
+        if ( poly.size() && poly.isClosed() && points.front() != points.back() ) {
+            points.push_back( points.front() );
+        }
+    };
+    ensureClosed( mOutline );
+    for ( auto &hole : mHoles ) {
+        ensureClosed( hole );
+    }
+
     // Make sure the orientation is correct.
     if ( mOutline.isClockwise( nullptr ) ) mOutline.reverse();
     for ( auto &hole : mHoles ) {
