@@ -31,7 +31,7 @@ public:
         bool drawDistricts = false;
         bool drawBlocks = false;
         bool drawLots = false;
-        bool drawLotEdges = true;
+        bool drawLotEdges = false;
         bool drawPlants = true;
         bool drawBuildings = true;
     };

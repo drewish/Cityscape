@@ -14,6 +14,7 @@ using namespace ci::app;
 void BlockMode::setup() {
     mViewOptions.drawBlocks = false;
     mViewOptions.drawLots = true;
+    mViewOptions.drawLotEdges = true;
     mViewOptions.drawBuildings = true;
 
     mModel = Cityscape::CityModel();
@@ -25,7 +26,7 @@ void BlockMode::setup() {
         vec2(  600,  600 ), vec2( -600,  600 )
     } ) );
     Cityscape::DistrictRef district = Cityscape::District::create( fs, mPlan );
-    district->blocks.push_back( mBlock );
+    district->blocks.push_back( Cityscape::Block::create( fs ) );
     mModel.districts.push_back( district );
 
     layout();
@@ -114,13 +115,12 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
 }
 
 void BlockMode::layout() {
-    mBlock = Cityscape::Block::create( FlatShape::create( mOutline, mHoles ) );
+    mCachedPoints.clear();
 
     auto district = mModel.districts.front();
     district->blocks.clear();
-    district->blocks.push_back( mBlock );
+    district->blocks.push_back( Cityscape::Block::create( FlatShape::create( mOutline, mHoles ) ) );
 
-//    Cityscape::buildStreetsAndBlocks( mModel );
     Cityscape::subdivideBlocks( mModel );
     Cityscape::fillLots( mModel );
 
@@ -132,91 +132,94 @@ void BlockMode::draw() {
 
     // * * *
 /*
-    // This it only really helpful when debugging the CGAL arrangement.
+    // Visually debug a CGAL arrangement.
+    const Arrangement_2 arr = mArr;
 
-    if ( true ) {
-        const Arrangement_2 arr = Cityscape::lastArrangement();
+    gl::color( 1, 1, 0 );
+    for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
+        gl::ScopedColor color( Color::gray( 0.5 ) );
+        gl::drawSolidCircle( vecFrom( i->point() ), 5 );
+    }
 
-        gl::color( 1, 1, 0 );
-        for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
-            gl::ScopedColor color( Color::gray( 0.5 ) );
-            gl::drawSolidCircle( vecFrom( i->point() ), 5 );
-        }
+    gl::color(0, 0, 0 );
+    for ( auto i = arr.edges_begin(); i != arr.edges_end(); ++i ) {
+        gl::ScopedColor color( Color::white() );
+        PolyLine2f p = PolyLine2f( { vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
+        gl::draw( p );
+    }
 
-        gl::color(0, 0, 0 );
-        for ( auto i = arr.edges_begin(); i != arr.edges_end(); ++i ) {
-            gl::ScopedColor color( Color::white() );
-            PolyLine2f p = PolyLine2f( { vecFrom( i->source()->point() ), vecFrom( i->target()->point() ) } );
-            gl::draw( p );
-        }
+    float steps = 0;
+    for ( auto face = arr.faces_begin(); face != arr.faces_end(); ++face ) {
+        if ( face->is_unbounded() ) continue;
 
-        float steps = 0;
-        for ( auto face = arr.faces_begin(); face != arr.faces_end(); ++face ) {
-            if ( face->is_unbounded() ) continue;
+        gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.25 ) );
+        steps += 0.27;
+        if (steps > 1) steps -= 1.0;
 
-            gl::color( ColorA( CM_HSV, steps, 1.0, 0.75, 0.25 ) );
-            steps += 0.27;
-            if (steps > 1) steps -= 1.0;
-
-            gl::drawSolid( polyLineFrom( face->outer_ccb() ) );
-        }
+        gl::drawSolid( polyLineFrom( face->outer_ccb() ) );
     }
 
     // * * *
 
-    // Or debugging the skeleton
+    // Visually debug a CGAL straight skeleton.
+    SsPtr &ss = mSkel;
+    float hue = 0;
 
-    if ( ! false && mBlock->mSkel ) {
-        SsPtr &ss = mBlock->mSkel;
-        float hue = 0;
+    for( auto face = ss->faces_begin(); face != ss->faces_end(); ++face ) {
+        PolyLine2f shape;
 
-        for( auto face = ss->faces_begin(); face != ss->faces_end(); ++face ) {
-            PolyLine2f shape;
+        Ss::Halfedge_const_handle begin = face->halfedge();
+        Ss::Halfedge_const_handle edge = begin;
+        do {
+            vec2 p = vecFrom( edge->vertex()->point() );
 
-            Ss::Halfedge_const_handle begin = face->halfedge();
-            Ss::Halfedge_const_handle edge = begin;
-            do {
-                vec2 p = vecFrom( edge->vertex()->point() );
+            if ( edge->vertex()->is_skeleton() ) {
+                gl::color( Color::black() );
+            } else if ( edge->vertex()->is_contour() ) {
+                gl::color( Color::white() );
+            } else {
+                gl::color( Color( 0, 1, 1 ) );
+            }
+            gl::drawSolidCircle( p, 5 );
 
-                if ( edge->vertex()->is_skeleton() ) {
-                    gl::color( Color::black() );
-                } else if ( edge->vertex()->is_contour() ) {
-                    gl::color( Color::white() );
-                } else {
-                    gl::color( Color( 0, 1, 1 ) );
-                }
-                gl::drawSolidCircle( p, 5 );
+            shape.push_back( p );
+            edge = edge->next();
+        } while ( edge != begin );
 
-                shape.push_back( p );
-                edge = edge->next();
-            } while ( edge != begin );
+        gl::color( ColorA( CM_HSV, hue, 1.0, 0.75, 0.25 ) );
+        hue += 0.17;
+        if (hue > 1) hue -= 1.0;
+        gl::drawSolid( shape );
 
-            gl::color( ColorA( CM_HSV, hue, 1.0, 0.75, 0.25 ) );
-            hue += 0.17;
-            if (hue > 1) hue -= 1.0;
-            gl::drawSolid( shape );
-
-            gl::color( Color( 1, 0, 0 ) );
-            gl::draw( shape );
-        }
+        gl::color( Color( 1, 0, 0 ) );
+        gl::draw( shape );
     }
 */
 }
 
 std::vector<ci::vec2> BlockMode::getPoints()
 {
-    return mOutline.getPoints();
+    if ( mCachedPoints.empty() ) {
+        for ( auto &hole : mHoles ) {
+            std::copy( hole.begin(), hole.end(), std::back_inserter( mCachedPoints ) );
+        }
+        // Put the outline in last since it assume we build off the last point
+        std::copy( mOutline.begin(), mOutline.end(), std::back_inserter( mCachedPoints ) );
+    }
+
+    return mCachedPoints;
 }
 
 void BlockMode::addPoint( ci::vec2 point ) {
     console() << "vec2(" << point.x << "," << point.y << "),\n";
     mOutline.push_back( point );
+
     layout();
 }
 
 bool BlockMode::isOverMovablePoint( ci::vec2 &point, float margin )
 {
-    for ( const auto &other : mOutline ) {
+    for ( const auto &other : mCachedPoints ) {
         if ( length2( point - other ) < margin * margin ) {
             // Snap their point to ours
             point = other;
@@ -228,10 +231,14 @@ bool BlockMode::isOverMovablePoint( ci::vec2 &point, float margin )
 
 void BlockMode::movePoint( ci::vec2 from, ci::vec2 to )
 {
-    PolyLine2f newOutline;
-    for ( const auto &p : mOutline ) {
-        newOutline.push_back( from == p ? to : p );
+    for ( auto &p : mOutline ) {
+        if ( p == from ) { p = to; }
     }
-    mOutline = newOutline;
+    for ( auto &hole : mHoles ) {
+        for ( auto &p : hole ) {
+            if ( p == from ) { p = to; }
+        }
+    }
+
     layout();
 }

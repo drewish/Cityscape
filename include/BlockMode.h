@@ -16,9 +16,9 @@ class BlockMode : public BaseMode
     virtual void movePoint( ci::vec2 from, ci::vec2 to ) override;
 
   private:
-    Cityscape::BlockRef         mBlock;
     Cityscape::ZoningPlanRef    mPlan;
     ci::PolyLine2f              mOutline;
     std::vector<ci::PolyLine2f> mHoles;
+    std::vector<ci::vec2>       mCachedPoints;
 };
 
