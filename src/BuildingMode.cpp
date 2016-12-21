@@ -27,6 +27,12 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
     params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mRoof )
         .keyDecr( "[" ).keyIncr( "]" )
         .updateFn( [this] { requestLayout(); } );
+    params->addParam( "Roof Slope", &mRoofSlope )
+        .min( 0.0 ).max( 5.0 ).step( 0.05 )
+        .updateFn( [this] { requestLayout(); } );
+    params->addParam( "Roof Overhang", &mRoofOverhang )
+        .min( 0.0 ).max( 5.0 ).step( 0.25 )
+        .updateFn( [this] { requestLayout(); } );
     params->addParam( "Floors", &mFloors)
         .min( 1 ).max( 5 )
         .keyDecr( "-" ).keyIncr( "=" )
@@ -63,7 +69,7 @@ void BuildingMode::layout() {
 
     if ( mOutline.size() < 3 ) return;
 
-    auto plan = BuildingPlan::create( mOutline, mFloors, mRoof, 0.4 );
+    auto plan = BuildingPlan::create( mOutline, mFloors, mRoof, mRoofSlope, mRoofOverhang );
     lot->buildings.push_back( plan->createInstace( ci::vec2( 0 ) ) );
     mCityView = CityView::create( mModel );
 }
@@ -84,7 +90,7 @@ void BuildingMode::addPoint( ci::vec2 point ) {
 
     console() << "vec2(" << point.x << "," << point.y << "),\n";
     mOutline.push_back( point );
-    layout();
+    requestLayout();
 }
 
 bool BuildingMode::isOverMovablePoint( ci::vec2 &point, float margin )
@@ -101,13 +107,9 @@ bool BuildingMode::isOverMovablePoint( ci::vec2 &point, float margin )
 
 void BuildingMode::movePoint( ci::vec2 from, ci::vec2 to )
 {
-    PolyLine2f newOutline;
-    for ( const auto &p : mOutline ) {
-        newOutline.push_back( from == p ? to : p );
+    for ( auto &p : mOutline ) {
+        if ( p == from ) { p = to; }
     }
-    newOutline.setClosed( mOutline.isClosed() );
 
-    mOutline = newOutline;
-
-    layout();
+    requestLayout();
 }

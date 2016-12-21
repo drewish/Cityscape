@@ -66,7 +66,7 @@ void CityscapeApp::setup()
 
     mParams = params::InterfaceGl::create( "Cityscape", ivec2( 350, 700 ) );
     mParams->minimize();
-    setupModeParams( ModeRef( new BlockMode() ) );
+    setupModeParams( ModeRef( new BuildingMode() ) );
 
     mEditCamera.setPerspective( 60.0f, getWindowAspectRatio(), 10.0f, 4000.0f );
     mEditCamera.lookAt( vec3( 0, 0, 1000 ), vec3( 0 ), vec3( 0, 1, 0 ) );

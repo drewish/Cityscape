@@ -168,7 +168,7 @@ void buildGabledRoof( const PolyLine2f &wallOutline, float slope, float overhang
     if ( overhang > 0.0 ) {
         // TODO: The geometry we generate from this isn't quite right. Since we
         // just moving the point on the skeleton's out to the outline--turning a
-        // roof face into the gable face--the roof doesn't align with the walls.
+        // roof face into the gable face--the gable doesn't align with the walls.
         // Need to figure out how to remove the face, move the point, then
         // create new gables along the wall outline (probably using
         // buildSidesFromOutlineAndTopOffsets()).

@@ -48,8 +48,7 @@ class BuildingPlan : public Scenery {
     static ci::geom::SourceMods buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang );
 
     BuildingPlan( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang )
-      : // mFloors( floors ), mRoof( roof ), mRoofSlope( slope ), mRoofOverhang( overhang ),
-        Scenery(
+      : Scenery(
             outline,
             buildGeometry( outline, floors, roof, slope, overhang )
         ) {}

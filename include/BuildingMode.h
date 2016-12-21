@@ -21,4 +21,6 @@ class BuildingMode : public BaseMode
     BuildingPlan::RoofStyle mRoof = BuildingPlan::RoofStyle::FLAT_ROOF;
     ci::PolyLine2f mOutline;
     int32_t mFloors = 1;
+    float mRoofSlope = 0.5f;
+    float mRoofOverhang = 0.0f;
 };
