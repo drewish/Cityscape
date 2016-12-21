@@ -13,6 +13,77 @@
 
 using namespace ci;
 
+ci::gl::BatchRef buildSky()
+{
+    std::vector<vec3> positions;
+    std::vector<Color> colors;
+    Color darkBlue = Color8u(108, 184, 251);
+    Color medBlue = Color8u(160, 212, 250);
+    Color lightBlue = Color8u(174, 214, 246);
+
+    positions.push_back( vec3( +0.5, -0.5, +0.0 ) );
+    positions.push_back( vec3( -0.5, -0.5, +0.0 ) );
+    colors.push_back( darkBlue );
+    colors.push_back( darkBlue );
+    positions.push_back( vec3( +0.5, -0.2, +0.0 ) );
+    positions.push_back( vec3( -0.5, -0.2, +0.0 ) );
+    colors.push_back( medBlue );
+    colors.push_back( medBlue );
+    positions.push_back( vec3( +0.5, +0.2, +0.0 ) );
+    positions.push_back( vec3( -0.5, +0.2, +0.0 ) );
+    colors.push_back( medBlue );
+    colors.push_back( medBlue );
+    positions.push_back( vec3( +0.5, +0.5, +0.0 ) );
+    positions.push_back( vec3( -0.5, +0.5, +0.0 ) );
+    colors.push_back( lightBlue );
+    colors.push_back( lightBlue );
+
+    std::vector<gl::VboMesh::Layout> bufferLayout = {
+        gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::Attrib::POSITION, 3 ),
+        gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::Attrib::COLOR, 3 ),
+    };
+    gl::VboMeshRef mesh = gl::VboMesh::create( positions.size(), GL_TRIANGLE_STRIP, bufferLayout );
+    mesh->bufferAttrib( geom::Attrib::POSITION, positions );
+    mesh->bufferAttrib( geom::Attrib::COLOR, colors );
+
+    gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
+
+    return gl::Batch::create( mesh, colorShader );
+}
+
+ci::gl::BatchRef buildGround( const Cityscape::CityModel &model )
+{
+    geom::Plane plane = geom::Plane()
+        .size( model.dimensions.getSize() )
+        .origin( vec3( 0, 0, -0.10 ) )
+        .axes( vec3( 1, 0, 0 ), vec3( 0, -1, 0 ) );
+
+    gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
+
+    return gl::Batch::create( plane >> geom::Constant( geom::Attrib::COLOR, model.groundColor ), colorShader );
+}
+
+gl::BatchRef buildBatch( const gl::GlslProgRef &shader, const geom::SourceMods &geometry, const std::vector<CityView::InstanceData> &instances )
+{
+    size_t stride = sizeof( CityView::InstanceData );
+
+    // create the VBO which will contain per-instance (rather than per-vertex) data
+    gl::VboRef vbo = gl::Vbo::create( GL_ARRAY_BUFFER, instances.size() * stride, instances.data(), GL_STATIC_DRAW );
+
+    // we need a geom::BufferLayout to describe this data as mapping to the CUSTOM_0 semantic, and the 1 (rather than 0) as the last param indicates per-instance (rather than per-vertex)
+    geom::BufferLayout layout;
+    // Doing all this the long way so it's easier to debug later.
+    uint8_t matrixDim = sizeof( ci::mat4 ) / sizeof( float );
+    uint8_t colorDim = sizeof( ci::vec4 ) / sizeof( float );
+    layout.append( geom::Attrib::CUSTOM_0, matrixDim, stride, 0, 1 );
+    layout.append( geom::Attrib::COLOR, colorDim, stride, sizeof( ci::mat4 ), 1 );
+
+    gl::VboMeshRef mesh = gl::VboMesh::create( geometry );
+    mesh->appendVbo( layout, vbo );
+
+    return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstanceModelMatrix" }, { geom::Attrib::COLOR, "vInstanceColor" } } );
+}
+
 CityView::CityView( const Cityscape::CityModel &model )
 {
     gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
@@ -31,11 +102,8 @@ CityView::CityView( const Cityscape::CityModel &model )
        app::loadResource( RES_TREE_FRAG )
     );
 
-    geom::Plane plane = geom::Plane()
-        .size( model.dimensions.getSize() )
-        .origin( vec3( 0, 0, -0.10 ) )
-        .axes( vec3( 1, 0, 0 ), vec3( 0, -1, 0 ) );
-    ground = gl::Batch::create( plane >> geom::Constant( geom::Attrib::COLOR, model.groundColor ), colorShader );
+    sky = buildSky();
+    ground = buildGround( model );
 
     for ( const auto &shape : model.pavement ) {
         auto mesh = *shape->mesh() >> geom::Constant( geom::Attrib::COLOR, model.roadColor );
@@ -91,29 +159,21 @@ CityView::CityView( const Cityscape::CityModel &model )
     }
 }
 
-gl::BatchRef CityView::buildBatch( const gl::GlslProgRef &shader, const geom::SourceMods &geometry, const std::vector<InstanceData> &instances ) const
-{
-    size_t stride = sizeof( InstanceData );
-
-    // create the VBO which will contain per-instance (rather than per-vertex) data
-    gl::VboRef vbo = gl::Vbo::create( GL_ARRAY_BUFFER, instances.size() * stride, instances.data(), GL_STATIC_DRAW );
-
-    // we need a geom::BufferLayout to describe this data as mapping to the CUSTOM_0 semantic, and the 1 (rather than 0) as the last param indicates per-instance (rather than per-vertex)
-    geom::BufferLayout layout;
-    // Doing all this the long way so it's easier to debug later.
-    uint8_t matrixDim = sizeof( ci::mat4 ) / sizeof( float );
-    uint8_t colorDim = sizeof( ci::vec4 ) / sizeof( float );
-    layout.append( geom::Attrib::CUSTOM_0, matrixDim, stride, 0, 1 );
-    layout.append( geom::Attrib::COLOR, colorDim, stride, sizeof( ci::mat4 ), 1 );
-
-    gl::VboMeshRef mesh = gl::VboMesh::create( geometry );
-    mesh->appendVbo( layout, vbo );
-
-    return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstanceModelMatrix" }, { geom::Attrib::COLOR, "vInstanceColor" } } );
-}
-
 void CityView::draw( const Options &options ) const
 {
+    {
+        // Fill the screen with our sky... at some point it should probably
+        // become a skybox since the gradient doesn't move with the camera.
+        gl::ScopedMatrices matrixScope;
+        vec2 window = ci::app::getWindowSize();
+        gl::setMatricesWindow( window );
+        gl::translate( window.x / 2.0, 0.5 * window.y );
+        gl::scale( window.x, window.y, 1 );
+
+        sky->draw();
+    }
+
+    gl::ScopedDepth depthScope(true);
     gl::ScopedBlendAlpha scopedAlpha;
 
     ground->draw();

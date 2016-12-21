@@ -40,10 +40,10 @@ public:
 
     CityView( const Cityscape::CityModel &model );
 
-    ci::gl::BatchRef buildBatch( const ci::gl::GlslProgRef &shader, const ci::geom::SourceMods &geometry, const std::vector<InstanceData> &instances ) const;
 
     void draw( const Options &o ) const;
 
+    ci::gl::BatchRef              sky;
     ci::gl::BatchRef              ground;
     std::vector<ci::gl::BatchRef> roads;
     std::vector<ci::gl::BatchRef> districts;

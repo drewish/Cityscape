@@ -51,7 +51,6 @@ class CityscapeApp : public App {
 
     ModeRef             mModeRef;
     ci::params::InterfaceGlRef mParams;
-    ci::gl::BatchRef    mSkyBatch;
     // These names aren't great but it's for seeing where the mouse would
     // intersect with the ground plane.
     bool                mIsMouseOnPlane;
@@ -60,45 +59,6 @@ class CityscapeApp : public App {
     enum action { ACTION_ADD, ACTION_HOVER, ACTION_MOVE, ACTION_PAN };
     action              mEditAction;
 };
-
-// TODO: move this into the CityView class... let it handle generating the sky and ground
-void CityscapeApp::buildBackground()
-{
-    vector<vec3> positions;
-    vector<Color> colors;
-    Color darkBlue = Color8u(108, 184, 251);
-    Color medBlue = Color8u(160, 212, 250);
-    Color lightBlue = Color8u(174, 214, 246);
-
-    positions.push_back( vec3( +0.5, -0.5, +0.0 ) );
-    positions.push_back( vec3( -0.5, -0.5, +0.0 ) );
-    colors.push_back( darkBlue );
-    colors.push_back( darkBlue );
-    positions.push_back( vec3( +0.5, -0.2, +0.0 ) );
-    positions.push_back( vec3( -0.5, -0.2, +0.0 ) );
-    colors.push_back( medBlue );
-    colors.push_back( medBlue );
-    positions.push_back( vec3( +0.5, +0.2, +0.0 ) );
-    positions.push_back( vec3( -0.5, +0.2, +0.0 ) );
-    colors.push_back( medBlue );
-    colors.push_back( medBlue );
-    positions.push_back( vec3( +0.5, +0.5, +0.0 ) );
-    positions.push_back( vec3( -0.5, +0.5, +0.0 ) );
-    colors.push_back( lightBlue );
-    colors.push_back( lightBlue );
-
-    vector<gl::VboMesh::Layout> bufferLayout = {
-        gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::Attrib::POSITION, 3 ),
-        gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::Attrib::COLOR, 3 ),
-    };
-    gl::VboMeshRef mesh = gl::VboMesh::create( positions.size(), GL_TRIANGLE_STRIP, bufferLayout );
-    mesh->bufferAttrib( geom::Attrib::POSITION, positions );
-    mesh->bufferAttrib( geom::Attrib::COLOR, colors );
-
-    gl::GlslProgRef shader = gl::getStockShader( gl::ShaderDef().color() );
-
-    mSkyBatch = gl::Batch::create( mesh, shader );
-}
 
 void CityscapeApp::setup()
 {
@@ -117,8 +77,6 @@ void CityscapeApp::setup()
     mViewCamera.lookAt( vec3( 0, -600, 200 ), vec3( 0, 0, 0 ), vec3( 0, 0, 1 ) );
     mViewCameraUI = CameraUi( &mViewCamera );
     mViewCameraUI.enable( ! mIsEditing );
-
-    buildBackground();
 
     // Track current time so we can calculate elapsed time.
     mCurrentSeconds = getElapsedSeconds();
@@ -278,20 +236,8 @@ void CityscapeApp::calcMouseOnPlane( vec2 mouse )
 void CityscapeApp::draw()
 {
     gl::clear( Color::white() );
-    {
-        // Fill the screen with our sky... at some point it should probably
-        // become a skybox since the gradient moves with the camera.
-        gl::ScopedMatrices matrixScope;
-        vec2 window = getWindowSize();
-        gl::setMatricesWindow( window );
-        gl::translate( window.x / 2.0, 0.5 * window.y );
-        gl::scale( window.x, window.y, 1 );
-
-        mSkyBatch->draw();
-    }
 
     {
-        gl::ScopedDepth depthScope(true);
         gl::ScopedMatrices matrixScope;
         if ( mIsEditing ) {
             gl::ScopedColor scopedColor( Color::white() );
