@@ -25,12 +25,12 @@ class FlatShape {
 
     static FlatShapeRef create( const ci::PolyLine2f &outline, const PolyLine2fs &holes = {} )
     {
-        return FlatShapeRef( new FlatShape( outline, holes ) );
+        return std::make_shared<FlatShape>( outline, holes );
     }
 
     static FlatShapeRef create( const CGAL::Polygon_with_holes_2<ExactK> &pwh )
     {
-        return FlatShapeRef( new FlatShape( pwh ) );
+        return std::make_shared<FlatShape>( pwh );
     }
 
     static FlatShapeRef create( const Arrangement_2::Face_iterator &face )
@@ -40,7 +40,7 @@ class FlatShape {
         for ( auto hole = face->holes_begin(); hole != face->holes_end(); ++hole ) {
             lotHoles.push_back( polyLineFrom( *hole ) );
         }
-        return FlatShapeRef( new FlatShape( lotOutline, lotHoles ) );
+        return std::make_shared<FlatShape>( lotOutline, lotHoles );
     }
 
     // * * *

@@ -82,7 +82,7 @@ namespace Cityscape {
 
     struct ZoningPlan {
         static ZoningPlanRef create( const std::string &name ) {
-            return ZoningPlanRef( new ZoningPlan( name ) );
+            return std::make_shared<ZoningPlan>( name );
         };
 
         ZoningPlan( const std::string &name ) : name( name ) {};
@@ -164,7 +164,7 @@ namespace Cityscape {
 
     struct Highway : public Road {
         static HighwayRef create( const ci::vec2 &from, const ci::vec2 &to ) {
-            return HighwayRef( new Highway( from, to ) );
+            return std::make_shared<Highway>( from, to );
         };
 
         using Road::Road;
@@ -174,7 +174,7 @@ namespace Cityscape {
 
     struct Street : public Road {
         static StreetRef create( const ci::vec2 &from, const ci::vec2 &to ) {
-            return StreetRef( new Street( from, to ) );
+            return std::make_shared<Street>( from, to );
         };
 
         using Road::Road;
@@ -195,7 +195,7 @@ namespace Cityscape {
     struct District : public Ground {
         static DistrictRef create( const FlatShapeRef &s, const ZoningPlanRef &zp )
         {
-            return DistrictRef( new District( s, zp ) );
+            return std::make_shared<District>( s, zp );
         };
 
         using Ground::Ground;
@@ -206,7 +206,7 @@ namespace Cityscape {
     };
 
     struct Block : public Ground {
-        static BlockRef create( const FlatShapeRef &s ) { return BlockRef( new Block( s ) ); };
+        static BlockRef create( const FlatShapeRef &s ) { return std::make_shared<Block>( s ); };
 
         using Ground::Ground;
 
@@ -214,7 +214,7 @@ namespace Cityscape {
     };
 
     struct Lot : public Ground {
-        static LotRef create( const FlatShapeRef &s ) { return LotRef( new Lot( s ) ); };
+        static LotRef create( const FlatShapeRef &s ) { return std::make_shared<Lot>( s ); };
 
         using Ground::Ground;
 
