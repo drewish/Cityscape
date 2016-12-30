@@ -97,6 +97,26 @@ float FlatShape::calcArea() const
     return area;
 }
 
+Arrangement_2 FlatShape::arrangement() const {
+    Arrangement_2 arr;
+
+    OutlineObserver outObs( arr );
+    std::list<Segment_2> outlineSegments;
+    contiguousSegmentsFrom( mOutline, std::back_inserter( outlineSegments ) );
+    insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
+    outObs.detach();
+
+    HoleObserver holeObs( arr );
+    std::vector<Segment_2> holeSegments;
+    for ( const auto &hole : mHoles ) {
+        contiguousSegmentsFrom( hole.getPoints(), back_inserter( holeSegments ) );
+    }
+    insert( arr, holeSegments.begin(), holeSegments.end() );
+    holeObs.detach();
+
+    return arr;
+}
+
 std::vector<seg2> FlatShape::dividerSeg2s( float angle, float spacing ) const
 {
     std::vector<seg2> results;
@@ -112,10 +132,11 @@ std::vector<Segment_2> FlatShape::dividerSegment_2s( float angle, float spacing 
 {
     assert( spacing > 0 );
 
-    std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( mOutline.getPoints() );
+    std::list<Segment_2> outlineSegments;
+    auto inserter = std::back_inserter( outlineSegments );
+    contiguousSegmentsFrom( mOutline, inserter );
     for ( const auto &hole : mHoles ) {
-        auto holeSegments = contiguousSegmentsFrom( hole.getPoints() );
-        outlineSegments.insert( outlineSegments.end(), holeSegments.begin(), holeSegments.end() );
+        contiguousSegmentsFrom( hole, inserter );
     }
 
     // Walking across the shape and find the portion of the divider that is

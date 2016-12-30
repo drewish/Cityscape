@@ -19,16 +19,11 @@
 #include <CGAL/Arr_overlay_2.h>
 
 
-// Need to benchmark this kernel to see if it's faster.
-#include <CGAL/Cartesian.h>
-typedef CGAL::Quotient<CGAL::MP_Float> Number_type;
-typedef CGAL::Cartesian<Number_type> Kernel;
-
 enum class FaceRole { Shape, Hole };
 enum class EdgeRole { Undef = 0, Exterior, Divider };
 typedef CGAL::Arr_segment_traits_2<ExactK>              Traits_2;
 // vert, halfedge, face but I'm only using edge and face values
-typedef CGAL::Arr_extended_dcel<Traits_2, bool, EdgeRole, FaceRole> Dcel;
+typedef CGAL::Arr_extended_dcel<Traits_2, float, EdgeRole, FaceRole> Dcel;
 typedef CGAL::Arrangement_2<Traits_2, Dcel>             Arrangement_2;
 typedef Traits_2::Point_2                               Point_2;
 typedef Traits_2::X_monotone_curve_2                    Segment_2;
@@ -93,13 +88,13 @@ struct Arr_extended_overlay_traits : public CGAL::_Arr_default_overlay_traits_ba
     }
 };
 
-
-inline ci::vec2 vecFrom(const Kernel::Point_2 &p)
+inline ci::vec3 vec3From( const Arrangement_2::Vertex_const_handle &vertex )
 {
-    return ci::vec2( CGAL::to_double( p.x() ), CGAL::to_double( p.y() ) );
+    return ci::vec3( vecFrom( vertex->point() ), vertex->data() );
 }
 
 ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator );
+ci::PolyLine3f polyLine3fFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator );
 
 inline Point_2 pointFrom( const ci::vec2 &p )
 {
@@ -111,12 +106,35 @@ inline Segment_2 segmentFrom( const seg2 &s )
 {
     return Segment_2( pointFrom( s.first ), pointFrom( s.second ) );
 }
+inline Segment_2 segmentFrom( const ci::vec2 &a, const ci::vec2 &b )
+{
+    return Segment_2( pointFrom( a ), pointFrom( b ) );
+}
 
 void findIntersections( const std::list<Segment_2> &input, std::list<Segment_2> &newEdges );
 
+// For an input: a,b,c
+//   when open: a->b,b->c
+//   when closed: a->b,b->c,c->a
+// For an input: a,b,c,a
+//   when open: a->b,b->c,c->a
+//   when closed: a->b,b->c,c->a
+template<class OI>
+void contiguousSegmentsFrom( const ci::PolyLine2f &polyline, OI out )
+{
+    if ( polyline.size() < 2 ) return;
+
+    std::transform( polyline.begin(), polyline.end() - 1, polyline.begin() + 1, out,
+        []( const ci::vec2 &a, const ci::vec2 &b ) { return segmentFrom( a, b ); } );
+
+    if ( polyline.isClosed() ) {
+        auto &points = polyline.getPoints();
+        if ( points.front() != points.back() ) {
+            out++ = segmentFrom( points.back(), points.front() );
+        }
+    }
+}
 // Segments will be created from a->b, b->c, c->d
-std::list<Segment_2> contiguousSegmentsFrom( const std::vector<ci::vec2> &points );
-std::list<Segment_2> contiguousSegmentsFrom( const std::vector<Point_2> &points );
 template<class OI>
 void contiguousSegmentsFrom( const std::vector<ci::vec2> &points, OI out )
 {

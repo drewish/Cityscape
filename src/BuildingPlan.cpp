@@ -258,8 +258,20 @@ void buildSawtoothRoof( const PolyLine2f &outline, float upWidth, float height, 
 
     // Put the outline onto the arrangment.
     Arrangement_2 arr;
-    std::list<Segment_2> outlineSegments = contiguousSegmentsFrom( outline.getPoints() );
+    std::list<Segment_2> outlineSegments;
+	contiguousSegmentsFrom( outline, back_inserter( outlineSegments ) );
     insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
+
+    PolyLine2f outerOutline = outline;
+
+    // If there's an overhang add those outer points too.
+    float overhang = 5;
+    if ( overhang > 0.0 ) {
+        outerOutline = polyLineFrom( *expandPolygon( overhang, polygonFrom<InexactK>( outerOutline ) ) );
+        std::list<Segment_2> outlineSegments;
+        contiguousSegmentsFrom( outerOutline, back_inserter( outlineSegments ) );
+        insert( arr, outlineSegments.begin(), outlineSegments.end() );
+    }
 
     // See where the high and low reversals are on the outline and add those
     // points to the original arrangement so we can specify heights.
@@ -276,7 +288,7 @@ void buildSawtoothRoof( const PolyLine2f &outline, float upWidth, float height, 
     };
 // TODO: look at replacing this with two calls to computeDividers(), one for each height
     u_int16_t step = 0;
-    Rectf bounds = Rectf( outline.getPoints() );
+    Rectf bounds = Rectf( outerOutline.getPoints() );
     float x = bounds.x1;
     while ( x < bounds.x2 ) {
         Arrangement_2 copy = Arrangement_2( arr );
