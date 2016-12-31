@@ -1,10 +1,9 @@
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-
+#include "cinder/gl/gl.h"
 #include "cinder/Camera.h"
 #include "cinder/CameraUi.h"
 #include "cinder/GeomIo.h"
-#include "cinder/gl/gl.h"
 
 #include "CityData.h"
 
@@ -314,7 +313,7 @@ void CityscapeApp::drawCursor()
     }
 }
 
-void prepareSettings( App::Settings *settings )
+void prepareSettings( CityscapeApp::Settings *settings )
 {
     settings->setHighDensityDisplayEnabled();
 }

@@ -18,9 +18,9 @@ class BuildingMode : public BaseMode
     void setOutline( const ci::PolyLine2f &outline );
 
   private:
-    BuildingPlan::RoofStyle mRoof = BuildingPlan::RoofStyle::FLAT_ROOF;
+    BuildingPlan::RoofStyle mRoof = BuildingPlan::RoofStyle::SAWTOOTH_ROOF;
     ci::PolyLine2f mOutline;
     int32_t mFloors = 1;
     float mRoofSlope = 0.5f;
-    float mRoofOverhang = 0.0f;
+    float mRoofOverhang = 1.0f;
 };

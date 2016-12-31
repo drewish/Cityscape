@@ -93,6 +93,7 @@
 		25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = CityscapeApp.cpp; path = ../src/CityscapeApp.cpp; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		4913FC691E0DC503001702CA /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = System/Library/Frameworks/QTKit.framework; sourceTree = SDKROOT; };
 		494BE6A91C8B866500E50477 /* RoadBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RoadBuilder.cpp; path = ../src/RoadBuilder.cpp; sourceTree = "<group>"; };
 		494BE6AA1C8B866500E50477 /* RoadBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoadBuilder.h; sourceTree = "<group>"; };
 		494BE6AC1C8B9D9100E50477 /* CityData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CityData.cpp; path = ../src/CityData.cpp; sourceTree = "<group>"; };
@@ -331,6 +332,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4913FC691E0DC503001702CA /* QTKit.framework */,
 				5F3F83071E08E9E4004051B2 /* libboost_thread-mt.dylib */,
 				5F3F83081E08E9E4004051B2 /* libCGAL_Core.12.0.0.dylib */,
 				5F3F83091E08E9E4004051B2 /* libCGAL.12.0.0.dylib */,
@@ -629,7 +631,6 @@
 					/usr/local/Cellar/boost/1.62.0/lib,
 					/usr/local/Cellar/cgal/4.9/lib,
 				);
-				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder_d.a\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Cityscape;
 				SYMROOT = ./build;
@@ -663,7 +664,6 @@
 					/usr/local/Cellar/boost/1.62.0/lib,
 					/usr/local/Cellar/cgal/4.9/lib,
 				);
-				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder.a\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Cityscape;
 				STRIP_INSTALLED_PRODUCT = YES;
@@ -686,9 +686,9 @@
 					"\"$(CINDER_PATH)/include\"",
 					/usr/local/include/,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder_d.a\"";
+				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/macosx/$(CONFIGURATION)/libcinder.a\"";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = ../include;
 				VALID_ARCHS = x86_64;
@@ -708,8 +708,8 @@
 					"\"$(CINDER_PATH)/include\"",
 					/usr/local/include/,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/libcinder.a\"";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/macosx/$(CONFIGURATION)/libcinder.a\"";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};

@@ -20,7 +20,7 @@ void BuildingMode::setup() {
     district->blocks.push_back( block );
     block->lots.push_back( lot );
 
-    setOutline( polyLineLShape() );
+    mOutline = polyLineLShape();
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
@@ -34,7 +34,7 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
         .min( 0.0 ).max( 5.0 ).step( 0.25 )
         .updateFn( [this] { requestLayout(); } );
     params->addParam( "Floors", &mFloors)
-        .min( 1 ).max( 5 )
+        .min( 0 ).max( 5 )
         .keyDecr( "-" ).keyIncr( "=" )
         .updateFn( [this] { requestLayout(); } );
 

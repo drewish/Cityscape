@@ -15,7 +15,8 @@
 #include "cinder/Rand.h"
 #include "cinder/Triangulate.h"
 
-#include <CGAL/Sweep_line_2_algorithms.h>
+#include <CGAL/Sweep_line_2_algorithms.h> // TODO: can drop soon?
+#include <CGAL/Arr_overlay_2.h>
 
 using namespace ci;
 using namespace ci::geom;
@@ -249,84 +250,143 @@ void buildShedRoof( const PolyLine2f &wallOutline, float slope, float overhang, 
     buildSidesFromOutlineAndTopOffsets( wallOutline, offsetMap, verts, indices );
 }
 
-// TODO:
-// - make the roof orientation configurable...
-// - ...which would require a more complicated formula for determining height
-void buildSawtoothRoof( const PolyLine2f &outline, float upWidth, float height, float downWidth, vector<vec3> &verts, vector<uint32_t> &indices )
-{
-    if (outline.size() < 3) return;
 
-    // Put the outline onto the arrangment.
+Arrangement_2 arrangementForOutline( const PolyLine2f &outline )
+{
     Arrangement_2 arr;
-    std::list<Segment_2> outlineSegments;
-	contiguousSegmentsFrom( outline, back_inserter( outlineSegments ) );
+    OutlineObserver outObs( arr );
+
+    std::vector<Segment_2> outlineSegments;
+    contiguousSegmentsFrom( outline, back_inserter( outlineSegments ) );
     insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
 
-    PolyLine2f outerOutline = outline;
+    outObs.detach();
 
-    // If there's an overhang add those outer points too.
-    float overhang = 5;
-    if ( overhang > 0.0 ) {
-        outerOutline = polyLineFrom( *expandPolygon( overhang, polygonFrom<InexactK>( outerOutline ) ) );
-        std::list<Segment_2> outlineSegments;
-        contiguousSegmentsFrom( outerOutline, back_inserter( outlineSegments ) );
-        insert( arr, outlineSegments.begin(), outlineSegments.end() );
+    return arr;
+}
+
+// Creates fields of roof (top parts)
+//
+// Expects the arrangement to have:
+// - face data set to indicate holes
+// - vertex data set with heights
+TriMesh buildRoofFields( const Arrangement_2 &arrangement )
+{
+    // Now turn the arrangment into a mesh (there should just be one face with
+    // an single hole).
+    Triangulator triangulator;
+    for ( auto face = arrangement.faces_begin(); face != arrangement.faces_end(); ++face ) {
+        if ( !face->is_unbounded() && face->data() != FaceRole::Hole ) {
+            PolyLine3f faceOutline( polyLine3fFrom( face->outer_ccb() ) );
+            triangulator.addPolyLine( faceOutline );
+        }
+    }
+	return triangulator.calcMesh3d();
+}
+
+// Creates gables of roof (sides)
+//
+// Expects the arrangement to have:
+// - face data set to indicate holes
+// - vertex data set with heights
+TriMesh buildRoofGables( TriMesh result, const Arrangement_2 &arrangement )
+{
+    assert( result.getAttribDims( geom::Attrib::POSITION ) == 3 );
+
+    // This is a little odd since it just builds walls for holes in the
+    // unbounded face. The segments are in reverse order so when we build
+    // triangles we have to reverse them.
+    auto face = arrangement.unbounded_face();
+    for ( auto hole = face->inner_ccbs_begin(); hole != face->inner_ccbs_end(); ++hole ) {
+        auto start = *hole, edge = start;
+        vec3 zeroZ( 1, 1, 0 );
+        do {
+            if ( edge->face()->data() == FaceRole::Hole && edge->twin()->face()->data() == FaceRole::Shape ) {
+                u_int32_t index_base = result.getNumVertices();
+                vec3 a = vec3From( edge->source() );
+                vec3 b = vec3From( edge->target() );
+                vec3 verts[4] = { a, a * zeroZ, b, b * zeroZ };
+                result.appendPositions( verts, 4 );
+                result.appendTriangle( index_base + 1, index_base + 0, index_base + 2 );
+                result.appendTriangle( index_base + 3, index_base + 1, index_base + 2 );
+            }
+        } while ( ++edge != start );
     }
 
-    // See where the high and low reversals are on the outline and add those
-    // points to the original arrangement so we can specify heights.
-    class Observer : public CGAL::Arr_observer<Arrangement_2> {
-      public :
-        Observer( Arrangement_2& arr ) : CGAL::Arr_observer<Arrangement_2>( arr ) {}
+	return result;
+}
 
-        virtual void before_split_edge (
-            Halfedge_handle e, Vertex_handle v,
-            const X_monotone_curve_2& c1, const X_monotone_curve_2& c2
-        ) { points.push_back( v->point() ); }
+struct SawtoothSettings {
+    float downWidth;
+    float upWidth;
+    float valleyHeight;
+    float peakHeight;
+    float overhang;
+};
 
-        std::vector<Point_2> points;
-    };
-// TODO: look at replacing this with two calls to computeDividers(), one for each height
+float sawtoothHeight( const SawtoothSettings &settings, const float leftEdge, const vec2 &v ) {
+    float p = fmod( v.x - leftEdge, settings.upWidth + settings.downWidth );
+    float deltaY = settings.peakHeight - settings.valleyHeight;
+    if ( p < settings.upWidth ) {
+        // upslope
+        return ( deltaY / settings.upWidth ) * p + settings.valleyHeight;
+    } else {
+        // downslope
+        return ( -deltaY / settings.downWidth ) * ( p - settings.upWidth ) + settings.peakHeight;
+    }
+}
+
+// TODO:
+// - make the roof orientation configurable (requires a more complicated formula
+//   for determining height)
+TriMesh buildSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings &settings )
+{
+    if (wallOutline.size() < 3) return TriMesh();
+
+    Arrangement_2 arrWalls = arrangementForOutline( wallOutline );
+    Arrangement_2 arrRoofEdge;
+    PolyLine2f roofOutline;
+    if ( settings.overhang > 0.0 ) {
+        roofOutline = polyLineFrom( *expandPolygon( settings.overhang, polygonFrom<InexactK>( wallOutline ) ) );
+        arrRoofEdge = arrangementForOutline( roofOutline );
+    } else {
+        roofOutline = wallOutline;
+        arrRoofEdge = arrWalls;
+    }
+
+    // TODO: would be nice to replace this with computeDividers() but that would need
+    // an inital offset from the edge to work:
+    // - down dividers (start with 0 offset, repeat every upWidth+downWidth)
+    // - up dividers (start offset by upWidth, repeat every upWidth+downWidth)
+    Arrangement_2 arrDividers;
     u_int16_t step = 0;
-    Rectf bounds = Rectf( outerOutline.getPoints() );
+    Rectf bounds = Rectf( roofOutline.getPoints() );
     float x = bounds.x1;
     while ( x < bounds.x2 ) {
-        Arrangement_2 copy = Arrangement_2( arr );
-        Observer observer( copy );
-        insert( copy, Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) ) );
-        for ( const auto &p : observer.points ) {
-            insert_point( arr, p );
-        }
+        Segment_2 segment = Segment_2( Point_2( x, bounds.y2 ), Point_2( x, bounds.y1 ) );
+        CGAL::insert_non_intersecting_curve( arrDividers, segment );
 
-        x += (step % 2) ? downWidth : upWidth;
+        x += (step % 2) ? settings.downWidth : settings.upWidth;
         ++step;
     };
 
-    // Compute a height for each vertex (we need to do them all because the
-    // outline may have points between the peaks and valleys).
-    OffsetMap offsets;
-    for ( auto i = arr.vertices_begin(); i != arr.vertices_end(); ++i ) {
-        vec2 v = vecFrom( i->point() );
-        float h = 0;
-        float p = fmod(v.x - bounds.x1, upWidth + downWidth);
-        if ( p < upWidth ) {
-            h = ( height / upWidth ) * p;
-        } else {
-            h = ( -height / downWidth ) * ( p - upWidth ) + height;
-        }
+    Arr_extended_overlay_traits overlay_traits;
 
-        offsets[ std::make_pair( v.x, v.y ) ] = vec3( 0, 0, h );
+    // Compute the roof fields
+    Arrangement_2 arrRoofFields;
+    overlay( arrRoofEdge, arrDividers, arrRoofFields, overlay_traits );
+    for ( auto i = arrRoofFields.vertices_begin(); i != arrRoofFields.vertices_end(); ++i ) {
+        i->set_data( sawtoothHeight( settings, bounds.x1, vecFrom( i->point() ) ) );
     }
 
-    // Now turn the arrangment into a mesh (there should just be one face with
-    // an single hole).
-    for ( auto i = arr.faces_begin(); i != arr.faces_end(); ++i ) {
-        if ( i->is_unbounded() ) continue;
-
-        PolyLine2f faceOutline( polyLineFrom( i->outer_ccb() ) );
-        buildRoofFaceFromOutlineAndOffsets( faceOutline, offsets, verts, indices );
-        buildSidesFromOutlineAndTopOffsets( faceOutline, offsets, verts, indices );
+    // Now compute the gables
+    Arrangement_2 arrRoofGables;
+    overlay( arrWalls, arrDividers, arrRoofGables, overlay_traits );
+    for ( auto i = arrRoofGables.vertices_begin(); i != arrRoofGables.vertices_end(); ++i ) {
+        i->set_data( sawtoothHeight( settings, bounds.x1, vecFrom( i->point() ) ) );
     }
+
+	return buildRoofGables( buildRoofFields( arrRoofFields ), arrRoofGables );
 }
 
 class RoofMesh : public Source {
@@ -342,9 +402,6 @@ public:
                 break;
             case BuildingPlan::GABLED_ROOF:
                 buildGabledRoof( outline, slope, overhang, mPositions, mIndices );
-                break;
-            case BuildingPlan::SAWTOOTH_ROOF:
-                buildSawtoothRoof( outline, 10, 3, 5, mPositions, mIndices );
                 break;
             case BuildingPlan::SHED_ROOF:
                 buildShedRoof( outline, slope, overhang, mPositions, mIndices );
@@ -387,12 +444,18 @@ ci::geom::SourceMods BuildingPlan::buildGeometry( const ci::PolyLine2f &outline,
     const float FLOOR_HEIGHT = 10.0;
     float height = FLOOR_HEIGHT * floors;
 
-    // Extrude centers on the origin so half the walls will be below ground
-    geom::SourceMods walls = geom::Extrude( shapeFrom( outline ), height, 1.0f ).caps( false )
-        >> geom::Translate( vec3( 0, 0, height / 2.0f ) );
-
-    geom::SourceMods roof = RoofMesh( outline, roofStyle, slope, overhang )
-        >> geom::Translate( vec3( 0, 0, height ) );
-
-    return roof & walls;
+    if ( roofStyle == BuildingPlan::SAWTOOTH_ROOF ) {
+        SawtoothSettings settings = { 0 };
+        settings.valleyHeight = 0 + height;
+        settings.upWidth = 10;
+        settings.peakHeight = 3 + height;
+        settings.downWidth = 5;
+        settings.overhang = overhang;
+        return geom::SourceMods( buildSawtoothRoof( outline, settings ) );
+    } else {
+        // Extrude centers on the origin so half the walls will be below ground
+        geom::SourceMods walls = geom::Extrude( shapeFrom( outline ), height, 1.0f ).caps( false ) >> geom::Translate( vec3( 0, 0, height / 2.0f ) );
+        geom::SourceMods roof = RoofMesh( outline, roofStyle, slope, overhang ) >> geom::Translate( 0, 0, height );
+        return roof & walls;
+    }
 }

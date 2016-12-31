@@ -36,7 +36,8 @@ LotRef lotFrom( const Arrangement_2::Face_iterator &face ) {
     return lot;
 }
 
-void setEdgeRoles( const Arrangement_2::Halfedge_iterator begin, const Arrangement_2::Halfedge_iterator end, EdgeRole data ) {
+void setEdgeRoles( const Arrangement_2::Halfedge_iterator begin, const Arrangement_2::Halfedge_iterator end, EdgeRole data )
+{
     for ( auto i = begin; i != end; ++i ) { i->set_data( data ); }
 }
 
