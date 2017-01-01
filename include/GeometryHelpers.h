@@ -31,16 +31,30 @@ void contiguousSeg2sFrom( const ci::PolyLine2f &polyline, OI out )
 // For an input: a,b,c
 //   when open: a->b,b->c
 //   when closed: a->b,b->c,c->a
+//
 // For an input: a,b,c,a
 //   when open: a->b,b->c,c->a
 //   when closed: a->b,b->c,c->a
-void pointsInPairs( const ci::PolyLine2f &outline, std::function<void(const ci::vec2&, const ci::vec2&)> process );
+template<typename T>
+void pointsInPairs( const ci::PolyLineT<T> &outline, std::function<void(const T&, const T&)> process )
+{
+    if ( outline.size() < 2 ) return;
+
+    const std::vector<T> &points = outline.getPoints();
+    for ( auto prev = points.begin(), curr = prev + 1; curr != points.end(); ++curr ) {
+        process( *prev, *curr );
+        prev = curr;
+    }
+    if ( outline.isClosed() && points.front() != points.back() ) {
+        process( points.back(), points.front() );
+    }
+}
 
 // Find the angle in radians between each pair of points.
 template<class OI>
 void anglesBetweenPointsIn( const ci::PolyLine2f &outline, OI out )
 {
-    pointsInPairs( outline,
+    pointsInPairs<ci::vec2>( outline,
         [&]( const ci::vec2 &a, const ci::vec2 &b ) {
             ci::vec2 diff = b - a;
             *out++ = atan2( diff.y, diff.x );

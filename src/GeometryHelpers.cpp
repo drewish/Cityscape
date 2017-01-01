@@ -6,27 +6,6 @@ using std::numeric_limits;
 
 using namespace ci;
 
-// For an input: a,b,c
-//   when open: a->b,b->c
-//   when closed: a->b,b->c,c->a
-//
-// For an input: a,b,c,a
-//   when open: a->b,b->c,c->a
-//   when closed: a->b,b->c,c->a
-void pointsInPairs( const PolyLine2f &outline, std::function<void(const vec2&, const vec2&)> process )
-{
-    if ( outline.size() < 2 ) return;
-
-    const std::vector<vec2> &points = outline.getPoints();
-    for ( auto prev = points.begin(), curr = prev + 1; curr != points.end(); ++curr ) {
-        process( *prev, *curr );
-        prev = curr;
-    }
-    if ( outline.isClosed() && points.front() != points.back() ) {
-        process( points.back(), points.front() );
-    }
-}
-
 std::vector<float> anglesBetweenPointsIn( const PolyLine2f &outline )
 {
     std::vector<float> angles;
@@ -37,7 +16,7 @@ std::vector<float> anglesBetweenPointsIn( const PolyLine2f &outline )
 std::vector<float> distanceBetweenPointsIn( const PolyLine2f &outline )
 {
     std::vector<float> lengths;
-    pointsInPairs( outline,
+    pointsInPairs<vec2>( outline,
         [&lengths](const vec2 &a, const vec2 &b) {
             lengths.push_back( glm::distance( a, b ) );
         }
