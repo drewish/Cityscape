@@ -165,11 +165,9 @@ void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block
     // Build straight skeleton with holes
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( block->shape->polygonWithHoles<InexactK>() );
 
+    // Find the segments that make up the skeleton (ignoring edges connecting
+    // to the outline).
     std::vector<Segment_2> skeletonSegments;
-
-    float dividerAngle = 0;
-    float maxLength = 0;
-
     for ( auto edge = skel->halfedges_begin(); edge != skel->halfedges_end(); ++edge ) {
         const auto &currVert = edge->vertex(),     &nextVert = edge->next()->vertex();
         const auto &currPoint = currVert->point(), &nextPoint = nextVert->point();
@@ -177,18 +175,9 @@ void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block
         if ( currVert->is_skeleton() && nextVert->is_skeleton() ) {
             Segment_2 seg( Point_2( currPoint.x(), currPoint.y() ), Point_2( nextPoint.x(), nextPoint.y() ) );
 
-            // Find the angle of the longest skeleton segment edge.
-            vec2 vec = vecFrom( currPoint ) - vecFrom( nextPoint );
-            float length = glm::length2( vec );
-            if ( length > maxLength ) {
-                // Find the perpendicular angle.
-                dividerAngle = -atan2( vec.y, vec.x );
-                maxLength = length;
-            }
-
-            // The skeleton has half edges going both directions for each segment in
-            // the skeleton. We only need one so before putting a->b in check that
-            // b->a isn't already in there.
+            // Interating will visit halfedges going both ways in the skeleton,
+            // but we don't want twins. So before adding a->b, check that b->a
+            // isn't already in there.
             auto isReverseOf = [seg]( const Segment_2 &other ) {
                 return other.source() == seg.target() && other.target() == seg.source();
             };
@@ -234,6 +223,19 @@ void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block
 
     Arrangement_2 arrBlock = block->shape->arrangement();
     setEdgeRoles( arrBlock.halfedges_begin(), arrBlock.halfedges_end(), EdgeRole::Exterior );
+
+    // Find the angle of the longest skeleton segment edge.
+    float dividerAngle = 0;
+    float maxLength = 0;
+    for ( const Segment_2 &seg : skeletonSegments ) {
+        vec2 vec = vecFrom( seg.source() ) - vecFrom( seg.target() );
+        float length = glm::length2( vec );
+        if ( length > maxLength ) {
+            // Find the perpendicular angle.
+            dividerAngle = -atan2( vec.y, vec.x );
+            maxLength = length;
+        }
+    }
 
     // Then start walking across the outline adding dividers.
     // TODO: would be good to adjust the dividers to:
