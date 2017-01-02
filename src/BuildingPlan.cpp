@@ -43,7 +43,7 @@ ci::PolyLine2f BuildingPlan::randomOutline()
 
 // * * *
 
-// Add walls defined by an upper contour into a Trimesh
+// Add walls defined by an upper contour into a Trimesh.
 void buildWalls( TriMesh &result, const PolyLine3f &upperContour, float lowerHeight = 0 )
 {
     pointsInPairs<vec3>( upperContour, [&]( const vec3 &a, const vec3 &b ) {
@@ -53,6 +53,16 @@ void buildWalls( TriMesh &result, const PolyLine3f &upperContour, float lowerHei
         result.appendTriangle( index_base + 0, index_base + 1, index_base + 2 );
         result.appendTriangle( index_base + 1, index_base + 3, index_base + 2 );
     } );
+}
+
+// Build walls with a constant upper and lower height.
+void buildWalls( TriMesh &result, const PolyLine2f &footprint, float upperHeight, float lowerHeight = 0 )
+{
+    PolyLine3f wallContour;
+    for ( const vec2 &v : footprint.getPoints() ) {
+        wallContour.push_back( vec3( v, upperHeight ) );
+    }
+    buildWalls( result, wallContour, lowerHeight );
 }
 
 // * * *
@@ -148,7 +158,7 @@ void buildRoofFromSkeletonAndOffsets( const SsPtr &skel, const OffsetMap &offset
     }
 }
 
-TriMesh buildFlatRoof( const PolyLine2f &footprint, float height, float overhang )
+TriMesh buildFlatRoof( const PolyLine2f &footprint, float wallHeight, float overhang )
 {
     PolyLine2f roofOutline;
     if ( overhang > 0.0 ) {
@@ -159,15 +169,11 @@ TriMesh buildFlatRoof( const PolyLine2f &footprint, float height, float overhang
 
     PolyLine3f roofContour;
     for ( const vec2 &v : roofOutline.getPoints() ) {
-        roofContour.push_back( vec3( v, height ) );
+        roofContour.push_back( vec3( v, wallHeight ) );
     }
     TriMesh result = Triangulator( roofContour ).calcMesh3d();
 
-    PolyLine3f wallContour;
-    for ( const vec2 &v : footprint.getPoints() ) {
-        wallContour.push_back( vec3( v, height ) );
-    }
-    buildWalls( result, wallContour, 0 );
+    buildWalls( result, footprint, wallHeight, 0 );
 
     return result;
 }
@@ -248,36 +254,33 @@ void buildGabledRoof( const PolyLine2f &wallOutline, float slope, float overhang
 //   longest side of the outline and use that to define the roof plane. another
 //   would be passing in an angle.
 // - get a proper formula for determining height
-void buildShedRoof( const PolyLine2f &wallOutline, float slope, float overhang, vector<vec3> &verts, vector<uint32_t> &indices )
+TriMesh buildShedRoof( const PolyLine2f &footprint, const float wallHeight, const float slope, const float overhang )
 {
     PolyLine2f roofOutline;
     if ( overhang > 0.0 ) {
-        roofOutline = polyLineFrom( *expandPolygon( overhang, polygonFrom<InexactK>( roofOutline ) ) );
+        roofOutline = polyLineFrom( *expandPolygon( overhang, polygonFrom<InexactK>( footprint ) ) );
     } else {
-        roofOutline = wallOutline;
+        roofOutline = footprint;
     }
 
     // For now we find the left most point and have the roof slope up along the
     // x-axis from there.
-    float leftmost = wallOutline.begin()->x;
-    for ( auto &i : wallOutline ) {
-        if (i.x < leftmost) leftmost = i.x;
-    }
+    float leftmost = Rectf( roofOutline.getPoints() ).getX1();
 
-    OffsetMap offsetMap;
-    // - compute the height of vertexes based on position on the roof
-    for ( auto &i : wallOutline ) {
-        offsetMap[ std::make_pair( i.x, i.y ) ] = vec3( 0, 0, slope * ( i.x - leftmost ) );
+    PolyLine3f roofContour;
+    for ( const vec2 &v : roofOutline ) {
+        // - compute the height of vertexes based on position on the roof
+        roofContour.push_back( vec3( v, slope * ( v.x - leftmost ) + wallHeight ) );
     }
-    if ( overhang > 0.0 ) {
-        for ( auto &i : roofOutline ) {
-            offsetMap[ std::make_pair( i.x, i.y ) ] = vec3( 0, 0, slope * ( i.x - leftmost ) );
-        }
-    }
+    TriMesh result = Triangulator( roofContour ).calcMesh3d();
 
-    // - triangulate roof faces and add to mesh
-    buildRoofFaceFromOutlineAndOffsets( roofOutline, offsetMap, verts, indices );
-    buildSidesFromOutlineAndTopOffsets( wallOutline, offsetMap, verts, indices );
+    PolyLine3f wallContour;
+    for ( const vec2 &v : footprint ) {
+        wallContour.push_back( vec3( v, slope * ( v.x - leftmost ) + wallHeight ) );
+    }
+    buildWalls( result, wallContour, 0 );
+
+    return result;
 }
 
 
@@ -416,6 +419,7 @@ TriMesh buildSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings
     for ( auto i = arrRoofFields.vertices_begin(); i != arrRoofFields.vertices_end(); ++i ) {
         i->set_data( sawtoothHeight( settings, bounds.x1, vecFrom( i->point() ) ) );
     }
+    TriMesh result = buildRoofFields( arrRoofFields );
 
     // Now compute the gables
     Arrangement_2 arrRoofGables;
@@ -424,7 +428,7 @@ TriMesh buildSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings
         i->set_data( sawtoothHeight( settings, bounds.x1, vecFrom( i->point() ) ) );
     }
 
-	return buildRoofGables( buildRoofFields( arrRoofFields ), arrRoofGables );
+	return buildRoofGables( result, arrRoofGables );
 }
 
 class RoofMesh : public Source {
@@ -437,9 +441,6 @@ public:
                 break;
             case BuildingPlan::GABLED_ROOF:
                 buildGabledRoof( outline, slope, overhang, mPositions, mIndices );
-                break;
-            case BuildingPlan::SHED_ROOF:
-                buildShedRoof( outline, slope, overhang, mPositions, mIndices );
                 break;
 //            case BuildingPlan::GAMBREL_ROOF:
 //                // probably based off GABLED with an extra division of the faces to give it the barn look
@@ -481,6 +482,8 @@ ci::geom::SourceMods BuildingPlan::buildGeometry( const ci::PolyLine2f &outline,
 
     if ( roofStyle == BuildingPlan::FLAT_ROOF ) {
         return geom::SourceMods( buildFlatRoof( outline, height, overhang ) );
+    } else if ( roofStyle == BuildingPlan::SHED_ROOF ) {
+        return geom::SourceMods( buildShedRoof( outline, height, slope, overhang ) );
     } else if ( roofStyle == BuildingPlan::SAWTOOTH_ROOF ) {
         SawtoothSettings settings = { 0 };
         settings.valleyHeight = 0 + height;
