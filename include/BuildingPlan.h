@@ -47,7 +47,7 @@ class BuildingPlan : public Scenery {
     }
 
   protected:
-    static ci::geom::SourceMods buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang );
+    static ci::TriMesh buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang );
 
     BuildingPlan( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang )
       : Scenery(

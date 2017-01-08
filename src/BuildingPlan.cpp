@@ -77,13 +77,14 @@ void buildWalls( TriMesh &result, const PolyLine2f &footprint, float upperHeight
 }
 
 
+// This looks at holes in the unbounded face of the arrangement and extracts
+// their outer bounds ignoring any divider segments sticking out.
+//
 // Expects the arrangement to have:
 // - face data set to indicate holes
 // - vertex data set with heights
 std::vector< std::vector<vec3> > outlinesFromArrangement( const Arrangement_2 &arrangement )
 {
-    // This looks at holes in the arrangement and extracts their outer bounds
-    // ignoring any divider segments sticking out.
     std::vector< std::vector<vec3> > results;
     auto face = arrangement.unbounded_face();
     for ( auto hole = face->inner_ccbs_begin(); hole != face->inner_ccbs_end(); ++hole ) {
@@ -104,12 +105,13 @@ std::vector< std::vector<vec3> > outlinesFromArrangement( const Arrangement_2 &a
             }
         } while ( ++edge != start );
 
+        // The holes are CW so we need to reverse them since wall building
+        // expects CCW.
         std::reverse( outline.begin(), outline.end() );
         results.push_back( outline );
     }
     return results;
 }
-
 
 // Creates fields of roof (top parts)
 //
@@ -128,44 +130,6 @@ TriMesh buildRoofFields( const Arrangement_2 &arrangement )
         }
     }
 	return triangulator.calcMesh3d();
-}
-
-// Creates gables of roof (sides)
-//
-// Expects the arrangement to have:
-// - face data set to indicate holes
-// - vertex data set with heights
-void buildRoofGables( TriMesh &result, const Arrangement_2 &arrangement )
-{
-    assert( result.getAttribDims( geom::Attrib::POSITION ) == 3 );
-
-    // This is a little odd since it just builds walls for holes in the
-    // unbounded face. The holes are CW so we need to reverse them before we
-    // build walls since it expects CCW.
-    auto face = arrangement.unbounded_face();
-    for ( auto hole = face->inner_ccbs_begin(); hole != face->inner_ccbs_end(); ++hole ) {
-        auto start = *hole, edge = start;
-        // Go around the loop until we find a valid edge to use as the
-        // starting point. If nothing is valid then bail.
-        bool ready = false;
-        do {
-            ready = edge->face()->data() == FaceRole::Hole && edge->twin()->face()->data() == FaceRole::Shape;
-        } while( !ready && ++edge != start );
-        if( !ready ) continue;
-
-        start = edge;
-        std::vector<vec3> outline;
-        outline.push_back( vec3From( edge->source() ) );
-        do {
-            if ( edge->face()->data() == FaceRole::Hole && edge->twin()->face()->data() == FaceRole::Shape ) {
-                outline.push_back( vec3From( edge->target() ) );
-            }
-        } while ( ++edge != start );
-
-        // Ideally we'd do this as a Polyline but it's got a bug: https://github.com/cinder/Cinder/pull/1698
-        std::reverse( outline.begin(), outline.end() );
-        buildWalls( result, PolyLine3f( outline ), 0 );
-    }
 }
 
 // * * *
@@ -197,7 +161,7 @@ TriMesh buildHippedRoof( const PolyLine2f &footprint, float wallHeight, float sl
         roofOutline = *expandPolygon( overhang, roofOutline );
     }
 
-    // - build straight skeleton
+    // Build straight skeleton
     SsPtr skel = CGAL::create_interior_straight_skeleton_2( roofOutline, InexactK() );
 
     // Roof fields
@@ -213,6 +177,7 @@ TriMesh buildHippedRoof( const PolyLine2f &footprint, float wallHeight, float sl
         triangulator.addPolyLine( outline.data(), outline.size() );
     }
     TriMesh result = triangulator.calcMesh3d();
+
     // Walls
     buildWalls( result, footprint, wallHeight, 0 );
 
@@ -222,7 +187,6 @@ TriMesh buildHippedRoof( const PolyLine2f &footprint, float wallHeight, float sl
 TriMesh buildGabledRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
 {
     CGAL::Polygon_2<InexactK> roofOutline = polygonFrom<InexactK>( footprint );
-
     if ( overhang > 0.0 ) {
         roofOutline = *expandPolygon( overhang, roofOutline );
     }
@@ -300,7 +264,6 @@ TriMesh buildGabledRoof( const PolyLine2f &footprint, float wallHeight, float sl
 
     OverlayWithHeight overlay_traits;
 
-
     // Roof fields
     std::vector<Segment_2> borderSegs;
     contiguousSegmentsFrom( roofOutline, std::back_inserter( borderSegs ) );
@@ -321,7 +284,9 @@ TriMesh buildGabledRoof( const PolyLine2f &footprint, float wallHeight, float sl
 
     Arrangement_2 gableArr;
     overlay( wallArr, dividerArr, gableArr, overlay_traits );
-    buildRoofGables( result, gableArr );
+    for ( std::vector<vec3> outline : outlinesFromArrangement( gableArr ) ) {
+        buildWalls( result, outline );
+    }
 
     return result;
 }
@@ -346,7 +311,7 @@ TriMesh buildShedRoof( const PolyLine2f &footprint, const float wallHeight, cons
 
     std::vector<vec3> roofContour;
     for ( const vec2 &v : roofOutline ) {
-        // - compute the height of vertexes based on position on the roof
+        // Compute the height of vertexes based on position on the roof
         roofContour.push_back( vec3( v, slope * ( v.x - leftmost ) + wallHeight ) );
     }
     TriMesh result = Triangulator( roofContour ).calcMesh3d();
@@ -440,19 +405,19 @@ TriMesh buildSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings
 	return result;
 }
 
-ci::geom::SourceMods BuildingPlan::buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roofStyle, float slope, float overhang )
+TriMesh BuildingPlan::buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roofStyle, float slope, float overhang )
 {
     const float FLOOR_HEIGHT = 10.0;
     float height = FLOOR_HEIGHT * floors;
 
     if ( roofStyle == BuildingPlan::FLAT_ROOF ) {
-        return geom::SourceMods( buildFlatRoof( outline, height, overhang ) );
+        return buildFlatRoof( outline, height, overhang );
     } else if ( roofStyle == BuildingPlan::SHED_ROOF ) {
-        return geom::SourceMods( buildShedRoof( outline, height, slope, overhang ) );
+        return buildShedRoof( outline, height, slope, overhang );
     } else if ( roofStyle == BuildingPlan::HIPPED_ROOF ) {
-        return geom::SourceMods( buildHippedRoof( outline, height, slope, overhang ) );
+        return buildHippedRoof( outline, height, slope, overhang );
     } else if ( roofStyle == BuildingPlan::GABLED_ROOF ) {
-        return geom::SourceMods( buildGabledRoof( outline, height, slope, overhang ) );
+        return buildGabledRoof( outline, height, slope, overhang );
     } else if ( roofStyle == BuildingPlan::SAWTOOTH_ROOF ) {
         SawtoothSettings settings = { 0 };
         settings.valleyHeight = 0 + height;
@@ -460,8 +425,8 @@ ci::geom::SourceMods BuildingPlan::buildGeometry( const ci::PolyLine2f &outline,
         settings.peakHeight = 3 + height;
         settings.downWidth = 5;
         settings.overhang = overhang;
-        return geom::SourceMods( buildSawtoothRoof( outline, settings ) );
+        return buildSawtoothRoof( outline, settings );
     } else {
-        return ci::geom::SourceMods();
+        return TriMesh();
     }
 }
