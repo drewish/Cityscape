@@ -32,10 +32,10 @@ Clone this repo:
 git clone https://github.com/drewish/Cityscape.git
 ```
 
-Install Cinder 0.9.1dev in a sibling directory:
+Install my `triangulate-3d` branch of Cinder 0.9.1dev in a sibling directory:
 
 ```
-git clone --recursive https://github.com/cinder/Cinder.git
+git clone --recursive https://github.com/drewish/Cinder.git -b triangulate-3d
 Cinder/xcode/fullbuild.sh
 ```
 
