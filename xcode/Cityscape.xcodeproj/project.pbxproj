@@ -16,6 +16,8 @@
 		494BE6AB1C8B866500E50477 /* RoadBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494BE6A91C8B866500E50477 /* RoadBuilder.cpp */; };
 		494BE6AD1C8B9D9100E50477 /* CityData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494BE6AC1C8B9D9100E50477 /* CityData.cpp */; };
 		497EFE111C4A0D240053D720 /* GeometryHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */; };
+		498027E41E22E68400CB5CA4 /* normal_colored.frag in Resources */ = {isa = PBXBuildFile; fileRef = 498027E31E22E68400CB5CA4 /* normal_colored.frag */; };
+		498027E61E22E6A000CB5CA4 /* normal_colored.vert in Resources */ = {isa = PBXBuildFile; fileRef = 498027E51E22E6A000CB5CA4 /* normal_colored.vert */; };
 		4983C3731C8954A200531A46 /* tree.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4983C3711C8954A200531A46 /* tree.frag */; };
 		4983C3741C8954A200531A46 /* tree.vert in Resources */ = {isa = PBXBuildFile; fileRef = 4983C3721C8954A200531A46 /* tree.vert */; };
 		49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = 49A6B2DF1ABBFD3E000EA750 /* TODO.md */; };
@@ -100,6 +102,8 @@
 		495222581C7ED78700FC88B7 /* CgalPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CgalPolygon.h; sourceTree = "<group>"; };
 		497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryHelpers.h; sourceTree = "<group>"; };
 		497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryHelpers.cpp; path = ../src/GeometryHelpers.cpp; sourceTree = "<group>"; };
+		498027E31E22E68400CB5CA4 /* normal_colored.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = normal_colored.frag; path = ../resources/normal_colored.frag; sourceTree = "<group>"; };
+		498027E51E22E6A000CB5CA4 /* normal_colored.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = normal_colored.vert; path = ../resources/normal_colored.vert; sourceTree = "<group>"; };
 		4983C3711C8954A200531A46 /* tree.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = tree.frag; path = ../resources/tree.frag; sourceTree = "<group>"; };
 		4983C3721C8954A200531A46 /* tree.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = tree.vert; path = ../resources/tree.vert; sourceTree = "<group>"; };
 		49A6B2DF1ABBFD3E000EA750 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = TODO.md; path = ../TODO.md; sourceTree = "<group>"; };
@@ -320,10 +324,12 @@
 			children = (
 				5FD4C4991D87BF8000EF8E51 /* car_01.obj */,
 				5F27C11D1D84625700EC1F03 /* plane.obj */,
-				4983C3721C8954A200531A46 /* tree.vert */,
-				4983C3711C8954A200531A46 /* tree.frag */,
 				49E959211B23EC340093E4C8 /* direction_colored.vert */,
 				49E959231B23EC4D0093E4C8 /* direction_colored.frag */,
+				498027E51E22E6A000CB5CA4 /* normal_colored.vert */,
+				498027E31E22E68400CB5CA4 /* normal_colored.frag */,
+				4983C3721C8954A200531A46 /* tree.vert */,
+				4983C3711C8954A200531A46 /* tree.frag */,
 				0AE48136C1644371A1A5B3C8 /* CinderApp.icns */,
 				ACB4D9448A764F68A540CED0 /* Info.plist */,
 			);
@@ -462,12 +468,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				498027E61E22E6A000CB5CA4 /* normal_colored.vert in Resources */,
 				49A6B2E01ABBFD3E000EA750 /* TODO.md in Resources */,
 				5FD4C49A1D87BF8000EF8E51 /* car_01.obj in Resources */,
 				49E959241B23EC4D0093E4C8 /* direction_colored.frag in Resources */,
 				5F27C11E1D84625700EC1F03 /* plane.obj in Resources */,
 				4983C3741C8954A200531A46 /* tree.vert in Resources */,
 				49E959221B23EC340093E4C8 /* direction_colored.vert in Resources */,
+				498027E41E22E68400CB5CA4 /* normal_colored.frag in Resources */,
 				A27A70ECAE7549F98B411A74 /* CinderApp.icns in Resources */,
 				4983C3731C8954A200531A46 /* tree.frag in Resources */,
 			);
