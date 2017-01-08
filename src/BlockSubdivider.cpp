@@ -36,11 +36,6 @@ LotRef lotFrom( const Arrangement_2::Face_iterator &face ) {
     return lot;
 }
 
-void setEdgeRoles( const Arrangement_2::Halfedge_iterator begin, const Arrangement_2::Halfedge_iterator end, EdgeRole data )
-{
-    for ( auto i = begin; i != end; ++i ) { i->set_data( data ); }
-}
-
 void printArrangement( const Arrangement_2 &arr ) {
     std::cout << "\n\nArrangement\n";
     for ( auto e = arr.edges_begin(); e != arr.edges_end(); ++e ) {
@@ -76,7 +71,7 @@ LotRef lotFilling( const BlockRef &block ) {
 Arrangement_2 lotArrangement( const LotRef &lot ) {
     Arrangement_2 arrLot = lot->shape->arrangement();
     // Default edge role to divider, the override outside
-    setEdgeRoles( arrLot.halfedges_begin(), arrLot.halfedges_end(), EdgeRole::Divider );
+    setEdgeRoles( arrLot, EdgeRole::Divider );
 
     for ( auto e = arrLot.halfedges_begin(); e != arrLot.halfedges_end(); ++e ) {
         seg2 needle = seg2( vecFrom( e->source()->point() ), vecFrom( e->target()->point() ) );
@@ -222,7 +217,7 @@ void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block
     }
 
     Arrangement_2 arrBlock = block->shape->arrangement();
-    setEdgeRoles( arrBlock.halfedges_begin(), arrBlock.halfedges_end(), EdgeRole::Exterior );
+    setEdgeRoles( arrBlock, EdgeRole::Exterior );
 
     // Find the angle of the longest skeleton segment edge.
     float dividerAngle = 0;
@@ -246,7 +241,7 @@ void skeletonSubdivide( const ZoningPlan::BlockOptions &options, BlockRef &block
         insert_non_intersecting_curve( arrDividers, segment );
     }
     insert( arrDividers, skeletonSegments.begin(), skeletonSegments.end() );
-    setEdgeRoles( arrDividers.halfedges_begin(), arrDividers.halfedges_end(), EdgeRole::Divider );
+    setEdgeRoles( arrDividers, EdgeRole::Divider );
 
     block->lots = slice( arrBlock, arrDividers );
 }

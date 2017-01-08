@@ -287,6 +287,7 @@
 			);
 			name = Cityscape;
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		29B97315FDCFA39411CA2CEA /* Headers */ = {
 			isa = PBXGroup;
@@ -294,9 +295,9 @@
 				87F1E1C66EC543B1852B8B39 /* Cityscape_Prefix.pch */,
 				01D5293596684B61AD4041D5 /* Resources.h */,
 				49DC254D1B4C69E4003AD4B2 /* CgalKernel.h */,
+				495222581C7ED78700FC88B7 /* CgalPolygon.h */,
 				49DC254B1B4C65B1003AD4B2 /* CgalArrangement.h */,
 				49DC254C1B4C65D3003AD4B2 /* CgalStraightSkeleton.h */,
-				495222581C7ED78700FC88B7 /* CgalPolygon.h */,
 				497EFE0F1C4A0D0D0053D720 /* GeometryHelpers.h */,
 				5F5C2D831B0D9FF200541E95 /* FlatShape.h */,
 				49FC372E1C87E9FE00FD5ECB /* CityData.h */,

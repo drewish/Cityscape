@@ -11,6 +11,22 @@
 
 #include <CGAL/Sweep_line_2_algorithms.h>
 
+void setFaceRoles( Arrangement_2 &arr, FaceRole data )
+{
+    for( auto face = arr.faces_begin(); face != arr.faces_end(); ++face ) {
+        if( face->is_unbounded() ) continue;
+        face->set_data( data );
+    }
+}
+void setEdgeRoles( Arrangement_2 &arr, EdgeRole data )
+{
+    for ( auto edge = arr.edges_begin(); edge != arr.edges_end(); ++edge ) { edge->set_data( data ); }
+}
+void setVertexData( Arrangement_2 &arr, float data )
+{
+    for( auto vert = arr.vertices_begin(); vert != arr.vertices_end(); ++vert ) { vert->set_data( data ); }
+}
+
 ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator )
 {
     ci::PolyLine2f result;
@@ -22,9 +38,9 @@ ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator 
     return result;
 }
 
-ci::PolyLine3f polyLine3fFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator )
+std::vector<ci::vec3> vec3sFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator )
 {
-    ci::PolyLine3f result;
+    std::vector<ci::vec3> result;
     auto cc = circulator;
     result.push_back( vec3From( cc->source() ) );
     do {

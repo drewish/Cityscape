@@ -24,6 +24,8 @@ class BuildingPlan : public Scenery {
         SAWTOOTH_ROOF,
         SHED_ROOF,
         //GAMBREL_ROOF,
+
+        ROOF_STYLE_COUNT
     };
 
     static const std::vector<std::string> roofStyleNames()
