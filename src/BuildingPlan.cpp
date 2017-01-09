@@ -55,7 +55,7 @@ Arrangement_2 arrangementForOutline( const PolyLine2f &outline )
 }
 
 // Add walls defined by an upper contour into a Trimesh.
-void buildWalls( TriMesh &result, const PolyLine3f &upperContour, float lowerHeight = 0 )
+void buildWalls( TriMesh &result, const std::vector<vec3> &upperContour, float lowerHeight = 0 )
 {
     pointsInPairs<vec3>( upperContour, [&]( const vec3 &a, const vec3 &b ) {
         u_int32_t index_base = result.getNumVertices();
@@ -69,10 +69,9 @@ void buildWalls( TriMesh &result, const PolyLine3f &upperContour, float lowerHei
 // Build walls with a constant upper and lower height.
 void buildWalls( TriMesh &result, const PolyLine2f &footprint, float upperHeight, float lowerHeight = 0 )
 {
-    PolyLine3f wallContour;
-    for ( const vec2 &v : footprint.getPoints() ) {
-        wallContour.push_back( vec3( v, upperHeight ) );
-    }
+    std::vector<vec3> wallContour;
+    std::transform( footprint.begin(), footprint.end(), std::back_inserter( wallContour ),
+        [=]( const vec2 &v ) { return vec3( v, upperHeight ); } );
     buildWalls( result, wallContour, lowerHeight );
 }
 
@@ -132,6 +131,16 @@ TriMesh buildRoofFields( const Arrangement_2 &arrangement )
 	return triangulator.calcMesh3d();
 }
 
+// Duplicate all the triangles with inverted winding order. Helpful for roofs
+// that extend pass the walls so they're solid when viewed from below.
+void mirrorTriangles( TriMesh &mesh ) {
+    std::vector<uint32_t> indices( mesh.getIndices() );
+    for ( u_int32_t i = 0; i < mesh.getNumIndices(); i += 3 ) {
+        std::swap( indices[i], indices[i+1] );
+    }
+    mesh.appendIndices( indices.data(), indices.size() );
+}
+
 // * * *
 
 TriMesh buildFlatRoof( const PolyLine2f &footprint, float wallHeight, float overhang )
@@ -148,6 +157,9 @@ TriMesh buildFlatRoof( const PolyLine2f &footprint, float wallHeight, float over
         roofContour.push_back( vec3( v, wallHeight ) );
     }
     TriMesh result = Triangulator( roofContour ).calcMesh3d();
+    if ( overhang > 0.0 ) {
+        mirrorTriangles( result );
+    }
 
     buildWalls( result, footprint, wallHeight, 0 );
 
@@ -177,6 +189,9 @@ TriMesh buildHippedRoof( const PolyLine2f &footprint, float wallHeight, float sl
         triangulator.addPolyLine( outline.data(), outline.size() );
     }
     TriMesh result = triangulator.calcMesh3d();
+    if ( overhang > 0.0 ) {
+        // TODO should put a flat cap in here to act as soffits.
+    }
 
     // Walls
     buildWalls( result, footprint, wallHeight, 0 );
@@ -276,6 +291,9 @@ TriMesh buildGabledRoof( const PolyLine2f &footprint, float wallHeight, float sl
     Arrangement_2 roofFieldArr;
     overlay( roofEdgeArr, dividerArr, roofFieldArr, overlay_traits );
     TriMesh result = buildRoofFields( roofFieldArr );
+    if ( overhang > 0.0 ) {
+        mirrorTriangles( result );
+    }
 
 
     // Walls and gables
@@ -315,8 +333,11 @@ TriMesh buildShedRoof( const PolyLine2f &footprint, const float wallHeight, cons
         roofContour.push_back( vec3( v, slope * ( v.x - leftmost ) + wallHeight ) );
     }
     TriMesh result = Triangulator( roofContour ).calcMesh3d();
+    if ( overhang > 0.0 ) {
+        mirrorTriangles( result );
+    }
 
-    PolyLine3f wallContour;
+    std::vector<vec3> wallContour;
     for ( const vec2 &v : footprint ) {
         wallContour.push_back( vec3( v, slope * ( v.x - leftmost ) + wallHeight ) );
     }
@@ -391,6 +412,9 @@ TriMesh buildSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings
         i->set_data( sawtoothHeight( settings, bounds.x1, vecFrom( i->point() ) ) );
     }
     TriMesh result = buildRoofFields( arrRoofFields );
+    if ( settings.overhang > 0.0 ) {
+        mirrorTriangles( result );
+    }
 
     // Now compute the gables
     Arrangement_2 arrRoofGables;
