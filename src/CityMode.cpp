@@ -1,6 +1,7 @@
 #include "CityMode.h"
 #include "CityData.h"
 #include "FlatShape.h"
+#include "ZoningPlanner.h"
 #include "RoadBuilder.h"
 #include "BlockSubdivider.h"
 #include "LotFiller.h"
@@ -14,6 +15,12 @@ void CityMode::setup()
     mViewOptions.drawBlocks = false;
     mViewOptions.drawLots = false;
     mViewOptions.drawBuildings = true;
+
+    mModel.zoningPlans = {
+        Cityscape::zoneFarming(),
+        Cityscape::zoneMajesticHeights(),
+        Cityscape::zoneDowntown()
+    };
 
     layout();
 }
@@ -48,6 +55,10 @@ void CityMode::addParams( ci::params::InterfaceGlRef params)
         .updateFn( [this] { requestLayout(); } );
     params->addParam( "Lot Width", &plan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
+    params->addParam( "Lot Area Min", &plan->block.lotAreaMin ).step( 100 )
+        .min( 100 ).max( 100000 ).updateFn( [this] { requestLayout(); } );
+    params->addParam( "Lot Area Max", &plan->block.lotAreaMax ).step( 1000 )
+        .min( 1000 ).max( 1000000 ).updateFn( [this] { requestLayout(); } );
 
     params->addSeparator();
 

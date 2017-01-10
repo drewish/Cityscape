@@ -43,9 +43,9 @@ void BlockMode::addParams( ci::params::InterfaceGlRef params) {
     params->addParam( "Lot Width", &mPlan->block.lotWidth ).step( 5 )
         .min( 10 ).max( 400 ).updateFn( [this] { requestLayout(); } );
     params->addParam( "Lot Area Min", &mPlan->block.lotAreaMin ).step( 100 )
-        .min( 100 ).max( 1000000 ).updateFn( [this] { requestLayout(); } );
+        .min( 100 ).max( 100000 ).updateFn( [this] { requestLayout(); } );
     params->addParam( "Lot Area Max", &mPlan->block.lotAreaMax ).step( 1000 )
-        .min( 10000 ).max( 1000000 ).updateFn( [this] { requestLayout(); } );
+        .min( 1000 ).max( 1000000 ).updateFn( [this] { requestLayout(); } );
 
 // TODO: should alter zoning
 //    params->addSeparator("Lot");

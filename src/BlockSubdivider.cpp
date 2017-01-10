@@ -257,7 +257,7 @@ void subdivideBlocks( CityModel &city )
             ZoningPlan::LotDivision d = zoning->block.lotDivision;
 
             // Don't bother dividing small blocks
-            if ( block->shape->area() < 100 ) {
+            if ( block->shape->area() < zoning->block.lotAreaMin ) {
                 d = ZoningPlan::LotDivision::NO_LOT_DIVISION;
             }
 

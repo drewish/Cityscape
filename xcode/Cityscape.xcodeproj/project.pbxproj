@@ -13,6 +13,7 @@
 		00B784B60FF439BC000DE1D7 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B20FF439BC000DE1D7 /* CoreAudio.framework */; };
 		35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25FED6CE9563473FA5E04FBA /* CityscapeApp.cpp */; };
 		492B285B1DBE5A3F00075E5B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784AF0FF439BC000DE1D7 /* Accelerate.framework */; };
+		494855571E24AEA000B10446 /* ZoningPlanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494855561E24AEA000B10446 /* ZoningPlanner.cpp */; };
 		494BE6AB1C8B866500E50477 /* RoadBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494BE6A91C8B866500E50477 /* RoadBuilder.cpp */; };
 		494BE6AD1C8B9D9100E50477 /* CityData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494BE6AC1C8B9D9100E50477 /* CityData.cpp */; };
 		497EFE111C4A0D240053D720 /* GeometryHelpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 497EFE101C4A0D240053D720 /* GeometryHelpers.cpp */; };
@@ -96,6 +97,8 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		4913FC691E0DC503001702CA /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = System/Library/Frameworks/QTKit.framework; sourceTree = SDKROOT; };
+		494855551E24AE7300B10446 /* ZoningPlanner.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZoningPlanner.h; sourceTree = "<group>"; };
+		494855561E24AEA000B10446 /* ZoningPlanner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ZoningPlanner.cpp; path = ../src/ZoningPlanner.cpp; sourceTree = "<group>"; };
 		494BE6A91C8B866500E50477 /* RoadBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RoadBuilder.cpp; path = ../src/RoadBuilder.cpp; sourceTree = "<group>"; };
 		494BE6AA1C8B866500E50477 /* RoadBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoadBuilder.h; sourceTree = "<group>"; };
 		494BE6AC1C8B9D9100E50477 /* CityData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CityData.cpp; path = ../src/CityData.cpp; sourceTree = "<group>"; };
@@ -232,6 +235,7 @@
 				494BE6AC1C8B9D9100E50477 /* CityData.cpp */,
 				49FC372F1C87EA3F00FD5ECB /* CityView.cpp */,
 				497D933F1C588C82001323D2 /* Modes */,
+				494855561E24AEA000B10446 /* ZoningPlanner.cpp */,
 				494BE6A91C8B866500E50477 /* RoadBuilder.cpp */,
 				49AA4E3C1C8D5325008ADC8B /* BlockSubdivider.cpp */,
 				49AA4E3F1C8E4B11008ADC8B /* LotFiller.cpp */,
@@ -307,6 +311,7 @@
 				49FC372E1C87E9FE00FD5ECB /* CityData.h */,
 				49FC37301C87EA3F00FD5ECB /* CityView.h */,
 				497D933E1C588C71001323D2 /* Modes */,
+				494855551E24AE7300B10446 /* ZoningPlanner.h */,
 				494BE6AA1C8B866500E50477 /* RoadBuilder.h */,
 				49AA4E3D1C8D5325008ADC8B /* BlockSubdivider.h */,
 				49AA4E401C8E4B11008ADC8B /* LotFiller.h */,
@@ -505,6 +510,7 @@
 				49AA4E3E1C8D5325008ADC8B /* BlockSubdivider.cpp in Sources */,
 				49FC37311C87EA3F00FD5ECB /* CityView.cpp in Sources */,
 				5FA88B2D1C48B871008C1A4A /* CityMode.cpp in Sources */,
+				494855571E24AEA000B10446 /* ZoningPlanner.cpp in Sources */,
 				49FD33B21B5B54D90077D1F4 /* CgalArrangement.cpp in Sources */,
 				35868AA4410741D991AA28FA /* CityscapeApp.cpp in Sources */,
 				5FA88B311C48B9CA008C1A4A /* BlockMode.cpp in Sources */,
