@@ -135,10 +135,21 @@ TriMesh buildRoofFields( const Arrangement_2 &arrangement )
 // that extend pass the walls so they're solid when viewed from below.
 void mirrorTriangles( TriMesh &mesh ) {
     std::vector<uint32_t> indices( mesh.getIndices() );
-    for ( u_int32_t i = 0; i < mesh.getNumIndices(); i += 3 ) {
+    for( size_t i = 0, size = mesh.getNumIndices(); i < size; i += 3 ) {
         std::swap( indices[i], indices[i+1] );
     }
     mesh.appendIndices( indices.data(), indices.size() );
+}
+
+void concatenateMeshes( TriMesh &lhs, const TriMesh &rhs )
+{
+    uint32_t base_index = lhs.getNumVertices();
+    std::vector<uint32_t> indices( rhs.getIndices() );
+    for( size_t i = 0, size = rhs.getNumIndices(); i < size; ++i ) {
+        indices[i] += base_index;
+    }
+    lhs.appendIndices( indices.data(), indices.size() );
+    lhs.appendPositions( rhs.getPositions<3>(), rhs.getNumVertices() );
 }
 
 // * * *
@@ -189,8 +200,14 @@ TriMesh buildHippedRoof( const PolyLine2f &footprint, float wallHeight, float sl
         triangulator.addPolyLine( outline.data(), outline.size() );
     }
     TriMesh result = triangulator.calcMesh3d();
+
+    // Soffits
     if ( overhang > 0.0 ) {
-        // TODO should put a flat cap in here to act as soffits.
+        std::vector<vec3> roofline;
+        for ( auto v = roofOutline.vertices_begin(); v != roofOutline.vertices_end(); ++v ) {
+            roofline.push_back( vec3( vecFrom( *v ), wallHeight ) );
+        }
+        concatenateMeshes( result, Triangulator( roofline ).calcMesh3d( vec3( 0, 0, -1 ) ) );
     }
 
     // Walls
