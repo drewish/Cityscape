@@ -191,6 +191,8 @@ inline Segment_2 segmentFrom( const ci::vec2 &a, const ci::vec2 &b )
     return Segment_2( pointFrom( a ), pointFrom( b ) );
 }
 
+Arrangement_2 arrangementFromOutline( const ci::PolyLine2f &outline );
+
 void findIntersections( const std::list<Segment_2> &input, std::list<Segment_2> &newEdges );
 
 // For an input: a,b,c

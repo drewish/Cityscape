@@ -27,6 +27,19 @@ void setVertexData( Arrangement_2 &arr, float data )
     for( auto vert = arr.vertices_begin(); vert != arr.vertices_end(); ++vert ) { vert->set_data( data ); }
 }
 
+Arrangement_2 arrangementFromOutline( const ci::PolyLine2f &outline )
+{
+    std::vector<Segment_2> outlineSegments;
+    contiguousSegmentsFrom( outline, back_inserter( outlineSegments ) );
+
+    Arrangement_2 arr;
+    OutlineObserver outObs( arr );
+    insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
+    outObs.detach();
+
+    return arr;
+}
+
 ci::PolyLine2f polyLineFrom( const Arrangement_2::Ccb_halfedge_const_circulator &circulator )
 {
     ci::PolyLine2f result;

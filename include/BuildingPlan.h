@@ -38,7 +38,11 @@ class BuildingPlan : public Scenery {
     static BuildingPlanRef create( const ci::PolyLine2f &outline, uint8_t floors = 1,
         const RoofStyle roof = FLAT_ROOF, float slope = 0.5, float overhang = 0.0f )
     {
-        return BuildingPlanRef( new BuildingPlan( outline, floors, roof, slope, overhang ) );
+        return BuildingPlanRef( new BuildingPlan( outline, buildGeometry( outline, floors, roof, slope, overhang ) ) );
+    }
+    static BuildingPlanRef create( const ci::PolyLine2f &outline, const ci::geom::SourceMods &geometry )
+    {
+        return BuildingPlanRef( new BuildingPlan( outline, geometry ) );
     }
 
     Scenery::InstanceRef createInstace( const ci::vec2 &at, float rotation = 0 )
@@ -49,11 +53,8 @@ class BuildingPlan : public Scenery {
   protected:
     static ci::TriMesh buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang );
 
-    BuildingPlan( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang )
-      : Scenery(
-            outline,
-            buildGeometry( outline, floors, roof, slope, overhang )
-        ) {}
+    BuildingPlan( const ci::PolyLine2f &outline, const ci::geom::SourceMods &geometry )
+      : Scenery( outline, geometry ) {}
 
     struct Instance : public Scenery::Instance {
         Instance( const SceneryRef &plan, const ci::vec2 &at, float rotation )
@@ -69,3 +70,17 @@ class BuildingPlan : public Scenery {
         float rotation; // radians
     };
 };
+
+ci::TriMesh buildingWithFlatRoof( const ci::PolyLine2f &footprint, float wallHeight, float overhang );
+ci::TriMesh buildingWithHippedRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
+ci::TriMesh buildingWithGabledRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
+ci::TriMesh buildingWithShedRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
+struct SawtoothSettings {
+    float downWidth;
+    float upWidth;
+    float valleyHeight;
+    float peakHeight;
+    float overhang;
+};
+ci::TriMesh buildingWithSawtoothRoof( const ci::PolyLine2f &wallOutline, const SawtoothSettings &settings );
+

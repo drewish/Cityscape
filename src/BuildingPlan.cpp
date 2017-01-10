@@ -41,19 +41,6 @@ ci::PolyLine2f BuildingPlan::randomOutline()
 
 // * * *
 
-Arrangement_2 arrangementForOutline( const PolyLine2f &outline )
-{
-    std::vector<Segment_2> outlineSegments;
-    contiguousSegmentsFrom( outline, back_inserter( outlineSegments ) );
-
-    Arrangement_2 arr;
-    OutlineObserver outObs( arr );
-    insert_empty( arr, outlineSegments.begin(), outlineSegments.end() );
-    outObs.detach();
-
-    return arr;
-}
-
 // Add walls defined by an upper contour into a Trimesh.
 void buildWalls( TriMesh &result, const std::vector<vec3> &upperContour, float lowerHeight = 0 )
 {
@@ -154,7 +141,7 @@ void concatenateMeshes( TriMesh &lhs, const TriMesh &rhs )
 
 // * * *
 
-TriMesh buildFlatRoof( const PolyLine2f &footprint, float wallHeight, float overhang )
+TriMesh buildingWithFlatRoof( const PolyLine2f &footprint, float wallHeight, float overhang )
 {
     PolyLine2f roofOutline;
     if ( overhang > 0.0 ) {
@@ -177,7 +164,7 @@ TriMesh buildFlatRoof( const PolyLine2f &footprint, float wallHeight, float over
     return result;
 }
 
-TriMesh buildHippedRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
+TriMesh buildingWithHippedRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
 {
     CGAL::Polygon_2<InexactK> roofOutline = polygonFrom<InexactK>( footprint );
     if ( overhang > 0.0 ) {
@@ -216,7 +203,7 @@ TriMesh buildHippedRoof( const PolyLine2f &footprint, float wallHeight, float sl
     return result;
 }
 
-TriMesh buildGabledRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
+TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
 {
     CGAL::Polygon_2<InexactK> roofOutline = polygonFrom<InexactK>( footprint );
     if ( overhang > 0.0 ) {
@@ -262,7 +249,7 @@ TriMesh buildGabledRoof( const PolyLine2f &footprint, float wallHeight, float sl
     //                      *   *                        * * *
     // We leave the original edges so we overlap with the outline's corners and
     // get verts created with heights. If we didn't have them the overlay traits
-    // would need to compute the height in th middle of the face.
+    // would need to compute the height in the middle of the face.
     for ( auto vert = dividerArr.vertices_begin(); vert != dividerArr.vertices_end(); ++vert) {
         // look for 3 edges, two need to target data==0 and one to data>0
         if ( vert->degree() != 3 ) continue;
@@ -314,7 +301,7 @@ TriMesh buildGabledRoof( const PolyLine2f &footprint, float wallHeight, float sl
 
 
     // Walls and gables
-    Arrangement_2 wallArr = arrangementForOutline( footprint );
+    Arrangement_2 wallArr = arrangementFromOutline( footprint );
     setVertexData( wallArr, wallHeight );
 
     Arrangement_2 gableArr;
@@ -331,7 +318,7 @@ TriMesh buildGabledRoof( const PolyLine2f &footprint, float wallHeight, float sl
 //   longest side of the outline and use that to define the roof plane. another
 //   would be passing in an angle.
 // - get a proper formula for determining height
-TriMesh buildShedRoof( const PolyLine2f &footprint, const float wallHeight, const float slope, const float overhang )
+TriMesh buildingWithShedRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
 {
     PolyLine2f roofOutline;
     if ( overhang > 0.0 ) {
@@ -363,15 +350,6 @@ TriMesh buildShedRoof( const PolyLine2f &footprint, const float wallHeight, cons
     return result;
 }
 
-
-struct SawtoothSettings {
-    float downWidth;
-    float upWidth;
-    float valleyHeight;
-    float peakHeight;
-    float overhang;
-};
-
 float sawtoothHeight( const SawtoothSettings &settings, const float leftEdge, const vec2 &v ) {
     float p = fmod( v.x - leftEdge, settings.upWidth + settings.downWidth );
     float deltaY = settings.peakHeight - settings.valleyHeight;
@@ -387,16 +365,16 @@ float sawtoothHeight( const SawtoothSettings &settings, const float leftEdge, co
 // TODO:
 // - make the roof orientation configurable (requires a more complicated formula
 //   for determining height)
-TriMesh buildSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings &settings )
+TriMesh buildingWithSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings &settings )
 {
     if (wallOutline.size() < 3) return TriMesh();
 
-    Arrangement_2 arrWalls = arrangementForOutline( wallOutline );
+    Arrangement_2 arrWalls = arrangementFromOutline( wallOutline );
     Arrangement_2 arrRoofEdge;
     PolyLine2f roofOutline;
     if ( settings.overhang > 0.0 ) {
         roofOutline = polyLineFrom( *expandPolygon( settings.overhang, polygonFrom<InexactK>( wallOutline ) ) );
-        arrRoofEdge = arrangementForOutline( roofOutline );
+        arrRoofEdge = arrangementFromOutline( roofOutline );
     } else {
         roofOutline = wallOutline;
         arrRoofEdge = arrWalls;
@@ -425,6 +403,9 @@ TriMesh buildSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings
     // Compute the roof fields
     Arrangement_2 arrRoofFields;
     overlay( arrRoofEdge, arrDividers, arrRoofFields, overlay_traits );
+    // TODO: would be nice to ditch this height computation in favor of using
+    // OverlayWithHeight but it doesn't handle interpolating a height in the
+    // middle of a face.
     for ( auto i = arrRoofFields.vertices_begin(); i != arrRoofFields.vertices_end(); ++i ) {
         i->set_data( sawtoothHeight( settings, bounds.x1, vecFrom( i->point() ) ) );
     }
@@ -452,13 +433,13 @@ TriMesh BuildingPlan::buildGeometry( const ci::PolyLine2f &outline, uint8_t floo
     float height = FLOOR_HEIGHT * floors;
 
     if ( roofStyle == BuildingPlan::FLAT_ROOF ) {
-        return buildFlatRoof( outline, height, overhang );
+        return buildingWithFlatRoof( outline, height, overhang );
     } else if ( roofStyle == BuildingPlan::SHED_ROOF ) {
-        return buildShedRoof( outline, height, slope, overhang );
+        return buildingWithShedRoof( outline, height, slope, overhang );
     } else if ( roofStyle == BuildingPlan::HIPPED_ROOF ) {
-        return buildHippedRoof( outline, height, slope, overhang );
+        return buildingWithHippedRoof( outline, height, slope, overhang );
     } else if ( roofStyle == BuildingPlan::GABLED_ROOF ) {
-        return buildGabledRoof( outline, height, slope, overhang );
+        return buildingWithGabledRoof( outline, height, slope, overhang );
     } else if ( roofStyle == BuildingPlan::SAWTOOTH_ROOF ) {
         SawtoothSettings settings = { 0 };
         settings.valleyHeight = 0 + height;
@@ -466,7 +447,7 @@ TriMesh BuildingPlan::buildGeometry( const ci::PolyLine2f &outline, uint8_t floo
         settings.peakHeight = 3 + height;
         settings.downWidth = 5;
         settings.overhang = overhang;
-        return buildSawtoothRoof( outline, settings );
+        return buildingWithSawtoothRoof( outline, settings );
     } else {
         return TriMesh();
     }
