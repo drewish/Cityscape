@@ -21,26 +21,6 @@ using namespace ci;
 using namespace ci::geom;
 
 
-ci::PolyLine2f BuildingPlan::randomOutline()
-{
-    switch ( randInt( 5 ) ) {
-        case 0:
-            return polyLineTriangle();
-        case 1:
-            return polyLineSquare();
-        case 2:
-            return polyLineLShape();
-        case 3:
-            return polyLinePlus();
-        case 4:
-            return polyLineTee();
-        default:
-            return polyLineRectangle( 10 * randInt( 3 ), 10 * randInt( 4 ) );
-    }
-}
-
-// * * *
-
 // Add walls defined by an upper contour into a Trimesh.
 void buildWalls( TriMesh &result, const std::vector<vec3> &upperContour, float lowerHeight = 0 )
 {
@@ -367,8 +347,6 @@ float sawtoothHeight( const SawtoothSettings &settings, const float leftEdge, co
 //   for determining height)
 TriMesh buildingWithSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothSettings &settings )
 {
-    if (wallOutline.size() < 3) return TriMesh();
-
     Arrangement_2 arrWalls = arrangementFromOutline( wallOutline );
     Arrangement_2 arrRoofEdge;
     PolyLine2f roofOutline;
@@ -427,28 +405,40 @@ TriMesh buildingWithSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothS
 	return result;
 }
 
-TriMesh BuildingPlan::buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roofStyle, float slope, float overhang )
+ci::geom::SourceMods buildingGeometry( const ci::PolyLine2f &outline, const BuildingSettings &settings )
 {
+    ci::geom::SourceMods geometry;
     const float FLOOR_HEIGHT = 10.0;
-    float height = FLOOR_HEIGHT * floors;
+    float height = FLOOR_HEIGHT * settings.floors;
 
-    if ( roofStyle == BuildingPlan::FLAT_ROOF ) {
-        return buildingWithFlatRoof( outline, height, overhang );
-    } else if ( roofStyle == BuildingPlan::SHED_ROOF ) {
-        return buildingWithShedRoof( outline, height, slope, overhang );
-    } else if ( roofStyle == BuildingPlan::HIPPED_ROOF ) {
-        return buildingWithHippedRoof( outline, height, slope, overhang );
-    } else if ( roofStyle == BuildingPlan::GABLED_ROOF ) {
-        return buildingWithGabledRoof( outline, height, slope, overhang );
-    } else if ( roofStyle == BuildingPlan::SAWTOOTH_ROOF ) {
-        SawtoothSettings settings = { 0 };
-        settings.valleyHeight = 0 + height;
-        settings.upWidth = 10;
-        settings.peakHeight = 3 + height;
-        settings.downWidth = 5;
-        settings.overhang = overhang;
-        return buildingWithSawtoothRoof( outline, settings );
-    } else {
-        return TriMesh();
+    if ( outline.size() < 3 ) {
+        return geometry;
     }
+    PolyLine2f floorplan( outline );
+    if ( floorplan.isClockwise() ) {
+        floorplan.reverse();
+    }
+    if ( floorplan.getPoints().front() != floorplan.getPoints().back() ) {
+        floorplan.push_back( floorplan.getPoints().front() );
+    }
+
+    if ( settings.roofStyle == RoofStyle::FLAT ) {
+        geometry = buildingWithFlatRoof( floorplan, height, settings.overhang );
+    } else if ( settings.roofStyle == RoofStyle::SHED ) {
+        geometry = buildingWithShedRoof( floorplan, height, settings.slope, settings.overhang );
+    } else if ( settings.roofStyle == RoofStyle::HIPPED ) {
+        geometry = buildingWithHippedRoof( floorplan, height, settings.slope, settings.overhang );
+    } else if ( settings.roofStyle == RoofStyle::GABLED ) {
+        geometry = buildingWithGabledRoof( floorplan, height, settings.slope, settings.overhang );
+    } else if ( settings.roofStyle == RoofStyle::SAWTOOTH ) {
+        SawtoothSettings sawtooth = { 0 };
+        sawtooth.valleyHeight = 0 + height;
+        sawtooth.upWidth = 10;
+        sawtooth.peakHeight = 3 + height;
+        sawtooth.downWidth = 5;
+        sawtooth.overhang = settings.overhang;
+        geometry = buildingWithSawtoothRoof( floorplan, sawtooth );
+    }
+
+    return geometry;
 }

@@ -20,10 +20,10 @@ ZoningPlanRef zoneMajesticHeights() {
     plan->block.lotDivision = ZoningPlan::LotDivision::SKELETON_LOT_DIVISION;
     plan->addUsage( nullptr, 1 );
     plan->addUsage( LotDeveloperRef( new SingleFamilyHomeDeveloper( {
-            BuildingPlan::create( polyLineRectangle( 30, 10 ), 1, BuildingPlan::HIPPED_ROOF ),
-            BuildingPlan::create( polyLineRectangle( 30, 10 ), 1, BuildingPlan::GABLED_ROOF ),
-            BuildingPlan::create( polyLineLShape(), 1, BuildingPlan::HIPPED_ROOF ),
-            BuildingPlan::create( polyLineLShape(), 1, BuildingPlan::GABLED_ROOF )
+            BuildingPlan::create( polyLineRectangle( 30, 10 ), 1, RoofStyle::HIPPED ),
+            BuildingPlan::create( polyLineRectangle( 30, 10 ), 1, RoofStyle::GABLED ),
+            BuildingPlan::create( polyLineLShape(), 1, RoofStyle::HIPPED ),
+            BuildingPlan::create( polyLineLShape(), 1, RoofStyle::GABLED )
         } ) ), 30 );
     plan->addUsage( LotDeveloperRef( new ParkDeveloper() ), 2 );
 
@@ -57,8 +57,8 @@ ZoningPlanRef zoneIndustrial() {
     industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( [oiltank](const vec2 &at){ return oiltank->createInstace( at, 40, 15 ); }, 50, 50, 0.0 ) ), 1 );
     industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( [oiltank](const vec2 &at){ return oiltank->createInstace( at, 60, 20 ); }, 70, 80, 0.0 ) ), 1 );
     industry->addUsage( LotDeveloperRef( new WarehouseDeveloper( {
-        BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, BuildingPlan::SAWTOOTH_ROOF ),
-        BuildingPlan::create( polyLineRectangle( 40, 60 ), 1, BuildingPlan::FLAT_ROOF ),
+        BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, RoofStyle::SAWTOOTH ),
+        BuildingPlan::create( polyLineRectangle( 40, 60 ), 1, RoofStyle::FLAT ),
     } ) ), 30 );
 
     return industry;
@@ -71,7 +71,7 @@ ZoningPlanRef zoneDowntown() {
     downtown->district.grid.streetSpacing = 300;
     downtown->block.lotDivision = ZoningPlan::LotDivision::SKELETON_LOT_DIVISION;
     downtown->block.lotWidth = 40;
-    downtown->addUsage( LotDeveloperRef( new FullLotDeveloper( BuildingPlan::FLAT_ROOF ) ), 10 );
+    downtown->addUsage( LotDeveloperRef( new FullLotDeveloper( RoofStyle::SAWTOOTH ) ), 10 );
     downtown->addUsage( LotDeveloperRef( new ParkDeveloper() ), 1 );
 
     return downtown;

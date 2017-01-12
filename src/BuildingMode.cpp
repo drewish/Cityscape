@@ -6,6 +6,11 @@ using namespace ci::app;
 
 
 void BuildingMode::setup() {
+    mBuildingSettings.floors = 1;
+    mBuildingSettings.roofStyle = RoofStyle::HIPPED;
+    mBuildingSettings.slope = 0.5f;
+    mBuildingSettings.overhang = 2.0f;
+
     mViewOptions.drawBuildings = true;
 
     mModel = Cityscape::CityModel();
@@ -24,16 +29,16 @@ void BuildingMode::setup() {
 }
 
 void BuildingMode::addParams( params::InterfaceGlRef params ) {
-    params->addParam( "Roof", BuildingPlan::roofStyleNames(), (int*)&mRoof )
+    params->addParam( "Roof", std::vector<std::string>({ "Flat", "Hipped", "Gabled", "Sawtooth", "Shed" /*, "Gambrel"*/ }), (int*)&mBuildingSettings.roofStyle )
         .keyDecr( "[" ).keyIncr( "]" )
         .updateFn( [this] { requestLayout(); } );
-    params->addParam( "Roof Slope", &mRoofSlope )
+    params->addParam( "Roof Slope", &mBuildingSettings.slope )
         .min( 0.0 ).max( 5.0 ).step( 0.05 )
         .updateFn( [this] { requestLayout(); } );
-    params->addParam( "Roof Overhang", &mRoofOverhang )
+    params->addParam( "Roof Overhang", &mBuildingSettings.overhang )
         .min( 0.0 ).max( 5.0 ).step( 0.25 )
         .updateFn( [this] { requestLayout(); } );
-    params->addParam( "Floors", &mFloors)
+    params->addParam( "Floors", &mBuildingSettings.floors )
         .min( 0 ).max( 5 )
         .keyDecr( "-" ).keyIncr( "=" )
         .updateFn( [this] { requestLayout(); } );
@@ -41,6 +46,7 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
     params->addSeparator();
 
     params->addButton( "Clear Points", [&] {
+        console() << "-= cleared =-\n\n";
         setOutline( PolyLine2f() );
     }, "key=0");
     params->addButton( "Square", [&] {
@@ -56,21 +62,26 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
         setOutline( polyLineTee() );
     }, "key=4" );
     params->addButton( "+", [&] {
-        setOutline( polyLinePlus() );
+        setOutline( polyLinePlus().scaled( vec2( 2 ) ) );
     }, "key=5" );
     params->addButton( "<", [&] {
         setOutline( polyLineTriangle() );
     }, "key=6" );
+    params->addButton( "U", [&] {
+        setOutline( PolyLine2f( {
+            vec2( 10, 15), vec2( 3, 15), vec2( 3, -8), vec2( -3, -8), vec2( -3, 15),
+            vec2( -10, 15), vec2( -10, -15), vec2( 10, -15), vec2( 10, 15),
+        } ).scaled( vec2( 2 ) ) );
+    }, "key=7" );
 }
 
 void BuildingMode::layout() {
     auto lot = mModel.districts.front()->blocks.front()->lots.front();
     lot->buildings.clear();
 
-    if ( mOutline.size() < 3 ) return;
-
-    auto plan = BuildingPlan::create( mOutline, mFloors, mRoof, mRoofSlope, mRoofOverhang );
+    auto plan = BuildingPlan::create( mOutline, buildingGeometry( mOutline, mBuildingSettings ) );
     lot->buildings.push_back( plan->createInstace( ci::vec2( 0 ) ) );
+
     mCityView = CityView::create( mModel );
 }
 

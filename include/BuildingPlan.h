@@ -11,34 +11,52 @@
 #include "GeometryHelpers.h"
 #include "CityData.h"
 
+// http://www.johnriebli.com/roof-types--house-styles.html
+enum class RoofStyle {
+    FLAT = 0,
+    HIPPED,
+    GABLED,
+    SAWTOOTH,
+    SHED,
+    //GAMBREL,
+
+    COUNT
+};
+
+ci::TriMesh buildingWithFlatRoof( const ci::PolyLine2f &footprint, float wallHeight, float overhang );
+ci::TriMesh buildingWithHippedRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
+ci::TriMesh buildingWithGabledRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
+ci::TriMesh buildingWithShedRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
+struct SawtoothSettings {
+    float downWidth;
+    float upWidth;
+    float valleyHeight;
+    float peakHeight;
+    float overhang;
+};
+ci::TriMesh buildingWithSawtoothRoof( const ci::PolyLine2f &wallOutline, const SawtoothSettings &settings );
+
+struct BuildingSettings {
+    uint8_t floors = 1;
+    RoofStyle roofStyle = RoofStyle::FLAT;
+    float slope = 0.5f;
+    float overhang = 0.0f;
+};
+ci::geom::SourceMods buildingGeometry( const ci::PolyLine2f &outline, const BuildingSettings &settings );
+
 class BuildingPlan;
 typedef std::shared_ptr<BuildingPlan>  BuildingPlanRef;
 
 class BuildingPlan : public Scenery {
   public:
-    // http://www.johnriebli.com/roof-types--house-styles.html
-    enum RoofStyle {
-        FLAT_ROOF = 0,
-        HIPPED_ROOF,
-        GABLED_ROOF,
-        SAWTOOTH_ROOF,
-        SHED_ROOF,
-        //GAMBREL_ROOF,
-
-        ROOF_STYLE_COUNT
-    };
-
-    static const std::vector<std::string> roofStyleNames()
+    static BuildingPlanRef create( const ci::PolyLine2f &outline, uint8_t floors = 1, RoofStyle roofStyle = RoofStyle::FLAT, float slope = 0.5f, float overhang = 0.0f )
     {
-        return std::vector<std::string>({ "Flat", "Hipped", "Gabled", "Sawtooth", "Shed" /*, "Gambrel"*/ });
-    }
-
-    static ci::PolyLine2f randomOutline();
-
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, uint8_t floors = 1,
-        const RoofStyle roof = FLAT_ROOF, float slope = 0.5, float overhang = 0.0f )
-    {
-        return BuildingPlanRef( new BuildingPlan( outline, buildGeometry( outline, floors, roof, slope, overhang ) ) );
+        BuildingSettings settings;
+        settings.floors = floors;
+        settings.roofStyle = roofStyle;
+        settings.slope = slope;
+        settings.overhang = overhang;
+        return BuildingPlanRef( new BuildingPlan( outline, buildingGeometry( outline, settings) ) );
     }
     static BuildingPlanRef create( const ci::PolyLine2f &outline, const ci::geom::SourceMods &geometry )
     {
@@ -51,8 +69,6 @@ class BuildingPlan : public Scenery {
     }
 
   protected:
-    static ci::TriMesh buildGeometry( const ci::PolyLine2f &outline, uint8_t floors, RoofStyle roof, float slope, float overhang );
-
     BuildingPlan( const ci::PolyLine2f &outline, const ci::geom::SourceMods &geometry )
       : Scenery( outline, geometry ) {}
 
@@ -70,17 +86,4 @@ class BuildingPlan : public Scenery {
         float rotation; // radians
     };
 };
-
-ci::TriMesh buildingWithFlatRoof( const ci::PolyLine2f &footprint, float wallHeight, float overhang );
-ci::TriMesh buildingWithHippedRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
-ci::TriMesh buildingWithGabledRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
-ci::TriMesh buildingWithShedRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
-struct SawtoothSettings {
-    float downWidth;
-    float upWidth;
-    float valleyHeight;
-    float peakHeight;
-    float overhang;
-};
-ci::TriMesh buildingWithSawtoothRoof( const ci::PolyLine2f &wallOutline, const SawtoothSettings &settings );
 

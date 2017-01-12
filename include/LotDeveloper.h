@@ -55,12 +55,12 @@ class WarehouseDeveloper : public LotDeveloper {
 
 class FullLotDeveloper : public LotDeveloper {
   public:
-    FullLotDeveloper( BuildingPlan::RoofStyle roof ): mRoof( roof ) {};
+    FullLotDeveloper( RoofStyle roof ): mRoof( roof ) {};
 
     virtual bool isValidFor( LotRef &lot ) const override;
     virtual void buildIn( LotRef &lot ) const override;
 
-    const BuildingPlan::RoofStyle mRoof;
+    const RoofStyle mRoof;
 };
 
 class SquareGridDeveloper : public LotDeveloper {

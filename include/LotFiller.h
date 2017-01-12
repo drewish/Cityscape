@@ -11,7 +11,9 @@
 #include "CityData.h"
 
 namespace Cityscape {
+    // Uses LotDevelopers to fill lots
+    //
     // in Lots
-    // out Buildings, Trees
+    // out Scenery (Buildings & Plants)
     void fillLots( CityModel &city );
 }

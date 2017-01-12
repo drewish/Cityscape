@@ -69,8 +69,6 @@ namespace Cityscape {
     struct District;
     struct Block;
     struct Lot;
-    struct Building;
-    struct Tree;
 
     typedef std::shared_ptr<LotDeveloper>   LotDeveloperRef;
     typedef std::shared_ptr<ZoningPlan>     ZoningPlanRef;
