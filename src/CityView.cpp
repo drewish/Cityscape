@@ -84,6 +84,25 @@ gl::BatchRef buildBatch( const gl::GlslProgRef &shader, const geom::SourceMods &
     return gl::Batch::create( mesh, shader, { { geom::Attrib::CUSTOM_0, "vInstanceModelMatrix" }, { geom::Attrib::COLOR, "vInstanceColor" } } );
 }
 
+
+typedef std::map<SceneryRef, std::vector<CityView::InstanceData>> GroupedScenery;
+
+void collectInstanceData( GroupedScenery &data, const Scenery::Instance &instance )
+{
+    if( instance.scenery->children().size() ) {
+        for( auto child : instance.scenery->children() ) {
+            collectInstanceData( data, child );
+        }
+    } else {
+        data[ instance.scenery ].push_back(
+            CityView::InstanceData(
+                instance.transformation,
+                instance.color
+            )
+        );
+    }
+}
+
 CityView::CityView( const Cityscape::CityModel &model )
 {
     gl::GlslProgRef colorShader = gl::getStockShader( gl::ShaderDef().color() );
@@ -110,8 +129,8 @@ CityView::CityView( const Cityscape::CityModel &model )
         roads.push_back( gl::Batch::create( mesh, colorShader ) );
     }
 
-    std::map<SceneryRef, std::vector<InstanceData>> buildingData;
-    std::map<SceneryRef, std::vector<InstanceData>> plantData;
+    GroupedScenery buildingData;
+    GroupedScenery plantData;
 
     for ( const auto &district : model.districts ) {
         auto mesh = *district->shape->mesh()
@@ -132,11 +151,11 @@ CityView::CityView( const Cityscape::CityModel &model )
                 lots.push_back( gl::Batch::create( mesh, colorShader ) );
 
                 for ( const auto &instance : lot->buildings ) {
-                    buildingData[ instance->scenery ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
+                    collectInstanceData( buildingData, instance );
                 }
 
                 for ( const auto &instance : lot->plants ) {
-                    plantData[ instance->scenery ].push_back( InstanceData( instance->modelViewMatrix(), instance->color ) );
+                    collectInstanceData( plantData, instance );
                 }
 
                 for ( seg2 side : lot->streetFacingSides ) {

@@ -36,6 +36,14 @@ float angleToLongestStreet( const LotRef &lot, const vec2 &from )
     return angle;
 }
 
+bool buildingOverlaps( const Scenery::Instance &building, const PolyLine2f lotOutline )
+{
+    PolyLine2fs l = { lotOutline };
+    PolyLine2fs b = { building.footprint() };
+    PolyLine2fs diff = PolyLine2f::calcDifference( b, l );
+    return ( diff.size() != 0 );
+}
+
 ConeTreeRef coneTree = ConeTree::create();
 SphereTreeRef sphereTree = SphereTree::create();
 RowCropRef crop = RowCrop::create();
@@ -53,7 +61,7 @@ void ParkDeveloper::buildIn( LotRef &lot ) const
             // TODO: come up with a better formula for this
             float diameter = area < 10000 ? randFloat( 4, 12 ) : randFloat( 10, 20 );
 
-            lot->plants.push_back( sphereTree->createInstace( shape.randomPoint(), diameter ) );
+            lot->plants.push_back( sphereTree->instance( shape.randomPoint(), diameter ) );
 
             // Treat it as a square for faster math and less dense coverage.
             totalTreeArea += diameter * diameter;
@@ -77,29 +85,21 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
     // the street and a setback into consideration for the position.
     vec2 centroid = lot->shape->centroid();
     float angle = angleToLongestStreet( lot, centroid );
-    Scenery::InstanceRef building = plan->createInstace( centroid, angle );
+    Scenery::Instance building = plan->instance( centroid, angle );
 
-    if ( building ) {
-        // Remove the building if it goes outside the lot.
-        // TODO: try moving and/or rotating it around?
-        PolyLine2fs l = { lot->shape->outline() };
-        PolyLine2fs b = { building->footprint() };
-        PolyLine2fs diff = PolyLine2f::calcDifference( b, l );
-        if ( diff.size() != 0 ) {
-            building.reset();
-        }
-    }
-    if ( building ) {
+    // Remove the building if it goes outside the lot.
+    // TODO: try moving and/or rotating it around?
+    bool buildingGoesOutOfLot = buildingOverlaps( building, lot->shape->outline() );
+    if ( ! buildingGoesOutOfLot ) {
         lot->buildings.push_back( building );
     }
 
-    // TODO: like the idea of planting trees but the intersection check doesn't take tree diameter
-    // into account
+    // TODO: the intersection check should take tree diameter into account
     vec2 treeAt = lot->shape->randomPoint();
-    if ( !building || !building->footprint().contains( treeAt ) ) {
+    if ( buildingGoesOutOfLot || ! building.footprint().contains( treeAt ) ) {
         float ratio = randFloat( 1, 3 );
         float diameter = randFloat( 5, 10 );
-        lot->plants.push_back( coneTree->createInstace( treeAt, diameter, diameter * ratio ) );
+        lot->plants.push_back( coneTree->instance( treeAt, diameter, diameter * ratio ) );
     }
 }
 
@@ -121,19 +121,11 @@ void WarehouseDeveloper::buildIn( LotRef &lot ) const
 
         // Pick a random plan
         BuildingPlanRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
-        Scenery::InstanceRef building = plan->createInstace( centroid, angle );
+        Scenery::Instance building = plan->instance( centroid, angle );
 
-        if ( building ) {
-            // Remove the building if it goes outside the lot.
-            // TODO: try moving and/or rotating it around?
-            PolyLine2fs l = { lot->shape->outline() };
-            PolyLine2fs b = { building->footprint() };
-            PolyLine2fs diff = PolyLine2f::calcDifference( b, l );
-            if ( diff.size() != 0 ) {
-                building.reset();
-            }
-        }
-        if ( building ) {
+        // Remove the building if it goes outside the lot.
+        // TODO: try moving and/or rotating it around?
+        if ( ! buildingOverlaps( building, lot->shape->outline() ) ) {
             lot->buildings.push_back( building );
         }
     }
@@ -161,7 +153,7 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
         // outline and having no instance offset. I guess it doesn't matter
         // since we're not reusing the plan or rotating it.
         BuildingPlanRef plan = BuildingPlan::create( lot->shape->outline(), floors, mRoof );
-        lot->buildings.push_back( plan->createInstace( vec2( 0 ) ) );
+        lot->buildings.push_back( plan->instance( vec2( 0 ) ) );
     }
 }
 
@@ -186,7 +178,7 @@ void SquareGridDeveloper::buildIn( LotRef &lot ) const
             size_t count = length / mStructureSpacing;
             for ( size_t i = 0; i < count; ++i ) {
                 vec2 at = divider.first + unitVector * ( i + 0.5f );
-                lot->buildings.push_back( mSceneryBuilder( at ) );
+                lot->buildings.push_back( mScenery->instance( at ) );
             }
         }
     }
@@ -210,7 +202,7 @@ void FarmOrchardDeveloper::buildIn( LotRef &lot ) const
             size_t treeCount = length / mTreeSpacing;
             for ( size_t i = 1; i < treeCount; ++i ) {
                 vec2 at = divider.first + unitVector * ( i + ( even ? 0.0f : 0.5f ) );
-                lot->plants.push_back( sphereTree->createInstace( at + randVec2(), mDiameter + randFloat( 1.0 ) ) );
+                lot->plants.push_back( sphereTree->instance( at + randVec2(), mDiameter + randFloat( 1.0 ) ) );
             }
             even = !even;
         }
@@ -223,7 +215,7 @@ void FarmFieldDeveloper::buildIn( LotRef &lot ) const
 {
     for ( const FlatShape &shape : lot->shape->contract( mRowSpacing ) ) {
         for ( const seg2 &divider : shape.dividerSeg2s( mAngle, mRowSpacing ) ) {
-            lot->plants.push_back( crop->createInstace( divider.first, divider.second, mRowWidth ) );
+            lot->plants.push_back( crop->instance( divider.first, divider.second, mRowWidth ) );
         }
     }
 }

@@ -39,7 +39,7 @@ void BuildingMode::addParams( params::InterfaceGlRef params ) {
         .min( 0.0 ).max( 5.0 ).step( 0.25 )
         .updateFn( [this] { requestLayout(); } );
     params->addParam( "Floors", &mBuildingSettings.floors )
-        .min( 0 ).max( 5 )
+        .min( 0 ).max( 20 )
         .keyDecr( "-" ).keyIncr( "=" )
         .updateFn( [this] { requestLayout(); } );
 
@@ -80,7 +80,7 @@ void BuildingMode::layout() {
     lot->buildings.clear();
 
     auto plan = BuildingPlan::create( mOutline, buildingGeometry( mOutline, mBuildingSettings ) );
-    lot->buildings.push_back( plan->createInstace( ci::vec2( 0 ) ) );
+    lot->buildings.push_back( plan->instance( ci::vec2( 0 ) ) );
 
     mCityView = CityView::create( mModel );
 }

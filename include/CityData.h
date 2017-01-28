@@ -18,6 +18,36 @@ typedef std::shared_ptr<Scenery>  SceneryRef;
 
 class Scenery : public std::enable_shared_from_this<Scenery> {
   public:
+    struct Instance {
+        static ci::mat4 buildMatrix( const ci::vec3 &position = ci::vec3( 0 ), float rotation = 0 )
+        {
+            return glm::rotate( glm::translate( position ), rotation, ci::vec3( 0, 0, 1 ) );
+        }
+
+        Instance( const SceneryRef &scenery, const ci::vec2 &position = ci::vec2( 0 ), float rotation = 0, ci::ColorA color = ci::ColorA::white() )
+            : scenery( scenery ), transformation( buildMatrix( ci::vec3( position, 0 ), rotation ) )
+        {};
+        Instance( const SceneryRef &scenery, const ci::vec3 &position = ci::vec3( 0 ), float rotation = 0, ci::ColorA color = ci::ColorA::white() )
+            : scenery( scenery ), transformation( buildMatrix( position, rotation ) )
+        {};
+        Instance( const SceneryRef &scenery, const ci::mat4 &matrix, ci::ColorA color = ci::ColorA::white() )
+            : scenery( scenery ), transformation( matrix ), color( color )
+        {};
+
+        // Footprint of the Scenery in its position on the lot
+        ci::PolyLine2f footprint() const
+        {
+            ci::PolyLine2f result;
+            for ( const auto &it : scenery->footprint() ) {
+                result.push_back( ci::vec2( transformation * ci::vec4( it, 1, 1 ) ) );
+            }
+            return result;
+        }
+
+        const SceneryRef    scenery;
+        ci::mat4            transformation;
+        ci::ColorA          color;
+    };
     Scenery( const ci::PolyLine2f &footprint, const ci::geom::SourceMods &geometry )
         : mFootprint( footprint ), mGeometry( geometry ) {};
 
@@ -25,37 +55,22 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
     const ci::PolyLine2f footprint() const { return mFootprint; };
     // 3d view of the object for display
     const ci::geom::SourceMods &geometry() const { return mGeometry; };
+    // Allow groups of other scenery to be placed in a lot together
+    std::vector<Instance>& children() { return mChildren; }
+    const std::vector<Instance>& children() const { return mChildren; }
 
-    struct Instance {
-        Instance( const SceneryRef &scenery, const ci::vec3 &position, ci::ColorA color = ci::ColorA::white() )
-            : scenery( scenery ), position( position ), color( color )
-        {};
-
-        virtual ci::mat4 modelViewMatrix() const
-        {
-            return glm::translate( position );
-        }
-
-        // Footprint of the Scenery in its position on the lot
-        ci::PolyLine2f footprint() const
-        {
-            glm::mat4 matrix = modelViewMatrix();
-            ci::PolyLine2f result;
-            for ( const auto &it : scenery->footprint() ) {
-                result.push_back( ci::vec2( matrix * ci::vec4( it, 1, 1 ) ) );
-            }
-            return result;
-        }
-
-        const SceneryRef    scenery;
-        ci::vec3            position;
-        ci::ColorA          color;
-    };
-    typedef std::shared_ptr<Instance>  InstanceRef;
-
+    Scenery::Instance instance( const ci::vec2 &at, float rotation = 0 )
+    {
+        return Scenery::Instance( shared_from_this(), at, rotation );
+    }
+    Scenery::Instance instance( const ci::vec3 &at, float rotation = 0 )
+    {
+        return Scenery::Instance( shared_from_this(), at, rotation );
+    }
   protected:
     ci::PolyLine2f          mFootprint;
     ci::geom::SourceMods    mGeometry;
+    std::vector<Instance>   mChildren;
 };
 
 namespace Cityscape {
@@ -100,7 +115,7 @@ namespace Cityscape {
         struct DistrictOptions {
             StreetDivision streetDivision = GRID_STREET_DIVIDED;
             struct GridOptions {
-                uint8_t roadWidth = 20;
+                uint8_t roadWidth = 8;
                 int16_t avenueAngle = 0; // -180 - +180 degrees
                 int16_t streetAngle = 90; // -90 - +90 degrees
                 uint16_t avenueSpacing = 200;
@@ -141,7 +156,7 @@ namespace Cityscape {
         ci::Color   groundColor = ci::Color8u(233, 203, 151);
 
         ci::ColorA  roadColor = ci::ColorA( 0.3f, 0.3f, 0.3f, 0.4f );
-        uint8_t highwayWidth = 40;
+        uint8_t highwayWidth = 20;
 
         std::vector<HighwayRef>     highways;
         std::vector<StreetRef>      streets;
@@ -217,8 +232,8 @@ namespace Cityscape {
         using Ground::Ground;
 
         std::vector<seg2> streetFacingSides;
-        std::vector<Scenery::InstanceRef> buildings;
-        std::vector<Scenery::InstanceRef> plants;
+        std::vector<Scenery::Instance> buildings;
+        std::vector<Scenery::Instance> plants;
     };
 
 } // Cityscape namespace

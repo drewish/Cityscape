@@ -63,27 +63,7 @@ class BuildingPlan : public Scenery {
         return BuildingPlanRef( new BuildingPlan( outline, geometry ) );
     }
 
-    Scenery::InstanceRef createInstace( const ci::vec2 &at, float rotation = 0 )
-    {
-        return Scenery::InstanceRef( new Instance( shared_from_this(), at, 0 ) );
-    }
-
-  protected:
     BuildingPlan( const ci::PolyLine2f &outline, const ci::geom::SourceMods &geometry )
       : Scenery( outline, geometry ) {}
-
-    struct Instance : public Scenery::Instance {
-        Instance( const SceneryRef &plan, const ci::vec2 &at, float rotation )
-        :   Scenery::Instance( plan, ci::vec3( at, 0 ), ci::Color::white() ),
-            rotation( rotation )
-        {};
-
-        virtual ci::mat4 modelViewMatrix() const override
-        {
-            return glm::rotate( glm::translate( position ), rotation, ci::vec3( 0, 0, 1 ) );
-        }
-
-        float rotation; // radians
-    };
 };
 

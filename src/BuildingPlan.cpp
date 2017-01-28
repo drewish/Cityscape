@@ -408,7 +408,7 @@ TriMesh buildingWithSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothS
 ci::geom::SourceMods buildingGeometry( const ci::PolyLine2f &outline, const BuildingSettings &settings )
 {
     ci::geom::SourceMods geometry;
-    const float FLOOR_HEIGHT = 10.0;
+    const float FLOOR_HEIGHT = 5.0;
     float height = FLOOR_HEIGHT * settings.floors;
 
     if ( outline.size() < 3 ) {
