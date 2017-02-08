@@ -30,26 +30,26 @@ class ParkDeveloper : public LotDeveloper {
 
 class SingleFamilyHomeDeveloper : public LotDeveloper {
   public:
-    SingleFamilyHomeDeveloper( const std::vector<BuildingPlanRef> &plans )
+    SingleFamilyHomeDeveloper( const std::vector<SceneryRef> &plans )
         : mPlans( plans ) {};
 
     virtual bool isValidFor( LotRef &lot ) const override;
     virtual void buildIn( LotRef &lot ) const override;
 
   private:
-    std::vector<BuildingPlanRef> mPlans;
+    std::vector<SceneryRef> mPlans;
 };
 
 class WarehouseDeveloper : public LotDeveloper {
   public:
-    WarehouseDeveloper( const std::vector<BuildingPlanRef> &plans )
+    WarehouseDeveloper( const std::vector<SceneryRef> &plans )
         : mPlans( plans ) {};
 
     virtual bool isValidFor( LotRef &lot ) const override;
     virtual void buildIn( LotRef &lot ) const override;
 
   private:
-    std::vector<BuildingPlanRef> mPlans;
+    std::vector<SceneryRef> mPlans;
 };
 
 class FullLotDeveloper : public LotDeveloper {
@@ -60,6 +60,32 @@ class FullLotDeveloper : public LotDeveloper {
     virtual void buildIn( LotRef &lot ) const override;
 
     const RoofStyle mRoof;
+};
+
+class GroupDeveloper : public LotDeveloper {
+  public:
+    struct Item {
+        Item( SceneryRef scenery, ci::vec3 position = ci::vec3( 0 ), float rotation = 0 )
+            : scenery( scenery ), position( position ), rotation( rotation ) {};
+
+        SceneryRef scenery = nullptr;
+        ci::vec3 position = ci::vec3( 0 );
+        float rotation = 0;
+    };
+    struct Group {
+        Group( const std::vector<Item> &items );
+
+        std::vector<Item>   items;
+        ci::PolyLine2       hull;
+    };
+
+    void addGroup( const std::vector<Item> &items ) {
+        mGroups.push_back( GroupDeveloper::Group( items ) );
+    }
+
+    virtual void buildIn( LotRef &lot ) const override;
+
+    std::vector<Group> mGroups;
 };
 
 class SquareGridDeveloper : public LotDeveloper {

@@ -10,6 +10,7 @@
 #include "FlatShape.h"
 
 #include <glm/gtx/closest_point.hpp>
+#include "cinder/ConvexHull.h"
 #include "cinder/Rand.h"
 #include "GeometryHelpers.h" // used to contract lot size to avoid overflow
 #include "Scenery.h"
@@ -79,7 +80,7 @@ bool SingleFamilyHomeDeveloper::isValidFor( LotRef &lot ) const
 void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
 {
     // Pick a random plan
-    BuildingPlanRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
+    SceneryRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
 
     // TODO: just placing it in the center for now. would be good to take
     // the street and a setback into consideration for the position.
@@ -120,7 +121,7 @@ void WarehouseDeveloper::buildIn( LotRef &lot ) const
         float angle = angleToLongestStreet( lot, centroid );
 
         // Pick a random plan
-        BuildingPlanRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
+        SceneryRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
         Scenery::Instance building = plan->instance( centroid, angle );
 
         // Remove the building if it goes outside the lot.
@@ -152,9 +153,37 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
         // It's kind of odd that we're passing the coordinates in via the
         // outline and having no instance offset. I guess it doesn't matter
         // since we're not reusing the plan or rotating it.
-        BuildingPlanRef plan = BuildingPlan::create( lot->shape->outline(), floors, mRoof );
+        SceneryRef plan = BuildingPlan::create( lot->shape->outline(), floors, mRoof );
         lot->buildings.push_back( plan->instance( vec2( 0 ) ) );
     }
+}
+
+// * * *
+
+GroupDeveloper::Group::Group( const std::vector<Item> &items ) : items( items ) {
+    std::vector<ci::vec2> points;
+    for ( auto item : items ) {
+        mat4 transfomation = Scenery::Instance::buildMatrix( item.position, item.rotation );
+        for ( const auto &p : Scenery::Instance::transform( item.scenery->footprint(), transfomation ) ) {
+            points.push_back( p );
+        }
+    }
+    hull = calcConvexHull( points );
+};
+
+void GroupDeveloper::buildIn( LotRef &lot ) const
+{
+//    for ( const FlatShape &shape : lot->shape->contract( 5 ) ) {
+        // TODO: just placing it in the center for now. would be good to take
+        // the street and a setback into consideration for the position.
+        vec2 centroid = lot->shape->centroid();
+        float angle = angleToLongestStreet( lot, centroid );
+
+        auto &group = mGroups.at( randInt( 0, mGroups.size() ) );
+        for ( const Item &item : group.items ) {
+            lot->buildings.push_back( item.scenery->instance( vec3( centroid, 0 ) + item.position, angle + item.rotation ) );
+        }
+//    }
 }
 
 // * * *

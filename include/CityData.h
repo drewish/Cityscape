@@ -23,6 +23,15 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
         {
             return glm::rotate( glm::translate( position ), rotation, ci::vec3( 0, 0, 1 ) );
         }
+        // TODO: This should become a method of PolyLine now that it's only 2d.
+        static ci::PolyLine2 transform( const ci::PolyLine2 &poly, const ci::mat4 &transformation )
+        {
+            ci::PolyLine2f result;
+            for ( const auto &it : poly ) {
+                result.push_back( ci::vec2( transformation * ci::vec4( it, 1, 1 ) ) );
+            }
+            return result;
+        }
 
         Instance( const SceneryRef &scenery, const ci::vec2 &position = ci::vec2( 0 ), float rotation = 0, ci::ColorA color = ci::ColorA::white() )
             : scenery( scenery ), transformation( buildMatrix( ci::vec3( position, 0 ), rotation ) )
@@ -37,11 +46,7 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
         // Footprint of the Scenery in its position on the lot
         ci::PolyLine2f footprint() const
         {
-            ci::PolyLine2f result;
-            for ( const auto &it : scenery->footprint() ) {
-                result.push_back( ci::vec2( transformation * ci::vec4( it, 1, 1 ) ) );
-            }
-            return result;
+            return transform( scenery->footprint(), transformation );
         }
 
         const SceneryRef    scenery;

@@ -44,23 +44,22 @@ struct BuildingSettings {
 };
 ci::geom::SourceMods buildingGeometry( const ci::PolyLine2f &outline, const BuildingSettings &settings );
 
-class BuildingPlan;
-typedef std::shared_ptr<BuildingPlan>  BuildingPlanRef;
 
 class BuildingPlan : public Scenery {
   public:
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, uint8_t floors = 1, RoofStyle roofStyle = RoofStyle::FLAT, float slope = 0.5f, float overhang = 0.0f )
+    static SceneryRef create( const ci::PolyLine2f &outline, uint8_t floors = 1, RoofStyle roofStyle = RoofStyle::FLAT, float slope = 0.5f, float overhang = 0.0f )
     {
         BuildingSettings settings;
         settings.floors = floors;
         settings.roofStyle = roofStyle;
         settings.slope = slope;
         settings.overhang = overhang;
-        return BuildingPlanRef( new BuildingPlan( outline, buildingGeometry( outline, settings) ) );
+        return SceneryRef( new BuildingPlan( outline, buildingGeometry( outline, settings) ) );
     }
-    static BuildingPlanRef create( const ci::PolyLine2f &outline, const ci::geom::SourceMods &geometry )
+
+    static SceneryRef create( const ci::PolyLine2f &outline, const BuildingSettings &settings )
     {
-        return BuildingPlanRef( new BuildingPlan( outline, geometry ) );
+        return SceneryRef( new BuildingPlan( outline, buildingGeometry( outline, settings) ) );
     }
 
     BuildingPlan( const ci::PolyLine2f &outline, const ci::geom::SourceMods &geometry )

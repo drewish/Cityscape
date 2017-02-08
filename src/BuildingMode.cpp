@@ -79,7 +79,7 @@ void BuildingMode::layout() {
     auto lot = mModel.districts.front()->blocks.front()->lots.front();
     lot->buildings.clear();
 
-    auto plan = BuildingPlan::create( mOutline, buildingGeometry( mOutline, mBuildingSettings ) );
+    auto plan = BuildingPlan::create( mOutline, mBuildingSettings );
     lot->buildings.push_back( plan->instance( ci::vec2( 0 ) ) );
 
     mCityView = CityView::create( mModel );

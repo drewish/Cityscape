@@ -108,29 +108,42 @@ class RowCrop : public Scenery {
 
 // * * *
 
-class SmokeStack;
-typedef std::shared_ptr<SmokeStack>  SmokeStackRef;
+class GrainSiloConeTop : public Scenery {
+  public:
+    GrainSiloConeTop( float radius, float height, float overhang, u_int8_t subdivisions = 12 )
+    :   Scenery(
+            polyLineCircle( radius, subdivisions ),
+            ci::geom::SourceMods()
+                & ci::geom::Cone().base( radius + overhang ).height( radius / 2.0 ).direction( ci::vec3( 0, 0, 1 ) ).subdivisionsAxis( subdivisions ) >> ci::geom::Translate( ci::vec3( 0, 0, height ) )
+                & ci::geom::Cylinder().radius( radius ).height( height ).direction( ci::vec3( 0, 0, 1 ) ).subdivisionsAxis( subdivisions )
+
+        )
+    {}
+
+    static SceneryRef create( float radius = 2.5, float height = 10.0, float overhang = 0.25 )
+    {
+        return SceneryRef( new GrainSiloConeTop( radius, height, overhang ) );
+    };
+};
+
+// * * *
 
 class SmokeStack : public Scenery {
   public:
     SmokeStack( float radius, float height, u_int8_t subdivisions = 12 )
     :   Scenery(
             polyLineCircle( radius * 0.5, subdivisions ),
-            ci::geom::Cone().radius( radius * 0.5, radius * 0.4 ).height( height )
+            ci::geom::Cone().base( radius * 0.5 ).apex( radius * 0.4 ).height( height )
                 .direction( ci::vec3( 0, 0, 1 ) ).subdivisionsAxis( subdivisions )
                 .subdivisionsHeight( 2 )
         )
     {}
 
-    static SmokeStackRef create( float radius = 2.0, float height = 20.0 )
+    static SceneryRef create( float radius = 2.0, float height = 20.0 )
     {
-        return SmokeStackRef( new SmokeStack( radius, height ) );
+        return SceneryRef( new SmokeStack( radius, height ) );
     };
 };
-
-
-class OilTank;
-typedef std::shared_ptr<OilTank>  OilTankRef;
 
 class OilTank : public Scenery {
   public:
@@ -142,8 +155,8 @@ class OilTank : public Scenery {
         )
     {}
 
-    static OilTankRef create( float radius = 20.0, float height = 10.0 )
+    static SceneryRef create( float radius = 20.0, float height = 10.0 )
     {
-        return OilTankRef( new OilTank( radius, height ) );
+        return SceneryRef( new OilTank( radius, height ) );
     };
 };

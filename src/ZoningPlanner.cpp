@@ -21,12 +21,17 @@ ZoningPlanRef zoneMajesticHeights() {
     plan->addUsage( nullptr, 1 );
     PolyLine2f rect = polyLineRectangle( 21, 8 );
     PolyLine2f el = polyLineLShape().scaled( vec2( 0.7 ) );
-    plan->addUsage( LotDeveloperRef( new SingleFamilyHomeDeveloper( {
-            BuildingPlan::create( rect, 1, RoofStyle::HIPPED, 0.5, 1 ),
-            BuildingPlan::create( rect, 1, RoofStyle::GABLED, 0.5, 1 ),
-            BuildingPlan::create( el, 1, RoofStyle::HIPPED, 0.5, 1 ),
-            BuildingPlan::create( el, 1, RoofStyle::GABLED, 0.5, 1 )
-        } ) ), 30 );
+    plan->addUsage(
+        LotDeveloperRef(
+            new SingleFamilyHomeDeveloper( {
+                BuildingPlan::create( rect, 1, RoofStyle::HIPPED, 0.5, 1 ),
+                BuildingPlan::create( rect, 1, RoofStyle::GABLED, 0.5, 1 ),
+                BuildingPlan::create( el, 1, RoofStyle::HIPPED, 0.5, 1 ),
+                BuildingPlan::create( el, 1, RoofStyle::GABLED, 0.5, 1 )
+            } )
+        ),
+        30
+    );
     plan->addUsage( LotDeveloperRef( new ParkDeveloper() ), 2 );
 
     return plan;
@@ -46,6 +51,22 @@ ZoningPlanRef zoneFarming() {
     farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( M_PI_2 + M_PI_4, 6, 3 ) ), 1 );
     farm->addUsage( LotDeveloperRef( new FarmOrchardDeveloper( 0, 10, 7 ) ), 2 );
     farm->addUsage( LotDeveloperRef( new FarmOrchardDeveloper( M_PI_2, 10, 7 ) ), 2 );
+
+
+    SceneryRef silo = GrainSiloConeTop::create( 2.5, 10 );
+    BuildingSettings barnSettings;
+    barnSettings.floors = 1;
+    barnSettings.roofStyle = RoofStyle::GABLED;
+    barnSettings.overhang = 0.5;
+    barnSettings.slope = 0.6666;
+    SceneryRef barn = BuildingPlan::create( polyLineRectangle( 12, 10 ), barnSettings );
+    GroupDeveloper *developer = new GroupDeveloper();
+    developer->addGroup( {
+        GroupDeveloper::Item( barn ),
+        GroupDeveloper::Item( silo, vec3( 10, -2, 0 ) ),
+    } );
+    farm->addUsage( LotDeveloperRef( developer ), 3 );
+
 
     return farm;
 }
