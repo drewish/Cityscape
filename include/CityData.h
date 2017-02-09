@@ -72,6 +72,11 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
     {
         return Scenery::Instance( shared_from_this(), at, rotation );
     }
+    Scenery::Instance instance( const ci::mat4 &matrix )
+    {
+        return Scenery::Instance( shared_from_this(), matrix );
+    }
+
   protected:
     ci::PolyLine2f          mFootprint;
     ci::geom::SourceMods    mGeometry;

@@ -163,7 +163,7 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
 GroupDeveloper::Group::Group( const std::vector<Item> &items ) : items( items ) {
     std::vector<ci::vec2> points;
     for ( auto item : items ) {
-        mat4 transfomation = Scenery::Instance::buildMatrix( item.position, item.rotation );
+        mat4 transfomation = item.transformation();
         for ( const auto &p : Scenery::Instance::transform( item.scenery->footprint(), transfomation ) ) {
             points.push_back( p );
         }
@@ -177,11 +177,13 @@ void GroupDeveloper::buildIn( LotRef &lot ) const
         // TODO: just placing it in the center for now. would be good to take
         // the street and a setback into consideration for the position.
         vec2 centroid = lot->shape->centroid();
-        float angle = angleToLongestStreet( lot, centroid );
+        float groupRotation = angleToLongestStreet( lot, centroid );
+
+        mat4 groupTransform = glm::rotate( glm::translate( vec3( centroid, 0 ) ), groupRotation, vec3( 0, 0, 1 ) );
 
         auto &group = mGroups.at( randInt( 0, mGroups.size() ) );
         for ( const Item &item : group.items ) {
-            lot->buildings.push_back( item.scenery->instance( vec3( centroid, 0 ) + item.position, angle + item.rotation ) );
+            lot->buildings.push_back( item.scenery->instance( item.transformation( groupTransform ) ) );
         }
 //    }
 }
