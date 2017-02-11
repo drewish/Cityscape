@@ -14,7 +14,7 @@ class Blueprint;
 typedef std::shared_ptr<Blueprint>  BlueprintRef;
 
 class Scenery;
-typedef std::shared_ptr<Scenery>  SceneryRef;
+typedef std::shared_ptr<const Scenery>  SceneryRef;
 
 class Scenery : public std::enable_shared_from_this<Scenery> {
   public:
@@ -52,6 +52,8 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
         const SceneryRef    scenery;
         ci::mat4            transformation;
         ci::ColorA          color;
+        std::vector<Instance> children;
+
     };
     Scenery( const ci::PolyLine2f &footprint, const ci::geom::SourceMods &geometry )
         : mFootprint( footprint ), mGeometry( geometry ) {};
@@ -60,19 +62,16 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
     const ci::PolyLine2f footprint() const { return mFootprint; };
     // 3d view of the object for display
     const ci::geom::SourceMods &geometry() const { return mGeometry; };
-    // Allow groups of other scenery to be placed in a lot together
-    std::vector<Instance>& children() { return mChildren; }
-    const std::vector<Instance>& children() const { return mChildren; }
 
-    Scenery::Instance instance( const ci::vec2 &at, float rotation = 0 )
+    Scenery::Instance instance( const ci::vec2 &at, float rotation = 0 ) const
     {
         return Scenery::Instance( shared_from_this(), at, rotation );
     }
-    Scenery::Instance instance( const ci::vec3 &at, float rotation = 0 )
+    Scenery::Instance instance( const ci::vec3 &at, float rotation = 0 ) const
     {
         return Scenery::Instance( shared_from_this(), at, rotation );
     }
-    Scenery::Instance instance( const ci::mat4 &matrix )
+    Scenery::Instance instance( const ci::mat4 &matrix ) const
     {
         return Scenery::Instance( shared_from_this(), matrix );
     }
@@ -80,8 +79,40 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
   protected:
     ci::PolyLine2f          mFootprint;
     ci::geom::SourceMods    mGeometry;
-    std::vector<Instance>   mChildren;
 };
+
+class SceneryGroup : public Scenery {
+  public:
+    struct Item {
+        Item( SceneryRef scenery, ci::vec3 position = ci::vec3( 0 ), float rotation = 0 )
+            : scenery( scenery ), position( position ), rotation( rotation ) {};
+
+        ci::mat4 transformation( const ci::mat4 &input = ci::mat4() ) const
+        {
+            return glm::rotate( glm::translate( input, position ), rotation, ci::vec3( 0, 0, 1 ) );
+        }
+
+        SceneryRef scenery = nullptr;
+        ci::vec3 position = ci::vec3( 0 );
+        float rotation = 0;
+    };
+
+    SceneryGroup( const std::vector<Item> &items );
+
+    Scenery::Instance instance( const ci::vec2 &at, float rotation = 0 ) const
+    {
+        return instance( ci::vec3( at, 0 ), rotation );
+    }
+    Scenery::Instance instance( const ci::vec3 &at, float rotation = 0 ) const
+    {
+        return instance( glm::rotate( glm::translate( at ), rotation, ci::vec3( 0, 0, 1 ) ) );
+    }
+    Scenery::Instance instance( const ci::mat4 &matrix ) const;
+
+    const std::vector<Item> items;
+};
+typedef std::shared_ptr<SceneryGroup>  SceneryGroupRef;
+
 
 namespace Cityscape {
     // Give relatively unique colors

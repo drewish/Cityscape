@@ -6,6 +6,8 @@
 //
 //
 
+#include "cinder/ConvexHull.h"
+
 #include "CityData.h"
 #include "FlatShape.h"
 #include "Scenery.h"
@@ -39,4 +41,26 @@ CityModel::CityModel()
     zoningPlans = { nimby };
 }
 
+} // namespace Cityscape
+
+SceneryGroup::SceneryGroup( const std::vector<Item> &items )
+    : Scenery( ci::PolyLine2f(), nullptr ), items( items )
+{
+    std::vector<ci::vec2> points;
+    for ( auto item : items ) {
+        ci::mat4 transfomation = item.transformation();
+        for ( const auto &p : Scenery::Instance::transform( item.scenery->footprint(), transfomation ) ) {
+            points.push_back( p );
+        }
+    }
+    mFootprint = calcConvexHull( points );
+};
+
+Scenery::Instance SceneryGroup::instance( const ci::mat4 &matrix ) const
+{
+    Scenery::Instance instance = Scenery::Instance( shared_from_this(), matrix );
+    for ( const Item &item : items ) {
+        instance.children.push_back( item.scenery->instance( item.transformation( matrix ) ) );
+    }
+    return instance;
 }

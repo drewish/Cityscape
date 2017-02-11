@@ -10,7 +10,6 @@
 #include "FlatShape.h"
 
 #include <glm/gtx/closest_point.hpp>
-#include "cinder/ConvexHull.h"
 #include "cinder/Rand.h"
 #include "GeometryHelpers.h" // used to contract lot size to avoid overflow
 #include "Scenery.h"
@@ -160,16 +159,6 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
 
 // * * *
 
-GroupDeveloper::Group::Group( const std::vector<Item> &items ) : items( items ) {
-    std::vector<ci::vec2> points;
-    for ( auto item : items ) {
-        mat4 transfomation = item.transformation();
-        for ( const auto &p : Scenery::Instance::transform( item.scenery->footprint(), transfomation ) ) {
-            points.push_back( p );
-        }
-    }
-    hull = calcConvexHull( points );
-};
 
 void GroupDeveloper::buildIn( LotRef &lot ) const
 {
@@ -178,13 +167,10 @@ void GroupDeveloper::buildIn( LotRef &lot ) const
         // the street and a setback into consideration for the position.
         vec2 centroid = lot->shape->centroid();
         float groupRotation = angleToLongestStreet( lot, centroid );
+        mat4 transform = glm::rotate( glm::translate( vec3( centroid, 0 ) ), groupRotation, vec3( 0, 0, 1 ) );
 
-        mat4 groupTransform = glm::rotate( glm::translate( vec3( centroid, 0 ) ), groupRotation, vec3( 0, 0, 1 ) );
-
-        auto &group = mGroups.at( randInt( 0, mGroups.size() ) );
-        for ( const Item &item : group.items ) {
-            lot->buildings.push_back( item.scenery->instance( item.transformation( groupTransform ) ) );
-        }
+        auto group = mGroups.at( randInt( 0, mGroups.size() ) );
+        lot->buildings.push_back( group->instance( transform ) );
 //    }
 }
 

@@ -60,10 +60,11 @@ ZoningPlanRef zoneFarming() {
     barnSettings.overhang = 0.5;
     barnSettings.slope = 0.6666;
     SceneryRef barn = BuildingPlan::create( polyLineRectangle( 12, 10 ), barnSettings );
+
     GroupDeveloper *developer = new GroupDeveloper();
     developer->addGroup( {
-        GroupDeveloper::Item( barn ),
-        GroupDeveloper::Item( silo, vec3( 10, -2, 0 ) ),
+        SceneryGroup::Item( barn, vec3( 0 ), M_PI_2 ),
+        SceneryGroup::Item( silo, vec3( 8, 0, 0 ) ),
     } );
     farm->addUsage( LotDeveloperRef( developer ), 3 );
 
@@ -83,6 +84,29 @@ ZoningPlanRef zoneIndustrial() {
         BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, RoofStyle::SAWTOOTH ),
         BuildingPlan::create( polyLineRectangle( 40, 60 ), 1, RoofStyle::FLAT ),
     } ) ), 30 );
+
+    industry->district.streetDivision = ZoningPlan::StreetDivision::GRID_STREET_DIVIDED;
+    industry->district.grid.avenueSpacing = 400;
+    industry->district.grid.streetSpacing = 400;
+    industry->block.lotAreaMax = 16000;
+
+
+    SceneryRef smoke = SmokeStack::create();
+    SceneryRef flat = BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, RoofStyle::FLAT );
+    SceneryRef saw = BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, RoofStyle::SAWTOOTH );
+    GroupDeveloper *developer = new GroupDeveloper();
+    developer->addGroup( {
+        SceneryGroup::Item( saw ),
+        SceneryGroup::Item( smoke, vec3( 10, -2, 5 ) ),
+        SceneryGroup::Item( smoke, vec3( 10, +2, 5 ) ),
+    } );
+    developer->addGroup( {
+        SceneryGroup::Item( flat ),
+        SceneryGroup::Item( smoke, vec3( 10, -3, 5 ) ),
+        SceneryGroup::Item( smoke, vec3( 10, 0, 5 ) ),
+        SceneryGroup::Item( smoke, vec3( 10, 3, 5 ) ),
+    } );
+    industry->addUsage( LotDeveloperRef( developer ), 1 );
 
     return industry;
 }

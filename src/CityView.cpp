@@ -90,8 +90,8 @@ typedef std::map<SceneryRef, std::vector<CityView::InstanceData>> GroupedScenery
 
 void collectInstanceData( GroupedScenery &data, const Scenery::Instance &instance )
 {
-    if( instance.scenery->children().size() ) {
-        for( auto child : instance.scenery->children() ) {
+    if( instance.children.size() ) {
+        for( auto child : instance.children ) {
             collectInstanceData( data, child );
         }
     } else {

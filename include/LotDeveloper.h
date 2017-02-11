@@ -64,34 +64,13 @@ class FullLotDeveloper : public LotDeveloper {
 
 class GroupDeveloper : public LotDeveloper {
   public:
-    struct Item {
-        Item( SceneryRef scenery, ci::vec3 position = ci::vec3( 0 ), float rotation = 0 )
-            : scenery( scenery ), position( position ), rotation( rotation ) {};
-
-        ci::mat4 transformation( const ci::mat4 &input = ci::mat4() ) const
-        {
-            return glm::rotate( glm::translate( input, position ), rotation, ci::vec3( 0, 0, 1 ) );
-        }
-
-        SceneryRef scenery = nullptr;
-        ci::vec3 position = ci::vec3( 0 );
-        float rotation = 0;
-    };
-
-    struct Group {
-        Group( const std::vector<Item> &items );
-
-        std::vector<Item>   items;
-        ci::PolyLine2       hull;
-    };
-
-    void addGroup( const std::vector<Item> &items ) {
-        mGroups.push_back( GroupDeveloper::Group( items ) );
+    void addGroup( const std::vector<SceneryGroup::Item> &items ) {
+        mGroups.push_back( std::make_shared<SceneryGroup>( items ) );
     }
 
     virtual void buildIn( LotRef &lot ) const override;
 
-    std::vector<Group> mGroups;
+    std::vector<SceneryGroupRef> mGroups;
 };
 
 class SquareGridDeveloper : public LotDeveloper {
