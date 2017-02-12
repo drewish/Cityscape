@@ -78,6 +78,8 @@ class FlatShape {
     const ci::PolyLine2f    outline() const { return mOutline; }
     const PolyLine2fs       holes() const { return mHoles; }
 
+    std::vector<seg2>       edges() const;
+
     const ci::TriMeshRef    mesh() const;
 
     float       area() const { return mArea; }

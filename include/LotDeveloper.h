@@ -102,14 +102,14 @@ class FarmOrchardDeveloper : public LotDeveloper {
 
 class FarmFieldDeveloper : public LotDeveloper {
   public:
-    FarmFieldDeveloper( float angle = 0.0, float rowSpacing = 10.0, float rowWidth = 5.0f )
-        : mAngle( angle ), mRowSpacing( rowSpacing ), mRowWidth( rowWidth ) {};
+    FarmFieldDeveloper( float rowSpacing = 10.0, float rowWidth = 5.0f, const SceneryRef building = nullptr )
+        : mRowSpacing( rowSpacing ), mRowWidth( rowWidth ), mBuilding( building ) {};
 
     virtual void buildIn( LotRef &lot ) const override;
 
-    const float mAngle;
     const float mRowSpacing;
     const float mRowWidth;
+    const SceneryRef mBuilding;
 };
 
 }

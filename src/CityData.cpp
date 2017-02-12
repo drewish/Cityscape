@@ -56,9 +56,9 @@ SceneryGroup::SceneryGroup( const std::vector<Item> &items )
     mFootprint = calcConvexHull( points );
 };
 
-Scenery::Instance SceneryGroup::instance( const ci::mat4 &matrix ) const
+Scenery::Instance SceneryGroup::instance( const ci::mat4 &matrix, const ci::ColorA &color ) const
 {
-    Scenery::Instance instance = Scenery::Instance( shared_from_this(), matrix );
+    Scenery::Instance instance = Scenery::Instance( shared_from_this(), matrix, color );
     for ( const Item &item : items ) {
         instance.children.push_back( item.scenery->instance( item.transformation( matrix ) ) );
     }

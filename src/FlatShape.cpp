@@ -46,6 +46,18 @@ void FlatShape::fixUp()
     }
 }
 
+std::vector<seg2> FlatShape::edges() const
+{
+    std::vector<seg2> result;
+    auto inserter = std::back_inserter( result );
+
+    contiguousSeg2sFrom( outline(), inserter );
+    for ( auto &hole : holes() ) {
+        contiguousSeg2sFrom( hole, inserter );
+    }
+    return result;
+}
+
 vec2 FlatShape::centroid() const
 {
     return mOutline.calcCentroid();

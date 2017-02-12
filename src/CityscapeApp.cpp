@@ -316,6 +316,7 @@ void CityscapeApp::drawCursor()
 void prepareSettings( CityscapeApp::Settings *settings )
 {
     settings->setHighDensityDisplayEnabled();
+    settings->setPowerManagementEnabled();
 }
 
 CINDER_APP( CityscapeApp, RendererGl( RendererGl::Options().msaa( 16 ) ), prepareSettings )

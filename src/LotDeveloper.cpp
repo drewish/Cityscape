@@ -18,22 +18,52 @@ using namespace ci;
 
 namespace Cityscape {
 
+bool compareSeg2Length( const seg2 &a, const seg2 &b )
+{
+    return glm::length2( a.first - a.second ) < glm::length2( b.first - b.second );
+}
+
+seg2 longestStreetSide( const LotRef &lot )
+{
+    if ( lot->streetFacingSides.size() == 0 ) {
+        return seg2( vec2( 0 ), vec2( 0 ) );
+    }
+
+    return *std::max_element( lot->streetFacingSides.begin(), lot->streetFacingSides.end(), compareSeg2Length );
+}
+
+seg2 longestEdgeIn( const FlatShape &shape ) {
+    std::vector<seg2> edges = shape.edges();
+
+    if ( edges.size() == 0 ) {
+        return seg2( vec2( 0 ), vec2( 0 ) );
+    }
+
+    return *std::max_element( edges.begin(), edges.end(), compareSeg2Length );
+}
+
 float angleToLongestStreet( const LotRef &lot, const vec2 &from )
 {
-    float angle = 0;
-    if ( lot->streetFacingSides.size() > 1 ) {
-        const seg2 longestSide = *std::max_element(
-            lot->streetFacingSides.begin(),
-            lot->streetFacingSides.end(),
-            []( const seg2 &a, const seg2 &b) {
-                return glm::length2( a.first - a.second ) < glm::length2( b.first - b.second );
-            }
-        );
-        vec2 closest = glm::closestPointOnLine( from, longestSide.first, longestSide.second );
-        vec2 diff = closest - from;
-        angle = atan2( diff.y, diff.x ) + M_PI_2;
+    if ( lot->streetFacingSides.size() == 0 ) {
+        return 0;
     }
-    return angle;
+
+    const seg2 longestSide = longestStreetSide( lot );
+    vec2 closest = glm::closestPointOnLine( from, longestSide.first, longestSide.second );
+    vec2 diff = closest - from;
+    return atan2( diff.y, diff.x ) + M_PI_2;
+}
+
+float angleOfLongestEdge( const FlatShape &shape )
+{
+    if ( shape.outline().size() == 0 ) {
+        return 0;
+    }
+
+    const seg2 longestSide = longestEdgeIn( shape );
+    vec2 diff = longestSide.first - longestSide.second;
+    float ang = atan2( -diff.y, diff.x ) + M_PI_2;
+    return ang;
 }
 
 bool buildingOverlaps( const Scenery::Instance &building, const PolyLine2f lotOutline )
@@ -230,11 +260,18 @@ void FarmOrchardDeveloper::buildIn( LotRef &lot ) const
 
 void FarmFieldDeveloper::buildIn( LotRef &lot ) const
 {
-    for ( const FlatShape &shape : lot->shape->contract( mRowSpacing ) ) {
-        for ( const seg2 &divider : shape.dividerSeg2s( mAngle, mRowSpacing ) ) {
+    if( mBuilding ) {
+        vec2 houseAt = lot->shape->randomPoint();
+        float houseRotation = angleToLongestStreet( lot, houseAt );
+        lot->buildings.push_back( mBuilding->instance( houseAt, houseRotation ) );
+    }
+
+    for( const FlatShape &shape : lot->shape->contract( mRowSpacing ) ) {
+        float angle = angleOfLongestEdge( shape );
+        for( const seg2 &divider : shape.dividerSeg2s( angle, mRowSpacing ) ) {
             lot->plants.push_back( crop->instance( divider.first, divider.second, mRowWidth ) );
         }
     }
 }
 
-}
+} // namespace Cityscape

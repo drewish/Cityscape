@@ -61,10 +61,7 @@ std::vector<LotRef> slice( const Arrangement_2 &arrShape, const Arrangement_2 &a
 
 LotRef lotFilling( const BlockRef &block ) {
     LotRef lot = Lot::create( block->shape );
-    contiguousSeg2sFrom( block->shape->outline(), std::back_inserter( lot->streetFacingSides ) );
-    for ( auto &hole : block->shape->holes() ) {
-        contiguousSeg2sFrom( hole, std::back_inserter( lot->streetFacingSides ) );
-    }
+    lot->streetFacingSides = block->shape->edges();
     return lot;
 }
 

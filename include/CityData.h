@@ -18,11 +18,12 @@ typedef std::shared_ptr<const Scenery>  SceneryRef;
 
 class Scenery : public std::enable_shared_from_this<Scenery> {
   public:
+    static ci::mat4 buildMatrix( const ci::vec3 &position = ci::vec3( 0 ), float rotation = 0, const ci::mat4 &input = ci::mat4() )
+    {
+        return glm::rotate( glm::translate( input, position ), rotation, ci::vec3( 0, 0, 1 ) );
+    }
+
     struct Instance {
-        static ci::mat4 buildMatrix( const ci::vec3 &position = ci::vec3( 0 ), float rotation = 0 )
-        {
-            return glm::rotate( glm::translate( position ), rotation, ci::vec3( 0, 0, 1 ) );
-        }
         // TODO: This should become a method of PolyLine now that it's only 2d.
         static ci::PolyLine2 transform( const ci::PolyLine2 &poly, const ci::mat4 &transformation )
         {
@@ -33,13 +34,7 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
             return result;
         }
 
-        Instance( const SceneryRef &scenery, const ci::vec2 &position = ci::vec2( 0 ), float rotation = 0, ci::ColorA color = ci::ColorA::white() )
-            : scenery( scenery ), transformation( buildMatrix( ci::vec3( position, 0 ), rotation ) )
-        {};
-        Instance( const SceneryRef &scenery, const ci::vec3 &position = ci::vec3( 0 ), float rotation = 0, ci::ColorA color = ci::ColorA::white() )
-            : scenery( scenery ), transformation( buildMatrix( position, rotation ) )
-        {};
-        Instance( const SceneryRef &scenery, const ci::mat4 &matrix, ci::ColorA color = ci::ColorA::white() )
+        Instance( const SceneryRef &scenery, const ci::mat4 &matrix, const ci::ColorA &color )
             : scenery( scenery ), transformation( matrix ), color( color )
         {};
 
@@ -49,12 +44,12 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
             return transform( scenery->footprint(), transformation );
         }
 
-        const SceneryRef    scenery;
-        ci::mat4            transformation;
-        ci::ColorA          color;
-        std::vector<Instance> children;
-
+        const SceneryRef        scenery;
+        ci::mat4                transformation;
+        ci::ColorA              color;
+        std::vector<Instance>   children;
     };
+
     Scenery( const ci::PolyLine2f &footprint, const ci::geom::SourceMods &geometry )
         : mFootprint( footprint ), mGeometry( geometry ) {};
 
@@ -65,15 +60,15 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
 
     Scenery::Instance instance( const ci::vec2 &at, float rotation = 0 ) const
     {
-        return Scenery::Instance( shared_from_this(), at, rotation );
+        return instance( ci::vec3( at, 0 ), rotation );
     }
     Scenery::Instance instance( const ci::vec3 &at, float rotation = 0 ) const
     {
-        return Scenery::Instance( shared_from_this(), at, rotation );
+        return instance( Scenery::buildMatrix( at, rotation ) ) ;
     }
-    Scenery::Instance instance( const ci::mat4 &matrix ) const
+    virtual Scenery::Instance instance( const ci::mat4 &matrix, const ci::ColorA &color = ci::ColorA::white() ) const
     {
-        return Scenery::Instance( shared_from_this(), matrix );
+        return Scenery::Instance( shared_from_this(), matrix, color );
     }
 
   protected:
@@ -89,7 +84,7 @@ class SceneryGroup : public Scenery {
 
         ci::mat4 transformation( const ci::mat4 &input = ci::mat4() ) const
         {
-            return glm::rotate( glm::translate( input, position ), rotation, ci::vec3( 0, 0, 1 ) );
+            return Scenery::buildMatrix( position, rotation, input );
         }
 
         SceneryRef scenery = nullptr;
@@ -97,17 +92,14 @@ class SceneryGroup : public Scenery {
         float rotation = 0;
     };
 
+    static SceneryRef create( const std::vector<Item> &items )
+    {
+        return SceneryRef( std::make_shared<SceneryGroup>( items ) );
+    };
+
     SceneryGroup( const std::vector<Item> &items );
 
-    Scenery::Instance instance( const ci::vec2 &at, float rotation = 0 ) const
-    {
-        return instance( ci::vec3( at, 0 ), rotation );
-    }
-    Scenery::Instance instance( const ci::vec3 &at, float rotation = 0 ) const
-    {
-        return instance( glm::rotate( glm::translate( at ), rotation, ci::vec3( 0, 0, 1 ) ) );
-    }
-    Scenery::Instance instance( const ci::mat4 &matrix ) const;
+    virtual Scenery::Instance instance( const ci::mat4 &matrix, const ci::ColorA &color = ci::ColorA::white() ) const override;
 
     const std::vector<Item> items;
 };
