@@ -135,12 +135,12 @@ void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
 
 // * * *
 
-bool WarehouseDeveloper::isValidFor( LotRef &lot ) const
+bool PickFromListDeveloper::isValidFor( LotRef &lot ) const
 {
     // TODO: should have a configurable minimum lot size.
     return mPlans.size() > 0 && lot->shape->area() > 300;
 }
-void WarehouseDeveloper::buildIn( LotRef &lot ) const
+void PickFromListDeveloper::buildIn( LotRef &lot ) const
 {
     for ( const FlatShape &shape : lot->shape->contract( 5 ) ) {
 
@@ -185,23 +185,6 @@ void FullLotDeveloper::buildIn( LotRef &lot ) const
         SceneryRef plan = BuildingPlan::create( lot->shape->outline(), floors, mRoof );
         lot->buildings.push_back( plan->instance( vec2( 0 ) ) );
     }
-}
-
-// * * *
-
-
-void GroupDeveloper::buildIn( LotRef &lot ) const
-{
-//    for ( const FlatShape &shape : lot->shape->contract( 5 ) ) {
-        // TODO: just placing it in the center for now. would be good to take
-        // the street and a setback into consideration for the position.
-        vec2 centroid = lot->shape->centroid();
-        float groupRotation = angleToLongestStreet( lot, centroid );
-        mat4 transform = glm::rotate( glm::translate( vec3( centroid, 0 ) ), groupRotation, vec3( 0, 0, 1 ) );
-
-        auto group = mGroups.at( randInt( 0, mGroups.size() ) );
-        lot->buildings.push_back( group->instance( transform ) );
-//    }
 }
 
 // * * *

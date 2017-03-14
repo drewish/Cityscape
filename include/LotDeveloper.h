@@ -40,9 +40,9 @@ class SingleFamilyHomeDeveloper : public LotDeveloper {
     std::vector<SceneryRef> mPlans;
 };
 
-class WarehouseDeveloper : public LotDeveloper {
+class PickFromListDeveloper : public LotDeveloper {
   public:
-    WarehouseDeveloper( const std::vector<SceneryRef> &plans )
+    PickFromListDeveloper( const std::vector<SceneryRef> &plans )
         : mPlans( plans ) {};
 
     virtual bool isValidFor( LotRef &lot ) const override;
@@ -60,17 +60,6 @@ class FullLotDeveloper : public LotDeveloper {
     virtual void buildIn( LotRef &lot ) const override;
 
     const RoofStyle mRoof;
-};
-
-class GroupDeveloper : public LotDeveloper {
-  public:
-    void addGroup( const std::vector<SceneryGroup::Item> &items ) {
-        mGroups.push_back( std::make_shared<SceneryGroup>( items ) );
-    }
-
-    virtual void buildIn( LotRef &lot ) const override;
-
-    std::vector<SceneryGroupRef> mGroups;
 };
 
 class SquareGridDeveloper : public LotDeveloper {

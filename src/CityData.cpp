@@ -43,6 +43,10 @@ CityModel::CityModel()
 
 } // namespace Cityscape
 
+SceneryGroup::SceneryGroup( const std::vector<Item> &items, const ci::PolyLine2f &footprint )
+    : Scenery( footprint, nullptr ), items( items )
+{}
+
 SceneryGroup::SceneryGroup( const std::vector<Item> &items )
     : Scenery( ci::PolyLine2f(), nullptr ), items( items )
 {
@@ -54,7 +58,7 @@ SceneryGroup::SceneryGroup( const std::vector<Item> &items )
         }
     }
     mFootprint = calcConvexHull( points );
-};
+}
 
 Scenery::Instance SceneryGroup::instance( const ci::mat4 &matrix, const ci::ColorA &color ) const
 {

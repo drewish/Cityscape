@@ -96,14 +96,18 @@ class SceneryGroup : public Scenery {
     {
         return SceneryRef( std::make_shared<SceneryGroup>( items ) );
     };
+    static SceneryRef create( const std::vector<Item> &items, const ci::PolyLine2f &footprint )
+    {
+        return SceneryRef( std::make_shared<SceneryGroup>( items, footprint ) );
+    };
 
     SceneryGroup( const std::vector<Item> &items );
+    SceneryGroup( const std::vector<Item> &items, const ci::PolyLine2f &footprint );
 
     virtual Scenery::Instance instance( const ci::mat4 &matrix, const ci::ColorA &color = ci::ColorA::white() ) const override;
 
     const std::vector<Item> items;
 };
-typedef std::shared_ptr<SceneryGroup>  SceneryGroupRef;
 
 
 namespace Cityscape {

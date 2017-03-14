@@ -45,29 +45,28 @@ ZoningPlanRef zoneFarming() {
     farm->district.grid.streetSpacing = 400;
     farm->block.lotDivision = ZoningPlan::LotDivision::OOB_LOT_DIVISION;
     farm->block.lotWidth = 200;
-    farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( 0, 5, 2 ) ), 2 );
-    farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( M_PI_2, 10, 5 ) ), 2 );
-    farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( M_PI_4, 7, 3 ) ), 1 );
-    farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( M_PI_2 + M_PI_4, 6, 3 ) ), 1 );
-    farm->addUsage( LotDeveloperRef( new FarmOrchardDeveloper( 0, 10, 7 ) ), 2 );
-    farm->addUsage( LotDeveloperRef( new FarmOrchardDeveloper( M_PI_2, 10, 7 ) ), 2 );
 
-
-    SceneryRef silo = GrainSiloConeTop::create( 2.5, 10 );
     BuildingSettings barnSettings;
     barnSettings.floors = 1;
     barnSettings.roofStyle = RoofStyle::GABLED;
     barnSettings.overhang = 0.5;
     barnSettings.slope = 0.6666;
     SceneryRef barn = BuildingPlan::create( polyLineRectangle( 12, 10 ), barnSettings );
+    SceneryRef silo = GrainSiloConeTop::create( 2.5, 10 );
+    SceneryRef barnAndSilo = SceneryGroup::create(
+        {
+            SceneryGroup::Item( barn, vec3( 0 ), M_PI_2 ),
+            SceneryGroup::Item( silo, vec3( 8, 0, 0 ) ),
+        },
+        polyLineRectangle( 17, 15 )
+    );
 
-    GroupDeveloper *developer = new GroupDeveloper();
-    developer->addGroup( {
-        SceneryGroup::Item( barn, vec3( 0 ), M_PI_2 ),
-        SceneryGroup::Item( silo, vec3( 8, 0, 0 ) ),
-    } );
-    farm->addUsage( LotDeveloperRef( developer ), 3 );
-
+    farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper(  5, 2, barnAndSilo ) ), 2 );
+    farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( 10, 5 ) ), 2 );
+    farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( 7, 3, barnAndSilo ) ), 1 );
+    farm->addUsage( LotDeveloperRef( new FarmFieldDeveloper( 6, 3 ) ), 1 );
+    farm->addUsage( LotDeveloperRef( new FarmOrchardDeveloper( 0, 10, 7 ) ), 2 );
+    farm->addUsage( LotDeveloperRef( new FarmOrchardDeveloper( M_PI_2, 10, 7 ) ), 2 );
 
     return farm;
 }
@@ -78,35 +77,32 @@ ZoningPlanRef zoneIndustrial() {
     industry->block.lotDivision = ZoningPlan::LotDivision::OOB_LOT_DIVISION;
     industry->block.lotAreaMax = 160000;
 
-    industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create( 40, 15 ), 50, 50, 0.0 ) ), 1 );
-    industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create( 60, 20 ), 70, 80, 0.0 ) ), 1 );
-    industry->addUsage( LotDeveloperRef( new WarehouseDeveloper( {
-        BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, RoofStyle::SAWTOOTH ),
-        BuildingPlan::create( polyLineRectangle( 40, 60 ), 1, RoofStyle::FLAT ),
-    } ) ), 30 );
-
     industry->district.streetDivision = ZoningPlan::StreetDivision::GRID_STREET_DIVIDED;
     industry->district.grid.avenueSpacing = 400;
     industry->district.grid.streetSpacing = 400;
     industry->block.lotAreaMax = 16000;
 
+    industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create( 40, 15 ), 50, 50, 0.0 ) ), 1 );
+    industry->addUsage( LotDeveloperRef( new SquareGridDeveloper( OilTank::create( 60, 20 ), 70, 80, 0.0 ) ), 1 );
 
     SceneryRef smoke = SmokeStack::create();
     SceneryRef flat = BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, RoofStyle::FLAT );
     SceneryRef saw = BuildingPlan::create( polyLineRectangle( 60, 40 ), 1, RoofStyle::SAWTOOTH );
-    GroupDeveloper *developer = new GroupDeveloper();
-    developer->addGroup( {
-        SceneryGroup::Item( saw ),
-        SceneryGroup::Item( smoke, vec3( 10, -2, 5 ) ),
-        SceneryGroup::Item( smoke, vec3( 10, +2, 5 ) ),
-    } );
-    developer->addGroup( {
-        SceneryGroup::Item( flat ),
-        SceneryGroup::Item( smoke, vec3( 10, -3, 5 ) ),
-        SceneryGroup::Item( smoke, vec3( 10, 0, 5 ) ),
-        SceneryGroup::Item( smoke, vec3( 10, 3, 5 ) ),
-    } );
-    industry->addUsage( LotDeveloperRef( developer ), 1 );
+    industry->addUsage( LotDeveloperRef( new PickFromListDeveloper( {
+        flat,
+        saw,
+        SceneryGroup::create( {
+            SceneryGroup::Item( saw ),
+            SceneryGroup::Item( smoke, vec3( 10, -2, 5 ) ),
+            SceneryGroup::Item( smoke, vec3( 10, +2, 5 ) ),
+        } ),
+        SceneryGroup::create( {
+            SceneryGroup::Item( flat ),
+            SceneryGroup::Item( smoke, vec3( 10, -3, 5 ) ),
+            SceneryGroup::Item( smoke, vec3( 10, 0, 5 ) ),
+            SceneryGroup::Item( smoke, vec3( 10, 3, 5 ) ),
+        } ),
+    } ) ), 30 );
 
     return industry;
 }
