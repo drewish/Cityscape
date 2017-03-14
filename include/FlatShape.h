@@ -89,7 +89,7 @@ class FlatShape {
 
     bool        contains( const ci::vec2 point ) const;
 
-    std::vector<FlatShape>  contract( double amount ) const;
+    std::vector<FlatShape>  contract( float amount ) const;
 
     template<class K>
     const CGAL::Polygon_2<K> polygon() const

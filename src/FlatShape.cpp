@@ -182,7 +182,7 @@ typedef boost::shared_ptr<PolyWithHoles> PolyPtr;
 //     /   |    /|
 //    /    |   +-+
 //   +-----+
-std::vector<FlatShape> FlatShape::contract( double offset ) const
+std::vector<FlatShape> FlatShape::contract( float offset ) const
 {
     // Negative or zero offset is a noop
     if ( offset <= 0 ) {
