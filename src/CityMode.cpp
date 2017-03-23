@@ -5,6 +5,7 @@
 #include "RoadBuilder.h"
 #include "BlockSubdivider.h"
 #include "LotFiller.h"
+#include "GeometryHelpers.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -28,6 +29,15 @@ void CityMode::setup()
 void CityMode::addParams( ci::params::InterfaceGlRef params)
 {
     Cityscape::ZoningPlanRef plan = mModel.zoningPlans.front();
+
+    // Hacky but hopefully good enough for now.
+    params->addButton( "New Road", [this] {
+        mHighways.push_back( PolyLine2f() );
+        isAddingRoad = true;
+    }, "key=n" );
+    params->addButton( "Finish Road", [this] {
+        isAddingRoad = false;
+    }, "key=ESC" );
 
     params->addSeparator("Road");
 
@@ -71,90 +81,85 @@ void CityMode::addParams( ci::params::InterfaceGlRef params)
 
     params->addSeparator();
 
-    params->addButton( "Clear Points", [&] {
-        mHighwayPoints.clear();
+    params->addButton( "Clear Highways", [&] {
+        mHighways.clear();
         layout();
     }, "key=0" );
     params->addButton( "Test 1", [&] {
-        mHighwayPoints = std::vector<ci::vec2>({
-            vec2( -154, -213 ),
-            vec2( -144, 197 ),
-            vec2( -144, 197 ),
-            vec2( 208, 170 ),
-            vec2( 204, 167 ),
-            vec2( 83, 0 ),
-            vec2( 90, 8 ),
-            vec2( 242, -123 ),
-        });
+        mHighways = std::vector<PolyLine2>( {
+            PolyLine2( {
+                vec2( -154, -213 ),
+                vec2( -144, 197 ),
+                vec2( 208, 170 ),
+                vec2( 83, 0 ),
+                vec2( 242, -123 ),
+            } ),
+        } );
         layout();
     }, "key=1" );
     params->addButton( "Test 2", [&] {
-        mHighwayPoints = std::vector<ci::vec2>({
-            vec2( -154, -213 ),
-            vec2( -144, 197 ),
-            vec2( -144, 197 ),
-            vec2( 208, 170 ),
-            vec2( 204, 167 ),
-            vec2( 83, 0 ),
-            vec2( 90, 8 ),
-            vec2( 242, -123 ),
-            vec2( -156, -207 ),
-            vec2( 236, -122 ),
-        });
+        mHighways = std::vector<PolyLine2>( {
+            PolyLine2( {
+                vec2( -154, -213 ),
+                vec2( -144, 197 ),
+                vec2( 208, 170 ),
+                vec2( 83, 0 ),
+                vec2( 242, -123 ),
+            } ),
+            PolyLine2( {
+                vec2( -156, -207 ),
+                vec2( 236, -122 ),
+            } ),
+        } );
         layout();
     }, "key=2" );
     params->addButton( "Test 3", [&] {
         // Intentionally don't clear so we can combine with other shapes
-        std::vector<ci::vec2> add({
-            vec2(-9.6225,498.446),
-            vec2(-519.615,-336.788),
-            vec2(-519.615,-336.788),
-            vec2(533.087,-159.734),
-            vec2(533.087,-159.734),
-            vec2(-9.6225,498.446),
-        });
-        mHighwayPoints.insert( mHighwayPoints.end(), add.begin(), add.end() );
+        mHighways.push_back( PolyLine2( {
+            vec2( -9.6225, 498.446 ),
+            vec2( -519.615,-336.788 ),
+            vec2( 533.087,-159.734 ),
+            vec2( -9.6225,498.446 ),
+        } ) );
         layout();
     }, "key=3" );
     params->addButton( "Test 4", [&] {
         // Intentionally don't clear so we can combine with other shapes
-        std::vector<ci::vec2> add({
+        mHighways.push_back( PolyLine2( {
             vec2( -576, 575 ),
             vec2( 573, 572 ),
-            vec2( 573, 572 ),
             vec2( 573, -569 ),
-            vec2( 573, -569 ),
-            vec2( -573, -578 ),
             vec2( -573, -578 ),
             vec2( -576, 575 ),
-        });
-        mHighwayPoints.insert( mHighwayPoints.end(), add.begin(), add.end() );
+        } ) );
         layout();
     }, "key=4" );
     params->addButton( "Test 5", [&] {
-        mHighwayPoints = std::vector<ci::vec2>({
-            vec2( -206.133, 539.26 ),
-            vec2( -48.764, -527.973 ),
-            vec2( -47.925, -524.444 ),
-            vec2( 106.45, -568.06 ),
-            vec2( 106.45, -568.06 ),
-            vec2( 201.625, -478.988 ),
-            vec2( 201.625, -478.988 ),
-            vec2( 124.941, -249.35 ),
-            vec2( 124.941, -249.35 ),
-            vec2( 106.635, 485.66 ),
-            vec2( 106.635, 485.66 ),
-            vec2( -206.857, 500.64 ),
-        });
+        mHighways = std::vector<PolyLine2>( {
+            PolyLine2( {
+                vec2( -206.133, 539.26 ),
+                vec2( -48.764, -527.973 ),
+                vec2( 106.45, -568.06 ),
+                vec2( 201.625, -478.988 ),
+                vec2( 124.941, -249.35 ),
+                vec2( 106.635, 485.66 ),
+                vec2( -206.857, 500.64 ),
+            } ),
+        } );
         layout();
     }, "key=5" );
 }
 
 void CityMode::layout() {
-    // Translate from RoadNetwork into Highways
     mModel.highways.clear();
-    for ( size_t i = 1, size = mHighwayPoints.size(); i < size; i += 2 ) {
-        mModel.highways.push_back( Cityscape::Highway::create( mHighwayPoints[i - 1], mHighwayPoints[i] ) );
+    for ( auto line : mHighways ) {
+        // Translate from PolyLines into Highways... would be nice if highways
+        // weren't just simple segments :/
+        pointsInPairs<vec2>( line,
+            [&](const vec2 &a, const vec2 &b) {
+                mModel.highways.push_back( Cityscape::Highway::create( a, b ) );
+            }
+        );
     }
 
     // TODO: Should have better way to partially update
@@ -170,19 +175,28 @@ void CityMode::layout() {
 
 std::vector<ci::vec2> CityMode::getPoints()
 {
-    return mHighwayPoints;
+    std::vector<vec2> points;
+    auto inserter( std::back_inserter( points ) );
+
+    for ( auto &line : mHighways ) {
+        std::copy( line.begin(), line.end(), inserter );
+    }
+
+    return points;
 }
 
 void CityMode::addPoint( ci::vec2 point )
 {
-    console() << "vec2(" << point.x << "," << point.y << "),\n";
-    mHighwayPoints.push_back( point );
-    layout();
+    if ( isAddingRoad ) {
+        console() << "vec2(" << point.x << "," << point.y << "),\n";
+        mHighways.back().push_back( point );
+        mLayoutNeeded = true;
+    }
 }
 
 bool CityMode::isOverMovablePoint( ci::vec2 &point, float margin )
 {
-    for ( const auto &other : mHighwayPoints ) {
+    for ( const auto &other : getPoints() ) {
         if ( length2( point - other ) < margin * margin ) {
             // Snap their point to ours
             point = other;
@@ -194,12 +208,18 @@ bool CityMode::isOverMovablePoint( ci::vec2 &point, float margin )
 
 void CityMode::movePoint( ci::vec2 from, ci::vec2 to )
 {
-    std::vector<vec2> newPoints;
-    for ( const auto &p : mHighwayPoints ) {
-        newPoints.push_back( from == p ? to : p );
+    if ( isAddingRoad ) {
+        return;
     }
-    mHighwayPoints = newPoints;
-    layout();
+
+    for ( auto &highway : mHighways ) {
+        for ( auto &p : highway ) {
+            if ( p == from ) {
+                p = to;
+                mLayoutNeeded = true;
+            }
+        }
+    }
 }
 
 bool CityMode::isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline )

@@ -17,5 +17,6 @@ class CityMode : public BaseMode
     virtual bool isOverOutline( const ci::vec2 &point, ci::PolyLine2f &outline ) override;
 
   private:
-    std::vector<ci::vec2> mHighwayPoints;
+    std::vector<ci::PolyLine2> mHighways;
+    bool isAddingRoad = false;
 };
