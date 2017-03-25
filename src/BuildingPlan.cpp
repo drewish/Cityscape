@@ -11,6 +11,7 @@
 #include "CgalArrangement.h"
 #include "CgalStraightSkeleton.h"
 #include "GeometryHelpers.h"
+#include "FlatShape.h"
 
 #include "cinder/Rand.h"
 #include "cinder/Triangulate.h"
@@ -22,11 +23,11 @@ using namespace ci::geom;
 
 
 // Add walls defined by an upper contour into a Trimesh.
-void buildWalls( TriMesh &result, const std::vector<vec3> &upperContour, float lowerHeight = 0 )
+void buildWalls( TriMesh &result, const std::vector<vec3> &upperContour, float minWallHeight )
 {
     pointsInPairs<vec3>( upperContour, [&]( const vec3 &a, const vec3 &b ) {
         u_int32_t index_base = result.getNumVertices();
-        vec3 verts[4] = { a, vec3( a.x, a.y, lowerHeight ), b, vec3( b.x, b.y, lowerHeight ) };
+        vec3 verts[4] = { a, vec3( a.x, a.y, minWallHeight ), b, vec3( b.x, b.y, minWallHeight ) };
         result.appendPositions( verts, 4 );
         result.appendTriangle( index_base + 0, index_base + 1, index_base + 2 );
         result.appendTriangle( index_base + 1, index_base + 3, index_base + 2 );
@@ -34,12 +35,12 @@ void buildWalls( TriMesh &result, const std::vector<vec3> &upperContour, float l
 }
 
 // Build walls with a constant upper and lower height.
-void buildWalls( TriMesh &result, const PolyLine2f &footprint, float upperHeight, float lowerHeight = 0 )
+void buildWalls( TriMesh &result, const PolyLine2f &footprint, float maxWallHeight, float minWallHeight )
 {
     std::vector<vec3> wallContour;
     std::transform( footprint.begin(), footprint.end(), std::back_inserter( wallContour ),
-        [=]( const vec2 &v ) { return vec3( v, upperHeight ); } );
-    buildWalls( result, wallContour, lowerHeight );
+        [=]( const vec2 &v ) { return vec3( v, maxWallHeight ); } );
+    buildWalls( result, wallContour, minWallHeight );
 }
 
 
@@ -121,7 +122,7 @@ void concatenateMeshes( TriMesh &lhs, const TriMesh &rhs )
 
 // * * *
 
-TriMesh buildingWithFlatRoof( const PolyLine2f &footprint, float wallHeight, float overhang )
+TriMesh buildingWithFlatRoof( const PolyLine2f &footprint, float maxWallHeight, float minWallHeight, float overhang )
 {
     PolyLine2f roofOutline;
     if ( overhang > 0.0 ) {
@@ -132,19 +133,19 @@ TriMesh buildingWithFlatRoof( const PolyLine2f &footprint, float wallHeight, flo
 
     std::vector<vec3> roofContour;
     for ( const vec2 &v : roofOutline.getPoints() ) {
-        roofContour.push_back( vec3( v, wallHeight ) );
+        roofContour.push_back( vec3( v, maxWallHeight ) );
     }
     TriMesh result = Triangulator( roofContour ).calcMesh3d();
     if ( overhang > 0.0 ) {
         mirrorTriangles( result );
     }
 
-    buildWalls( result, footprint, wallHeight, 0 );
+    buildWalls( result, footprint, maxWallHeight, minWallHeight );
 
     return result;
 }
 
-TriMesh buildingWithHippedRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
+TriMesh buildingWithHippedRoof( const PolyLine2f &footprint, float maxWallHeight, float minWallHeight, float slope, float overhang )
 {
     CGAL::Polygon_2<InexactK> roofOutline = polygonFrom<InexactK>( footprint );
     if ( overhang > 0.0 ) {
@@ -161,7 +162,7 @@ TriMesh buildingWithHippedRoof( const PolyLine2f &footprint, float wallHeight, f
         Ss::Halfedge_handle edge = face->halfedge();
         do {
             auto v = edge->vertex();
-            outline.push_back( vec3( v->point().x(), v->point().y(), v->time() * slope + wallHeight ) );
+            outline.push_back( vec3( v->point().x(), v->point().y(), v->time() * slope + maxWallHeight ) );
             edge = edge->next();
         } while (edge != face->halfedge());
         triangulator.addPolyLine( outline.data(), outline.size() );
@@ -172,18 +173,18 @@ TriMesh buildingWithHippedRoof( const PolyLine2f &footprint, float wallHeight, f
     if ( overhang > 0.0 ) {
         std::vector<vec3> roofline;
         for ( auto v = roofOutline.vertices_begin(); v != roofOutline.vertices_end(); ++v ) {
-            roofline.push_back( vec3( vecFrom( *v ), wallHeight ) );
+            roofline.push_back( vec3( vecFrom( *v ), maxWallHeight ) );
         }
         concatenateMeshes( result, Triangulator( roofline ).calcMesh3d( vec3( 0, 0, -1 ) ) );
     }
 
     // Walls
-    buildWalls( result, footprint, wallHeight, 0 );
+    buildWalls( result, footprint, maxWallHeight, minWallHeight );
 
     return result;
 }
 
-TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
+TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float maxWallHeight, float minWallHeight, float slope, float overhang )
 {
     CGAL::Polygon_2<InexactK> roofOutline = polygonFrom<InexactK>( footprint );
     if ( overhang > 0.0 ) {
@@ -217,8 +218,8 @@ TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float wallHeight, f
         // Stick all the points in now so we can associate the heights
         auto a = CGAL::insert_point( dividerArr, seg.source() );
         auto b = CGAL::insert_point( dividerArr, seg.target() );
-        a->set_data( currVert->time() * slope + wallHeight );
-        b->set_data( nextVert->time() * slope + wallHeight );
+        a->set_data( currVert->time() * slope + maxWallHeight );
+        b->set_data( nextVert->time() * slope + maxWallHeight );
     }
     insert( dividerArr, skeletonSegs.begin(), skeletonSegs.end() );
 
@@ -237,7 +238,7 @@ TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float wallHeight, f
         // Hacky but simple way to find an above ground edge to compare with
         u_int8_t tries = 3;
         Arrangement_2::Halfedge_around_vertex_circulator circ = vert->incident_halfedges();
-        while ( circ->source()->data() <= wallHeight && tries > 0 ) {
+        while ( circ->source()->data() <= maxWallHeight && tries > 0 ) {
             ++circ;
             --tries;
         }
@@ -247,7 +248,7 @@ TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float wallHeight, f
         auto e3 = ++circ;
 
         // These two edges need to down at the top of the wall
-        if ( e2->source()->data() > wallHeight || e3->source()->data() > wallHeight ) continue;
+        if ( e2->source()->data() > maxWallHeight || e3->source()->data() > maxWallHeight ) continue;
         Point_2 p1 = edge->source()->point();
         Point_2 p2 = e2->source()->point();
         Point_2 p3 = e3->source()->point();
@@ -270,7 +271,7 @@ TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float wallHeight, f
     OutlineObserver outlineObserver( roofEdgeArr );
     insert_empty( roofEdgeArr, borderSegs.begin(), borderSegs.end() );
     outlineObserver.detach();
-    setVertexData( roofEdgeArr, wallHeight );
+    setVertexData( roofEdgeArr, maxWallHeight );
 
     Arrangement_2 roofFieldArr;
     overlay( roofEdgeArr, dividerArr, roofFieldArr, overlay_traits );
@@ -282,12 +283,12 @@ TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float wallHeight, f
 
     // Walls and gables
     Arrangement_2 wallArr = arrangementFromOutline( footprint );
-    setVertexData( wallArr, wallHeight );
+    setVertexData( wallArr, maxWallHeight );
 
     Arrangement_2 gableArr;
     overlay( wallArr, dividerArr, gableArr, overlay_traits );
     for ( std::vector<vec3> outline : outlinesFromArrangement( gableArr ) ) {
-        buildWalls( result, outline );
+        buildWalls( result, outline, minWallHeight );
     }
 
     return result;
@@ -298,7 +299,7 @@ TriMesh buildingWithGabledRoof( const PolyLine2f &footprint, float wallHeight, f
 //   longest side of the outline and use that to define the roof plane. another
 //   would be passing in an angle.
 // - get a proper formula for determining height
-TriMesh buildingWithShedRoof( const PolyLine2f &footprint, float wallHeight, float slope, float overhang )
+TriMesh buildingWithShedRoof( const PolyLine2f &footprint, float maxWallHeight, float minWallHeight, float slope, float overhang )
 {
     PolyLine2f roofOutline;
     if ( overhang > 0.0 ) {
@@ -314,7 +315,7 @@ TriMesh buildingWithShedRoof( const PolyLine2f &footprint, float wallHeight, flo
     std::vector<vec3> roofContour;
     for ( const vec2 &v : roofOutline ) {
         // Compute the height of vertexes based on position on the roof
-        roofContour.push_back( vec3( v, slope * ( v.x - leftmost ) + wallHeight ) );
+        roofContour.push_back( vec3( v, slope * ( v.x - leftmost ) + maxWallHeight ) );
     }
     TriMesh result = Triangulator( roofContour ).calcMesh3d();
     if ( overhang > 0.0 ) {
@@ -323,9 +324,9 @@ TriMesh buildingWithShedRoof( const PolyLine2f &footprint, float wallHeight, flo
 
     std::vector<vec3> wallContour;
     for ( const vec2 &v : footprint ) {
-        wallContour.push_back( vec3( v, slope * ( v.x - leftmost ) + wallHeight ) );
+        wallContour.push_back( vec3( v, slope * ( v.x - leftmost ) + maxWallHeight ) );
     }
-    buildWalls( result, wallContour, 0 );
+    buildWalls( result, wallContour, minWallHeight );
 
     return result;
 }
@@ -399,7 +400,7 @@ TriMesh buildingWithSawtoothRoof( const PolyLine2f &wallOutline, const SawtoothS
         i->set_data( sawtoothHeight( settings, bounds.x1, vecFrom( i->point() ) ) );
     }
     for ( std::vector<vec3> outline : outlinesFromArrangement( arrRoofGables ) ) {
-        buildWalls( result, outline );
+        buildWalls( result, outline, settings.minWallHeight );
     }
 
 	return result;
@@ -409,7 +410,8 @@ ci::geom::SourceMods buildingGeometry( const ci::PolyLine2f &outline, const Buil
 {
     ci::geom::SourceMods geometry;
     const float FLOOR_HEIGHT = 5.0;
-    float height = FLOOR_HEIGHT * settings.floors;
+    float maxWallHeight = FLOOR_HEIGHT * settings.floors;
+    float minWallHeight = 0;
 
     if ( outline.size() < 3 ) {
         return geometry;
@@ -423,21 +425,52 @@ ci::geom::SourceMods buildingGeometry( const ci::PolyLine2f &outline, const Buil
     }
 
     if ( settings.roofStyle == RoofStyle::FLAT ) {
-        geometry = buildingWithFlatRoof( floorplan, height, settings.overhang );
+        geometry = buildingWithFlatRoof( floorplan, maxWallHeight, minWallHeight, settings.overhang );
     } else if ( settings.roofStyle == RoofStyle::SHED ) {
-        geometry = buildingWithShedRoof( floorplan, height, settings.slope, settings.overhang );
+        geometry = buildingWithShedRoof( floorplan, maxWallHeight, minWallHeight, settings.slope, settings.overhang );
     } else if ( settings.roofStyle == RoofStyle::HIPPED ) {
-        geometry = buildingWithHippedRoof( floorplan, height, settings.slope, settings.overhang );
+        geometry = buildingWithHippedRoof( floorplan, maxWallHeight, minWallHeight, settings.slope, settings.overhang );
     } else if ( settings.roofStyle == RoofStyle::GABLED ) {
-        geometry = buildingWithGabledRoof( floorplan, height, settings.slope, settings.overhang );
+        geometry = buildingWithGabledRoof( floorplan, maxWallHeight, minWallHeight, settings.slope, settings.overhang );
     } else if ( settings.roofStyle == RoofStyle::SAWTOOTH ) {
         SawtoothSettings sawtooth = { 0 };
-        sawtooth.valleyHeight = 0 + height;
+        sawtooth.valleyHeight = 0 + maxWallHeight;
         sawtooth.upWidth = 10;
-        sawtooth.peakHeight = 3 + height;
+        sawtooth.minWallHeight = minWallHeight;
+        sawtooth.peakHeight = 3 + maxWallHeight;
         sawtooth.downWidth = 5;
         sawtooth.overhang = settings.overhang;
         geometry = buildingWithSawtoothRoof( floorplan, sawtooth );
+    }
+
+    return geometry;
+}
+
+// Builds a wedding cake style building from a footprint and list of heights and contractions for the next layer
+ci::geom::SourceMods weddingCake( const ci::PolyLine2f &footprint, const std::vector<std::pair<float, float>> &heightAndContraction )
+{
+    ci::geom::SourceMods geometry;
+    float base = 0;
+    std::vector<FlatShape> shapes = { FlatShape( footprint ) };
+
+    for ( const auto &layer : heightAndContraction ) {
+        float layerBottom = base;
+        float layerTop = base + layer.first;
+
+        std::vector<FlatShape> nextShapes;
+        for ( auto &shape : shapes ) {
+            if ( shape.area() > 1 ) {
+                geometry.append( buildingWithFlatRoof( shape.outline(), layerTop, layerBottom, 0 ) );
+
+                auto contracted = shape.contract( layer.second );
+                nextShapes.insert( nextShapes.end(), contracted.begin(), contracted.end() );
+            }
+        }
+
+        base = layerTop;
+        shapes = nextShapes;
+
+        if ( shapes.size() == 0 ) break;
     }
 
     return geometry;

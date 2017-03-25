@@ -11,11 +11,9 @@
 #include "CgalPolygon.h"
 #include "CgalArrangement.h"
 
-class TriMesh;
-typedef std::shared_ptr<TriMesh>    	TriMeshRef;
+typedef std::shared_ptr<class cinder::TriMesh>		TriMeshRef;
 
-class FlatShape;
-typedef std::shared_ptr<FlatShape>    	FlatShapeRef;
+typedef std::shared_ptr<class FlatShape>    	FlatShapeRef;
 
 typedef std::pair<ci::vec2, ci::vec2> seg2;
 typedef std::vector<ci::PolyLine2f> PolyLine2fs;

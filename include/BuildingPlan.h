@@ -23,13 +23,14 @@ enum class RoofStyle {
     COUNT
 };
 
-ci::TriMesh buildingWithFlatRoof( const ci::PolyLine2f &footprint, float wallHeight, float overhang );
-ci::TriMesh buildingWithHippedRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
-ci::TriMesh buildingWithGabledRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
-ci::TriMesh buildingWithShedRoof( const ci::PolyLine2f &footprint, float wallHeight, float slope, float overhang );
+ci::TriMesh buildingWithFlatRoof( const ci::PolyLine2f &footprint, float maxWallHeight, float minWallHeight, float overhang );
+ci::TriMesh buildingWithHippedRoof( const ci::PolyLine2f &footprint, float maxWallHeight, float minWallHeight, float slope, float overhang );
+ci::TriMesh buildingWithGabledRoof( const ci::PolyLine2f &footprint, float maxWallHeight, float minWallHeight, float slope, float overhang );
+ci::TriMesh buildingWithShedRoof( const ci::PolyLine2f &footprint, float maxWallHeight, float slope, float overhang );
 struct SawtoothSettings {
     float downWidth;
     float upWidth;
+    float minWallHeight;
     float valleyHeight;
     float peakHeight;
     float overhang;
@@ -66,3 +67,6 @@ class BuildingPlan : public Scenery {
       : Scenery( outline, geometry ) {}
 };
 
+// Builds a layer cake style of building given a foot print then list of heights and contractions for the next layer
+typedef std::vector<std::pair<float, float>> SetBackPlan;
+ci::geom::SourceMods weddingCake( const ci::PolyLine2f &footprint, const SetBackPlan &heightAndContraction );
