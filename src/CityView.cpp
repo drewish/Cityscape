@@ -70,7 +70,8 @@ gl::BatchRef buildBatch( const gl::GlslProgRef &shader, const geom::SourceMods &
     // create the VBO which will contain per-instance (rather than per-vertex) data
     gl::VboRef vbo = gl::Vbo::create( GL_ARRAY_BUFFER, instances.size() * stride, instances.data(), GL_STATIC_DRAW );
 
-    // we need a geom::BufferLayout to describe this data as mapping to the CUSTOM_0 semantic, and the 1 (rather than 0) as the last param indicates per-instance (rather than per-vertex)
+    // we need a geom::BufferLayout to describe this data as mapping to the CUSTOM_0 semantic,
+    // and the 1 (rather than 0) as the last param indicates per-instance (rather than per-vertex)
     geom::BufferLayout layout;
     // Doing all this the long way so it's easier to debug later.
     uint8_t matrixDim = sizeof( ci::mat4 ) / sizeof( float );
@@ -197,6 +198,8 @@ void CityView::draw( const Options &options ) const
 
     ground->draw();
 
+    // Transparent ground layers are ordered from the ground up so we're ignoring
+    // further depth sorting.
     if ( options.drawRoads ) {
         for ( const auto &batch : roads ) batch->draw();
     }
@@ -215,12 +218,15 @@ void CityView::draw( const Options &options ) const
             gl::draw( edge );
         }
     }
+
+    // Draw opaque objects. TODO: sort front-to-back to aid z-culling.
     if ( options.drawBuildings ) {
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
         for ( const auto &buildingbits : buildings ) {
             buildingbits.first->drawInstanced( buildingbits.second );
         }
     }
+    // Draw transparent objects. TODO: should sort them back to front
     if ( options.drawPlants ) {
         gl::ScopedFaceCulling faceCullScope( true, GL_BACK );
         for ( const auto &plant : plants ) {

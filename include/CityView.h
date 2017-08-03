@@ -24,7 +24,7 @@ public:
     };
 
     // Batch has mesh, instanced data, shader, size is number of instances to render.
-    typedef std::pair<ci::gl::BatchRef, size_t> InstanceBatch;
+    typedef std::pair<ci::gl::BatchRef, GLsizei> InstanceBatch;
 
     struct Options {
         bool drawRoads = true;
