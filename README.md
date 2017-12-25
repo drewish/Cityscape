@@ -39,7 +39,7 @@ git clone --recursive https://github.com/drewish/Cinder.git -b triangulate-3d
 Cinder/xcode/fullbuild.sh
 ```
 
-Install CGAL 4.9 using homebrew:
+Install CGAL 4.11 using homebrew:
 
 ```
 brew install cgal
