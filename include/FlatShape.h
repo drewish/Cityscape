@@ -121,15 +121,31 @@ class FlatShape {
         } else if ( colinear ) {
             lhs << "collinear";
         } else {
-            lhs << "counterclockwise";
+            lhs << "counter-clockwise";
         }
-        lhs << " with " << rhs.holes().size() << " holes:\n" << rhs.outline();
-        for ( const ci::PolyLine2f &hole : rhs.holes() ) {
-            lhs << "hole with " << hole.size() << " points going ";
-            if ( hole.isCounterclockwise() ) {
-                lhs << "counter-";
+        lhs << "\n";
+        // Print these manually so they are in a format that can be copy pasted
+        // into Grapher for visual debugging.
+        for ( const auto &point : rhs.outline() ) {
+            lhs << point.x << ",\t" << point.y << "\n";
+        }
+        if( rhs.holes().size() > 0 ) {
+            lhs << "has " << rhs.holes().size() << " holes: \n";
+            for ( const ci::PolyLine2f &hole : rhs.holes() ) {
+                lhs << "\t* " ;
+                if ( hole.isClockwise( &colinear ) ) {
+                    lhs << "clockwise";
+                } else if ( colinear ) {
+                    lhs << "collinear";
+                } else {
+                    lhs << "counter-clockwise";
+                }
+                lhs << ":\n";
+                for ( const auto &point : hole ) {
+                    lhs << point.x << ",\t" << point.y << "\n";
+                }
+                lhs << "\n";
             }
-            lhs << "clockwise:\n" << hole << "\n";
         }
         return lhs;
     }
