@@ -243,13 +243,29 @@ void FarmOrchardDeveloper::buildIn( LotRef &lot ) const
 
 void FarmFieldDeveloper::buildIn( LotRef &lot ) const
 {
+    // TODO: would be nice if there was an easier way to add holes:
+    PolyLine2 outline = lot->shape->outline();
+    PolyLine2fs holes = lot->shape->holes();
+
     if( mBuilding ) {
-        vec2 houseAt = lot->shape->randomPoint();
-        float houseRotation = angleToLongestStreet( lot, houseAt );
-        lot->buildings.push_back( mBuilding->instance( houseAt, houseRotation ) );
+        bool validSpot = false;
+        u_int8_t tries = 3;
+
+        do {
+            tries--;
+            vec2 houseAt = lot->shape->randomPoint();
+            float houseRotation = angleToLongestStreet( lot, houseAt );
+            Scenery::Instance instance = mBuilding->instance( houseAt, houseRotation );
+            validSpot = !buildingOverlaps( instance, lot->shape->outline() );
+            if ( validSpot ) {
+                lot->buildings.push_back( instance );
+                holes.push_back( instance.footprint().reversed() );
+            }
+        } while( !validSpot && tries > 0);
     }
 
-    for( const FlatShape &shape : lot->shape->contract( mRowSpacing ) ) {
+    FlatShape shapeWithBuilding( outline, holes );
+    for( const FlatShape &shape : shapeWithBuilding.contract( mRowSpacing ) ) {
         float angle = angleOfLongestEdge( shape );
         for( const seg2 &divider : shape.dividerSeg2s( angle, mRowSpacing ) ) {
             lot->plants.push_back( crop->instance( divider.first, divider.second, mRowWidth ) );
