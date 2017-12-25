@@ -27,7 +27,7 @@ const LotDeveloperRef pickDeveloper( LotRef &lot, const ZoningPlanRef &zoning ) 
     }
 
     if ( developerPool.size() ) {
-        return developerPool.at( randInt( 0, developerPool.size() ) );
+        return developerPool.at( randInt( static_cast<int32_t>( developerPool.size() ) ) );
     }
     return nullptr;
 }
