@@ -34,6 +34,9 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
             return result;
         }
 
+        Instance( const Instance& other )
+            : scenery( other.scenery ), transformation( other.transformation ), color( other.color), children( other.children )
+        {};
         Instance( const SceneryRef &scenery, const ci::mat4 &matrix, const ci::ColorA &color )
             : scenery( scenery ), transformation( matrix ), color( color )
         {};
@@ -44,7 +47,7 @@ class Scenery : public std::enable_shared_from_this<Scenery> {
             return transform( scenery->footprint(), transformation );
         }
 
-        const SceneryRef        scenery;
+        SceneryRef              scenery;
         ci::mat4                transformation;
         ci::ColorA              color;
         std::vector<Instance>   children;

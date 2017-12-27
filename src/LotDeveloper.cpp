@@ -74,6 +74,21 @@ bool buildingOverlaps( const Scenery::Instance &building, const PolyLine2f lotOu
     return ( diff.size() != 0 );
 }
 
+// Evaluate several positions
+boost::optional<Scenery::Instance> findPosition( const LotRef &lot, u_int8_t tries, std::function<Scenery::Instance()> generateInstance )
+{
+    bool validSpot = false;
+    while( !validSpot && tries > 0 ) {
+        Scenery::Instance instance = generateInstance();
+        validSpot = !buildingOverlaps( instance, lot->shape->outline() );
+        if ( validSpot ) {
+            return instance;
+        }
+        tries--;
+    };
+    return {};
+}
+
 ConeTreeRef coneTree = ConeTree::create();
 SphereTreeRef sphereTree = SphereTree::create();
 RowCropRef crop = RowCrop::create();
@@ -108,28 +123,31 @@ bool SingleFamilyHomeDeveloper::isValidFor( LotRef &lot ) const
 }
 void SingleFamilyHomeDeveloper::buildIn( LotRef &lot ) const
 {
-    // Pick a random plan
-    SceneryRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
+    Rand r;
+    for ( const FlatShape &shape : lot->shape->contract( 5 ) ) {
+        auto maybeInstance = findPosition( lot, 3, [&]
+            {
+                // TODO: just placing it in the center for now. would be good to take
+                // the street and a setback into consideration for the position.
+                vec2 centroid = shape.centroid();
+                float angle = angleToLongestStreet( lot, centroid );
 
-    // TODO: just placing it in the center for now. would be good to take
-    // the street and a setback into consideration for the position.
-    vec2 centroid = lot->shape->centroid();
-    float angle = angleToLongestStreet( lot, centroid );
-    Scenery::Instance building = plan->instance( centroid, angle );
+                // Pick a random plan
+                SceneryRef plan = mPlans[ r.nextUint( mPlans.size() ) ];
+                return plan->instance( centroid, angle );
+            }
+        );
+        if( maybeInstance ) {
+            lot->buildings.push_back( maybeInstance.value() );
 
-    // Remove the building if it goes outside the lot.
-    // TODO: try moving and/or rotating it around?
-    bool buildingGoesOutOfLot = buildingOverlaps( building, lot->shape->outline() );
-    if ( ! buildingGoesOutOfLot ) {
-        lot->buildings.push_back( building );
-    }
-
-    // TODO: the intersection check should take tree diameter into account
-    vec2 treeAt = lot->shape->randomPoint();
-    if ( buildingGoesOutOfLot || ! building.footprint().contains( treeAt ) ) {
-        float ratio = randFloat( 1, 3 );
-        float diameter = randFloat( 5, 10 );
-        lot->plants.push_back( coneTree->instance( treeAt, diameter, diameter * ratio ) );
+            // TODO: the intersection check should take tree diameter into account
+            vec2 treeAt = lot->shape->randomPoint();
+            if (  ! maybeInstance->footprint().contains( treeAt ) ) {
+                float ratio = randFloat( 1, 3 );
+                float diameter = randFloat( 5, 10 );
+                lot->plants.push_back( coneTree->instance( treeAt, diameter, diameter * ratio ) );
+            }
+        }
     }
 }
 
@@ -142,21 +160,22 @@ bool PickFromListDeveloper::isValidFor( LotRef &lot ) const
 }
 void PickFromListDeveloper::buildIn( LotRef &lot ) const
 {
+    Rand r;
     for ( const FlatShape &shape : lot->shape->contract( 5 ) ) {
+        auto maybeInstance = findPosition( lot, 3, [&]
+            {
+                // TODO: just placing it in the center for now. would be good to take
+                // the street and a setback into consideration for the position.
+                vec2 centroid = shape.centroid();
+                float angle = angleToLongestStreet( lot, centroid );
 
-        // TODO: just placing it in the center for now. would be good to take
-        // the street and a setback into consideration for the position.
-        vec2 centroid = shape.centroid();
-        float angle = angleToLongestStreet( lot, centroid );
-
-        // Pick a random plan
-        SceneryRef plan = mPlans[ randInt( 0, mPlans.size() ) ];
-        Scenery::Instance building = plan->instance( centroid, angle );
-
-        // Remove the building if it goes outside the lot.
-        // TODO: try moving and/or rotating it around?
-        if ( ! buildingOverlaps( building, lot->shape->outline() ) ) {
-            lot->buildings.push_back( building );
+                // Pick a random plan
+                SceneryRef plan = mPlans[ r.nextUint( mPlans.size() ) ];
+                return plan->instance( centroid, angle );
+            }
+        );
+        if( maybeInstance ) {
+            lot->buildings.push_back( maybeInstance.value() );
         }
     }
 }
@@ -248,20 +267,16 @@ void FarmFieldDeveloper::buildIn( LotRef &lot ) const
     PolyLine2fs holes = lot->shape->holes();
 
     if( mBuilding ) {
-        bool validSpot = false;
-        u_int8_t tries = 3;
-
-        do {
-            tries--;
-            vec2 houseAt = lot->shape->randomPoint();
-            float houseRotation = angleToLongestStreet( lot, houseAt );
-            Scenery::Instance instance = mBuilding->instance( houseAt, houseRotation );
-            validSpot = !buildingOverlaps( instance, lot->shape->outline() );
-            if ( validSpot ) {
-                lot->buildings.push_back( instance );
-                holes.push_back( instance.footprint().reversed() );
+        boost::optional<Scenery::Instance> maybeInstance = findPosition( lot, 3, [&]
+            {
+                vec2 houseAt = lot->shape->randomPoint();
+                return mBuilding->instance( houseAt, angleToLongestStreet( lot, houseAt ) );
             }
-        } while( !validSpot && tries > 0);
+        );
+        if( maybeInstance ) {
+            lot->buildings.push_back( maybeInstance.value() );
+            holes.push_back( maybeInstance->footprint().reversed() );
+        }
     }
 
     FlatShape shapeWithBuilding( outline, holes );

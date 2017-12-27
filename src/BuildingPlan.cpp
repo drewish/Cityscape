@@ -26,7 +26,7 @@ using namespace ci::geom;
 void buildWalls( TriMesh &result, const std::vector<vec3> &upperContour, float minWallHeight )
 {
     pointsInPairs<vec3>( upperContour, [&]( const vec3 &a, const vec3 &b ) {
-        u_int32_t index_base = result.getNumVertices();
+        u_int32_t index_base = static_cast<u_int32_t>( result.getNumVertices() );
         vec3 verts[4] = { a, vec3( a.x, a.y, minWallHeight ), b, vec3( b.x, b.y, minWallHeight ) };
         result.appendPositions( verts, 4 );
         result.appendTriangle( index_base + 0, index_base + 1, index_base + 2 );
